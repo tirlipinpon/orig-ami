@@ -1,15 +1,15 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import Sortable from 'sortablejs';
 import { Auth } from '../../services/auth';
 import { BeneficiaireService } from '../../services/beneficiaire';
 import { Beneficiaire, BeneficiaireCreate } from '../../models/beneficiaire.model';
+import { ItemForm } from '../item-form/item-form';
 
 @Component({
   selector: 'app-edit',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ItemForm],
   templateUrl: './edit.html',
   styleUrl: './edit.css'
 })
@@ -24,28 +24,14 @@ export class Edit implements OnInit, AfterViewInit {
   errorMessage: string = '';
   successMessage: string = '';
   
-  // Gestion des formulaires
   showBeneficiaireForm: boolean = false;
   showDonateurForm: boolean = false;
   editingItem: Beneficiaire | null = null;
-  
-  // Formulaire
-  formData: BeneficiaireCreate = {
-    nom: '',
-    url: '',
-    image_url: '',
-    alt_text: '',
-    title: '',
-    image_width: 200,
-    type: 'beneficiaire',
-    ordre: 0,
-    actif: true
-  };
+  formType: 'beneficiaire' | 'donateur' = 'beneficiaire';
+  nextOrdre: number = 1;
 
-  // Onglet actif
   activeTab: 'beneficiaires' | 'donateurs' = 'beneficiaires';
 
-  // SortableJS
   @ViewChild('beneficiairesGrid', { static: false }) beneficiairesGrid!: ElementRef;
   @ViewChild('donateursGrid', { static: false }) donateursGrid!: ElementRef;
   private beneficiairesSortable?: Sortable;
@@ -111,22 +97,10 @@ export class Edit implements OnInit, AfterViewInit {
 
   openAddForm(type: 'beneficiaire' | 'donateur'): void {
     this.editingItem = null;
+    this.formType = type;
     
-    // Calculer le prochain ordre disponible
     const items = type === 'beneficiaire' ? this.beneficiaires : this.donateurs;
-    const maxOrdre = items.length > 0 ? Math.max(...items.map(item => item.ordre)) : 0;
-    
-    this.formData = {
-      nom: '',
-      url: '',
-      image_url: '',
-      alt_text: '',
-      title: '',
-      image_width: 200,
-      type: type,
-      ordre: maxOrdre + 1, // Ajouter à la fin
-      actif: true
-    };
+    this.nextOrdre = items.length > 0 ? Math.max(...items.map(item => item.ordre)) + 1 : 1;
     
     if (type === 'beneficiaire') {
       this.showBeneficiaireForm = true;
@@ -137,7 +111,7 @@ export class Edit implements OnInit, AfterViewInit {
 
   editItem(item: Beneficiaire): void {
     this.editingItem = item;
-    this.formData = { ...item };
+    this.formType = item.type;
     
     if (item.type === 'beneficiaire') {
       this.showBeneficiaireForm = true;
@@ -154,99 +128,16 @@ export class Edit implements OnInit, AfterViewInit {
     this.successMessage = '';
   }
 
-  private validateFormData(): string | null {
-    // Validation du nom
-    if (!this.formData.nom || this.formData.nom.trim() === '') {
-      return 'Le nom est obligatoire';
-    }
-    if (this.formData.nom.trim().length < 2) {
-      return 'Le nom doit contenir au moins 2 caractères';
-    }
-    if (this.formData.nom.trim().length > 100) {
-      return 'Le nom ne peut pas dépasser 100 caractères';
-    }
-
-    // Validation de l'URL
-    if (!this.formData.url || this.formData.url.trim() === '') {
-      return 'L\'URL est obligatoire';
-    }
-    try {
-      const url = new URL(this.formData.url.trim());
-      if (!['http:', 'https:'].includes(url.protocol)) {
-        return 'L\'URL doit commencer par http:// ou https://';
-      }
-    } catch {
-      return 'L\'URL n\'est pas valide (format attendu: https://exemple.com)';
-    }
-
-    // Validation du chemin de l'image
-    if (!this.formData.image_url || this.formData.image_url.trim() === '') {
-      return 'Le chemin de l\'image est obligatoire';
-    }
-    if (!this.formData.image_url.trim().match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
-      return 'Le chemin de l\'image doit se terminer par une extension valide (.jpg, .png, .gif, .svg, .webp)';
-    }
-
-    // Validation du texte alternatif
-    if (!this.formData.alt_text || this.formData.alt_text.trim() === '') {
-      return 'Le texte alternatif est obligatoire (important pour l\'accessibilité)';
-    }
-    if (this.formData.alt_text.trim().length < 3) {
-      return 'Le texte alternatif doit contenir au moins 3 caractères';
-    }
-
-    // Validation du titre
-    if (!this.formData.title || this.formData.title.trim() === '') {
-      return 'Le titre est obligatoire';
-    }
-    if (this.formData.title.trim().length < 3) {
-      return 'Le titre doit contenir au moins 3 caractères';
-    }
-
-    // Validation de la largeur de l'image
-    if (!this.formData.image_width || this.formData.image_width < 50 || this.formData.image_width > 500) {
-      return 'La largeur de l\'image doit être entre 50 et 500 pixels';
-    }
-
-    // Validation de l'ordre
-    if (!this.formData.ordre || this.formData.ordre < 1) {
-      return 'L\'ordre d\'affichage doit être supérieur ou égal à 1';
-    }
-
-    // Validation du type
-    if (!this.formData.type || !['beneficiaire', 'donateur'].includes(this.formData.type)) {
-      return 'Le type doit être "beneficiaire" ou "donateur"';
-    }
-
-    return null; // Pas d'erreur
-  }
-
-  async saveItem(): Promise<void> {
+  async onFormSave(data: BeneficiaireCreate): Promise<void> {
     this.errorMessage = '';
     this.successMessage = '';
     
-    // Validation des champs
-    const validationError = this.validateFormData();
-    if (validationError) {
-      this.errorMessage = validationError;
-      return;
-    }
-
-    // Nettoyer les espaces dans les champs texte
-    this.formData.nom = this.formData.nom.trim();
-    this.formData.url = this.formData.url.trim();
-    this.formData.image_url = this.formData.image_url.trim();
-    this.formData.alt_text = this.formData.alt_text.trim();
-    this.formData.title = this.formData.title.trim();
-    
     try {
       if (this.editingItem) {
-        // Mise à jour
-        await this.beneficiaireService.update(this.editingItem.id!, this.formData);
+        await this.beneficiaireService.update(this.editingItem.id!, data);
         this.successMessage = 'Élément mis à jour avec succès !';
       } else {
-        // Création - Ajouter à la fin avec l'ordre calculé
-        await this.beneficiaireService.create(this.formData);
+        await this.beneficiaireService.create(data);
         this.successMessage = 'Élément créé avec succès !';
       }
       

@@ -62,109 +62,13 @@
 
         <!-- Formulaire Bénéficiaire -->
         @if (showBeneficiaireForm) {
-          <div class="form-modal">
-            <div class="form-container">
-              <h3>{{ editingItem ? 'Modifier' : 'Ajouter' }} un bénéficiaire</h3>
-              
-              <!-- Messages d'erreur -->
-              @if (errorMessage) {
-                <div class="alert alert-error">
-                  ⚠️ {{ errorMessage }}
-                </div>
-              }
-              
-              <form (ngSubmit)="saveItem()">
-                <div class="form-group">
-                  <label for="nom">Nom *</label>
-                  <input 
-                    type="text" 
-                    id="nom" 
-                    [(ngModel)]="formData.nom" 
-                    name="nom"
-                    required 
-                    placeholder="Nom du bénéficiaire">
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="url">URL *</label>
-                    <input 
-                      type="url" 
-                      id="url" 
-                      [(ngModel)]="formData.url" 
-                      name="url"
-                      required 
-                      placeholder="https://exemple.com">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="image_url">Chemin de l'image *</label>
-                    <input 
-                      type="text" 
-                      id="image_url" 
-                      [(ngModel)]="formData.image_url" 
-                      name="image_url"
-                      required 
-                      placeholder="img/beneficiaire/nom.jpg">
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="alt_text">Texte alternatif *</label>
-                    <input 
-                      type="text" 
-                      id="alt_text" 
-                      [(ngModel)]="formData.alt_text" 
-                      name="alt_text"
-                      required 
-                      placeholder="Description de l'image">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="title">Titre *</label>
-                    <input 
-                      type="text" 
-                      id="title" 
-                      [(ngModel)]="formData.title" 
-                      name="title"
-                      required 
-                      placeholder="Titre au survol">
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="image_width">Largeur de l'image (px) *</label>
-                    <input 
-                      type="number" 
-                      id="image_width" 
-                      [(ngModel)]="formData.image_width" 
-                      name="image_width"
-                      required 
-                      min="50" 
-                      max="500">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="ordre">Ordre d'affichage *</label>
-                    <input 
-                      type="number" 
-                      id="ordre" 
-                      [(ngModel)]="formData.ordre" 
-                      name="ordre"
-                      required 
-                      min="1">
-                  </div>
-                </div>
-
-                <div class="form-actions">
-                  <button type="button" class="btn-cancel" (click)="cancelEdit()">Annuler</button>
-                  <button type="submit" class="btn-save">{{ editingItem ? 'Mettre à jour' : 'Créer' }}</button>
-                </div>
-              </form>
-            </div>
-          </div>
+          <app-item-form
+            [type]="formType"
+            [editingItem]="editingItem"
+            [nextOrdre]="nextOrdre"
+            (save)="onFormSave($event)"
+            (cancel)="cancelEdit()">
+          </app-item-form>
         }
 
         <!-- Liste des bénéficiaires -->
@@ -222,109 +126,13 @@
 
         <!-- Formulaire Donateur -->
         @if (showDonateurForm) {
-          <div class="form-modal">
-            <div class="form-container">
-              <h3>{{ editingItem ? 'Modifier' : 'Ajouter' }} un donateur</h3>
-              
-              <!-- Messages d'erreur -->
-              @if (errorMessage) {
-                <div class="alert alert-error">
-                  ⚠️ {{ errorMessage }}
-                </div>
-              }
-              
-              <form (ngSubmit)="saveItem()">
-                  <div class="form-group">
-                    <label for="nom">Nom *</label>
-                    <input 
-                      type="text" 
-                      id="nom" 
-                      [(ngModel)]="formData.nom" 
-                      name="nom"
-                      required 
-                      placeholder="Nom du donateur/partenaire">
-                  </div>
-
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label for="url">URL *</label>
-                      <input 
-                        type="url" 
-                        id="url" 
-                        [(ngModel)]="formData.url" 
-                        name="url"
-                        required 
-                        placeholder="https://exemple.com">
-                    </div>
-
-                    <div class="form-group">
-                      <label for="image_url">Chemin de l'image *</label>
-                      <input 
-                        type="text" 
-                        id="image_url" 
-                        [(ngModel)]="formData.image_url" 
-                        name="image_url"
-                        required 
-                        placeholder="img/sponsors/nom.jpg">
-                    </div>
-                  </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="alt_text">Texte alternatif *</label>
-                    <input 
-                      type="text" 
-                      id="alt_text" 
-                      [(ngModel)]="formData.alt_text" 
-                      name="alt_text"
-                      required 
-                      placeholder="Description de l'image">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="title">Titre *</label>
-                    <input 
-                      type="text" 
-                      id="title" 
-                      [(ngModel)]="formData.title" 
-                      name="title"
-                      required 
-                      placeholder="Titre au survol">
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="image_width">Largeur de l'image (px) *</label>
-                    <input 
-                      type="number" 
-                      id="image_width" 
-                      [(ngModel)]="formData.image_width" 
-                      name="image_width"
-                      required 
-                      min="50" 
-                      max="500">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="ordre">Ordre d'affichage *</label>
-                    <input 
-                      type="number" 
-                      id="ordre" 
-                      [(ngModel)]="formData.ordre" 
-                      name="ordre"
-                      required 
-                      min="1">
-                  </div>
-                </div>
-
-                <div class="form-actions">
-                  <button type="button" class="btn-cancel" (click)="cancelEdit()">Annuler</button>
-                  <button type="submit" class="btn-save">{{ editingItem ? 'Mettre à jour' : 'Créer' }}</button>
-                </div>
-              </form>
-            </div>
-          </div>
+          <app-item-form
+            [type]="formType"
+            [editingItem]="editingItem"
+            [nextOrdre]="nextOrdre"
+            (save)="onFormSave($event)"
+            (cancel)="cancelEdit()">
+          </app-item-form>
         }
 
         <!-- Liste des donateurs -->

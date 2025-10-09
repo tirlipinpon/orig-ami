@@ -1,0 +1,117 @@
+<div class="form-modal">
+  <div class="form-container">
+    <h3>{{ editingItem ? 'Modifier' : 'Ajouter' }} {{ type === 'beneficiaire' ? 'un bénéficiaire' : 'un donateur' }}</h3>
+    
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="nom">Nom *</label>
+        <input 
+          type="text" 
+          id="nom" 
+          formControlName="nom"
+          placeholder="Nom du {{ type === 'beneficiaire' ? 'bénéficiaire' : 'donateur' }}"
+          [class.invalid]="isFieldInvalid('nom')"
+          [class.valid]="isFieldValid('nom')">
+        @if (isFieldInvalid('nom')) {
+          <span class="error-message">{{ getErrorMessage('nom') }}</span>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="url">URL *</label>
+          <input 
+            type="url" 
+            id="url" 
+            formControlName="url"
+            placeholder="https://exemple.com"
+            [class.invalid]="isFieldInvalid('url')"
+            [class.valid]="isFieldValid('url')">
+          @if (isFieldInvalid('url')) {
+            <span class="error-message">{{ getErrorMessage('url') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="image_url">Chemin de l'image *</label>
+          <input 
+            type="text" 
+            id="image_url" 
+            formControlName="image_url"
+            placeholder="img/{{ type }}/nom.jpg"
+            [class.invalid]="isFieldInvalid('image_url')"
+            [class.valid]="isFieldValid('image_url')">
+          @if (isFieldInvalid('image_url')) {
+            <span class="error-message">{{ getErrorMessage('image_url') }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="alt_text">Texte alternatif *</label>
+          <input 
+            type="text" 
+            id="alt_text" 
+            formControlName="alt_text"
+            placeholder="Description de l'image"
+            [class.invalid]="isFieldInvalid('alt_text')"
+            [class.valid]="isFieldValid('alt_text')">
+          @if (isFieldInvalid('alt_text')) {
+            <span class="error-message">{{ getErrorMessage('alt_text') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="title">Titre *</label>
+          <input 
+            type="text" 
+            id="title" 
+            formControlName="title"
+            placeholder="Titre au survol"
+            [class.invalid]="isFieldInvalid('title')"
+            [class.valid]="isFieldValid('title')">
+          @if (isFieldInvalid('title')) {
+            <span class="error-message">{{ getErrorMessage('title') }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="image_width">Largeur de l'image (px) *</label>
+          <input 
+            type="number" 
+            id="image_width" 
+            formControlName="image_width"
+            [class.invalid]="isFieldInvalid('image_width')"
+            [class.valid]="isFieldValid('image_width')">
+          @if (isFieldInvalid('image_width')) {
+            <span class="error-message">{{ getErrorMessage('image_width') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="ordre">Ordre d'affichage *</label>
+          <input 
+            type="number" 
+            id="ordre" 
+            formControlName="ordre"
+            [class.invalid]="isFieldInvalid('ordre')"
+            [class.valid]="isFieldValid('ordre')">
+          @if (isFieldInvalid('ordre')) {
+            <span class="error-message">{{ getErrorMessage('ordre') }}</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="onCancel()">Annuler</button>
+        <button type="submit" class="btn-save" [disabled]="form.invalid">
+          {{ editingItem ? 'Mettre à jour' : 'Créer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
