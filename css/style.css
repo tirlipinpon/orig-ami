@@ -234,6 +234,52 @@ a {
   width: 100%;
   height: auto;
 }
+
+/* Effets de survol pour les logos bénéficiaires et sponsors */
+#beneficiaires ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 0;
+}
+
+#beneficiaires ul li,
+#donateurs ul li {
+  transition: all 0.3s ease;
+}
+
+#beneficiaires ul li a,
+#donateurs ul li a {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+#beneficiaires ul li a img,
+#donateurs ul li a img {
+  transition: all 0.3s ease;
+  filter: grayscale(0%);
+}
+
+#beneficiaires ul li:hover,
+#donateurs ul li:hover {
+  transform: translateY(-5px);
+}
+
+#beneficiaires ul li:hover a img,
+#donateurs ul li:hover a img {
+  transform: scale(1.1);
+  filter: brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+#donateurs ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 0;
+}
 #container #medias {
   margin: 0 0 80px 0;
 }
