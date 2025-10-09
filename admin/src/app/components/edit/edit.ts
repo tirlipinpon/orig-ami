@@ -28,7 +28,6 @@ export class Edit implements OnInit, AfterViewInit {
   showDonateurForm: boolean = false;
   editingItem: Beneficiaire | null = null;
   formType: 'beneficiaire' | 'donateur' = 'beneficiaire';
-  nextOrdre: number = 1;
 
   activeTab: 'beneficiaires' | 'donateurs' = 'beneficiaires';
 
@@ -53,8 +52,36 @@ export class Edit implements OnInit, AfterViewInit {
 
     await this.loadData();
     
-    // Vérifier et corriger l'ordre si nécessaire
-    await this.verifierEtCorrigerOrdre();
+    // Migration automatique : réinitialiser les ordres (à exécuter une seule fois)
+    // await this.resetOrdresAutoIncrement();
+  }
+
+  private async resetOrdresAutoIncrement(): Promise<void> {
+    try {
+      console.log('Réinitialisation des ordres...');
+      
+      // Récupérer tous les bénéficiaires triés par ordre actuel (croissant)
+      const allBeneficiaires = await this.beneficiaireService.getByType('beneficiaire');
+      const sortedBenef = [...allBeneficiaires].sort((a, b) => a.ordre - b.ordre);
+      
+      // Réattribuer les ordres en gardant l'ordre existant
+      for (let i = 0; i < sortedBenef.length; i++) {
+        await this.beneficiaireService.updateOrdre(sortedBenef[i].id!, i + 1);
+      }
+      
+      // Pareil pour les donateurs
+      const allDonateurs = await this.beneficiaireService.getByType('donateur');
+      const sortedDon = [...allDonateurs].sort((a, b) => a.ordre - b.ordre);
+      
+      for (let i = 0; i < sortedDon.length; i++) {
+        await this.beneficiaireService.updateOrdre(sortedDon[i].id!, i + 1);
+      }
+      
+      console.log('Ordres réinitialisés avec succès !');
+      await this.loadData();
+    } catch (error) {
+      console.error('Erreur lors de la réinitialisation:', error);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -99,9 +126,6 @@ export class Edit implements OnInit, AfterViewInit {
     this.editingItem = null;
     this.formType = type;
     
-    const items = type === 'beneficiaire' ? this.beneficiaires : this.donateurs;
-    this.nextOrdre = items.length > 0 ? Math.max(...items.map(item => item.ordre)) + 1 : 1;
-    
     if (type === 'beneficiaire') {
       this.showBeneficiaireForm = true;
     } else {
@@ -134,14 +158,34 @@ export class Edit implements OnInit, AfterViewInit {
     
     try {
       if (this.editingItem) {
-        await this.beneficiaireService.update(this.editingItem.id!, data);
+        // Mise à jour : modifier localement sans recharger
+        const updatedItem = await this.beneficiaireService.update(this.editingItem.id!, data);
+        
+        // Mettre à jour l'élément dans la liste locale
+        const targetArray = data.type === 'beneficiaire' ? this.beneficiaires : this.donateurs;
+        const index = targetArray.findIndex(item => item.id === this.editingItem!.id);
+        if (index !== -1) {
+          targetArray[index] = { ...targetArray[index], ...data };
+        }
+        
         this.successMessage = 'Élément mis à jour avec succès !';
       } else {
-        await this.beneficiaireService.create(data);
+        // Nouveau : trouver le max et ajouter +1
+        const items = data.type === 'beneficiaire' ? this.beneficiaires : this.donateurs;
+        const maxOrdre = items.length > 0 ? Math.max(...items.map(i => i.ordre)) : 0;
+        data.ordre = maxOrdre + 1; // Auto-incrément !
+        
+        const newItem = await this.beneficiaireService.create(data);
+        
+        // Ajouter le nouvel élément au début de la liste locale
+        if (data.type === 'beneficiaire') {
+          this.beneficiaires.unshift(newItem);
+        } else {
+          this.donateurs.unshift(newItem);
+        }
+        
         this.successMessage = 'Élément créé avec succès !';
       }
-      
-      await this.loadData();
       
       setTimeout(() => {
         this.cancelEdit();
@@ -159,8 +203,21 @@ export class Edit implements OnInit, AfterViewInit {
     
     try {
       await this.beneficiaireService.delete(item.id!);
+      
+      // Supprimer de la liste locale sans recharger
+      if (item.type === 'beneficiaire') {
+        const index = this.beneficiaires.findIndex(b => b.id === item.id);
+        if (index !== -1) {
+          this.beneficiaires.splice(index, 1);
+        }
+      } else {
+        const index = this.donateurs.findIndex(d => d.id === item.id);
+        if (index !== -1) {
+          this.donateurs.splice(index, 1);
+        }
+      }
+      
       this.successMessage = 'Élément supprimé avec succès !';
-      await this.loadData();
       
       setTimeout(() => {
         this.successMessage = '';
@@ -183,8 +240,11 @@ export class Edit implements OnInit, AfterViewInit {
     
     try {
       await this.beneficiaireService.toggleActif(item.id!, !item.actif);
+      
+      // Mettre à jour localement
+      item.actif = !item.actif;
+      
       this.successMessage = `Élément ${action === 'désactiver' ? 'désactivé' : 'activé'} avec succès !`;
-      await this.loadData();
       
       setTimeout(() => {
         this.successMessage = '';
@@ -237,71 +297,63 @@ export class Edit implements OnInit, AfterViewInit {
     const { oldIndex, newIndex } = evt;
     
     if (oldIndex === newIndex) {
-      return; // Pas de changement
+      return;
     }
 
-    // SortableJS a déjà réorganisé le DOM, on synchronise notre tableau
     const movedItem = this.beneficiaires.splice(oldIndex, 1)[0];
     this.beneficiaires.splice(newIndex, 0, movedItem);
 
-    // Mettre à jour les ordres dans la base de données
-    await this.updateOrdres(this.beneficiaires);
+    await this.updateOrdresOptimized(this.beneficiaires, oldIndex, newIndex);
   }
 
   private async onDonateurSortEnd(evt: any): Promise<void> {
     const { oldIndex, newIndex } = evt;
     
     if (oldIndex === newIndex) {
-      return; // Pas de changement
+      return;
     }
 
-    // SortableJS a déjà réorganisé le DOM, on synchronise notre tableau
     const movedItem = this.donateurs.splice(oldIndex, 1)[0];
     this.donateurs.splice(newIndex, 0, movedItem);
 
-    // Mettre à jour les ordres dans la base de données
-    await this.updateOrdres(this.donateurs);
+    await this.updateOrdresOptimized(this.donateurs, oldIndex, newIndex);
   }
 
-  private async updateOrdres(items: Beneficiaire[]): Promise<void> {
+  private async updateOrdresOptimized(items: Beneficiaire[], oldIndex: number, newIndex: number): Promise<void> {
     try {
-      // Mettre à jour l'ordre de chaque élément
-      const updates = items.map((item, index) => {
-        item.ordre = index + 1; // Mettre à jour localement
-        return this.beneficiaireService.updateOrdre(item.id!, index + 1);
-      });
+      const maxOrdre = Math.max(...items.map(i => i.ordre));
       
-      await Promise.all(updates);
+      // Calculer la plage d'éléments qui ont besoin d'être mis à jour
+      const startIndex = Math.min(oldIndex, newIndex);
+      const endIndex = Math.max(oldIndex, newIndex);
       
-      this.successMessage = 'Ordre mis à jour avec succès !';
+      console.log(`Mise à jour optimisée: indices ${startIndex} à ${endIndex} (sur ${items.length} éléments)`);
+      
+      // Mettre à jour seulement les éléments dans la plage affectée
+      const updates = [];
+      for (let i = startIndex; i <= endIndex; i++) {
+        const item = items[i];
+        const newOrdre = maxOrdre - i; // Le premier élément aura le max ordre
+        
+        if (item.ordre !== newOrdre) {
+          console.log(`Mise à jour ${item.nom}: ordre ${item.ordre} → ${newOrdre}`);
+          item.ordre = newOrdre;
+          updates.push(this.beneficiaireService.updateOrdre(item.id!, newOrdre));
+        }
+      }
+      
+      if (updates.length > 0) {
+        await Promise.all(updates);
+        console.log(`${updates.length} éléments mis à jour au lieu de ${items.length}`);
+      }
+      
+      this.successMessage = 'Ordre mis à jour !';
       setTimeout(() => {
         this.successMessage = '';
       }, 2000);
     } catch (error: any) {
-      this.errorMessage = 'Erreur lors de la mise à jour de l\'ordre: ' + error.message;
-      console.error('Erreur de réorganisation:', error);
-    }
-  }
-
-  private async verifierEtCorrigerOrdre(): Promise<void> {
-    try {
-      // Vérifier si l'ordre est cohérent pour les bénéficiaires
-      const ordreIncoherent = this.beneficiaires.some((item, index) => item.ordre !== index + 1);
-      
-      if (ordreIncoherent) {
-        console.log('Ordre incohérent détecté pour les bénéficiaires, correction automatique...');
-        await this.updateOrdres(this.beneficiaires);
-      }
-
-      // Vérifier si l'ordre est cohérent pour les donateurs
-      const ordreIncoherentDonateurs = this.donateurs.some((item, index) => item.ordre !== index + 1);
-      
-      if (ordreIncoherentDonateurs) {
-        console.log('Ordre incohérent détecté pour les donateurs, correction automatique...');
-        await this.updateOrdres(this.donateurs);
-      }
-    } catch (error: any) {
-      console.error('Erreur lors de la vérification de l\'ordre:', error);
+      this.errorMessage = 'Erreur lors de la mise à jour: ' + error.message;
+      console.error('Erreur:', error);
     }
   }
 

@@ -14,7 +14,6 @@ export class ItemForm implements OnInit {
 
   @Input() type: 'beneficiaire' | 'donateur' = 'beneficiaire';
   @Input() editingItem: Beneficiaire | null = null;
-  @Input() nextOrdre: number = 1;
   
   @Output() save = new EventEmitter<BeneficiaireCreate>();
   @Output() cancel = new EventEmitter<void>();
@@ -36,7 +35,7 @@ export class ItemForm implements OnInit {
         [Validators.required, Validators.pattern(/^https?:\/\/.+/)]
       ],
       image_url: [
-        this.editingItem?.image_url || '', 
+        this.extractFilename(this.editingItem?.image_url || ''), 
         [Validators.required, Validators.pattern(/\.(jpg|jpeg|png|gif|svg|webp)$/i)]
       ],
       alt_text: [
@@ -51,10 +50,7 @@ export class ItemForm implements OnInit {
         this.editingItem?.image_width || 200, 
         [Validators.required, Validators.min(50), Validators.max(500)]
       ],
-      ordre: [
-        this.editingItem?.ordre || this.nextOrdre, 
-        [Validators.required, Validators.min(1)]
-      ],
+      ordre: [1], // Valeur par défaut, non utilisée avec le tri par date
       type: [this.type],
       actif: [this.editingItem?.actif ?? true]
     });
@@ -88,6 +84,17 @@ export class ItemForm implements OnInit {
 
   onCancel(): void {
     this.cancel.emit();
+  }
+
+  private extractFilename(fullUrl: string): string {
+    if (!fullUrl) return '';
+    
+    // Après migration, la DB ne contient que le nom de fichier
+    // Mais on garde la logique pour les cas où il y aurait encore des chemins
+    if (!fullUrl.includes('/')) return fullUrl;
+    
+    // Extraire le nom du fichier de l'URL complète ou du chemin relatif
+    return fullUrl.split('/').pop() || '';
   }
 
   getErrorMessage(controlName: string): string {

@@ -33,12 +33,12 @@
         </div>
 
         <div class="form-group">
-          <label for="image_url">Chemin de l'image *</label>
+          <label for="image_url">Nom du fichier image *</label>
           <input 
             type="text" 
             id="image_url" 
             formControlName="image_url"
-            placeholder="img/{{ type }}/nom.jpg"
+            placeholder="nom.jpg (ex: logo.png, image.svg)"
             [class.invalid]="isFieldInvalid('image_url')"
             [class.valid]="isFieldValid('image_url')">
           @if (isFieldInvalid('image_url')) {
@@ -77,32 +77,17 @@
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="image_width">Largeur de l'image (px) *</label>
-          <input 
-            type="number" 
-            id="image_width" 
-            formControlName="image_width"
-            [class.invalid]="isFieldInvalid('image_width')"
-            [class.valid]="isFieldValid('image_width')">
-          @if (isFieldInvalid('image_width')) {
-            <span class="error-message">{{ getErrorMessage('image_width') }}</span>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="ordre">Ordre d'affichage *</label>
-          <input 
-            type="number" 
-            id="ordre" 
-            formControlName="ordre"
-            [class.invalid]="isFieldInvalid('ordre')"
-            [class.valid]="isFieldValid('ordre')">
-          @if (isFieldInvalid('ordre')) {
-            <span class="error-message">{{ getErrorMessage('ordre') }}</span>
-          }
-        </div>
+      <div class="form-group">
+        <label for="image_width">Largeur de l'image (px) *</label>
+        <input 
+          type="number" 
+          id="image_width" 
+          formControlName="image_width"
+          [class.invalid]="isFieldInvalid('image_width')"
+          [class.valid]="isFieldValid('image_width')">
+        @if (isFieldInvalid('image_width')) {
+          <span class="error-message">{{ getErrorMessage('image_width') }}</span>
+        }
       </div>
 
       <div class="form-actions">
