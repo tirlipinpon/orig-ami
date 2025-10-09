@@ -19,6 +19,7 @@ export class ItemForm implements OnInit {
   @Output() cancel = new EventEmitter<void>();
 
   form!: FormGroup;
+  isSubmitting = false;
 
   ngOnInit(): void {
     this.initForm();
@@ -57,7 +58,9 @@ export class ItemForm implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.valid) {
+    if (this.form.valid && !this.isSubmitting) {
+      this.isSubmitting = true;
+      
       const formValue = this.form.value;
       
       // Trim des valeurs texte
@@ -74,7 +77,7 @@ export class ItemForm implements OnInit {
       };
 
       this.save.emit(data);
-    } else {
+    } else if (!this.form.valid) {
       // Marquer tous les champs comme touchés pour afficher les erreurs
       Object.keys(this.form.controls).forEach(key => {
         this.form.get(key)?.markAsTouched();
@@ -85,6 +88,11 @@ export class ItemForm implements OnInit {
   onCancel(): void {
     this.cancel.emit();
   }
+
+  resetSubmittingState(): void {
+    this.isSubmitting = false;
+  }
+
 
   private extractFilename(fullUrl: string): string {
     if (!fullUrl) return '';

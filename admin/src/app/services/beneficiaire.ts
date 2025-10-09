@@ -71,15 +71,15 @@ export class BeneficiaireService {
   }
 
   async create(beneficiaire: BeneficiaireCreate): Promise<Beneficiaire> {
-    // Construire l'URL complète de l'image
-    const beneficiaireWithFullUrl = {
+    // Sauvegarder seulement le nom de fichier en base de données
+    const beneficiaireToSave = {
       ...beneficiaire,
-      image_url: this.buildImageUrl(beneficiaire.image_url, beneficiaire.type)
+      image_url: beneficiaire.image_url // Garder seulement le nom de fichier
     };
 
     const { data, error } = await this.supabase.client
       .from(this.tableName)
-      .insert([beneficiaireWithFullUrl])
+      .insert([beneficiaireToSave])
       .select()
       .single();
 
@@ -88,24 +88,25 @@ export class BeneficiaireService {
       throw error;
     }
 
-    return data as Beneficiaire;
+    // Retourner l'élément avec l'URL complète pour l'affichage
+    return {
+      ...data,
+      image_url: this.buildImageUrl(data.image_url, data.type)
+    } as Beneficiaire;
   }
 
   async update(id: string, updates: Partial<BeneficiaireCreate>): Promise<Beneficiaire> {
-    // Si image_url est modifiée, on doit d'abord récupérer le type actuel
-    let updatesWithFullUrl = { ...updates };
+    // Sauvegarder seulement le nom de fichier en base de données
+    const updatesToSave = { ...updates };
     
-    if (updates.image_url && !updates.image_url.startsWith('http')) {
-      // Récupérer l'élément actuel pour connaître son type
-      const currentItem = await this.getById(id);
-      if (currentItem) {
-        updatesWithFullUrl.image_url = this.buildImageUrl(updates.image_url, currentItem.type);
-      }
+    // Si image_url est une URL complète, extraire seulement le nom de fichier
+    if (updates.image_url && updates.image_url.startsWith('http')) {
+      updatesToSave.image_url = updates.image_url.split('/').pop() || '';
     }
 
     const { data, error } = await this.supabase.client
       .from(this.tableName)
-      .update(updatesWithFullUrl)
+      .update(updatesToSave)
       .eq('id', id)
       .select()
       .single();
@@ -115,7 +116,11 @@ export class BeneficiaireService {
       throw error;
     }
 
-    return data as Beneficiaire;
+    // Retourner l'élément avec l'URL complète pour l'affichage
+    return {
+      ...data,
+      image_url: this.buildImageUrl(data.image_url, data.type)
+    } as Beneficiaire;
   }
 
   private buildImageUrl(filename: string, type: 'beneficiaire' | 'donateur'): string {

@@ -91,11 +91,21 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-cancel" (click)="onCancel()">Annuler</button>
-        <button type="submit" class="btn-save" [disabled]="form.invalid">
-          {{ editingItem ? 'Mettre à jour' : 'Créer' }}
+        <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isSubmitting">Annuler</button>
+        <button type="submit" class="btn-save" [disabled]="form.invalid || (editingItem && !form.dirty) || isSubmitting">
+          @if (isSubmitting) {
+            <span class="loading-spinner">⏳</span> {{ editingItem ? 'Mise à jour...' : 'Création...' }}
+          } @else {
+            {{ editingItem ? 'Mettre à jour' : 'Créer' }}
+          }
         </button>
       </div>
+      
+      @if (editingItem && !form.dirty && form.valid) {
+        <div class="no-changes-message">
+          ℹ️ Aucune modification détectée. Modifiez au moins un champ pour sauvegarder.
+        </div>
+      }
     </form>
   </div>
 </div>

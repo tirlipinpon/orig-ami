@@ -6,10 +6,11 @@ import { Auth } from '../../services/auth';
 import { BeneficiaireService } from '../../services/beneficiaire';
 import { Beneficiaire, BeneficiaireCreate } from '../../models/beneficiaire.model';
 import { ItemForm } from '../item-form/item-form';
+import { ItemCardComponent } from '../item-card/item-card.component';
 
 @Component({
   selector: 'app-edit',
-  imports: [CommonModule, ItemForm],
+  imports: [CommonModule, ItemForm, ItemCardComponent],
   templateUrl: './edit.html',
   styleUrl: './edit.css'
 })
@@ -33,6 +34,8 @@ export class Edit implements OnInit, AfterViewInit {
 
   @ViewChild('beneficiairesGrid', { static: false }) beneficiairesGrid!: ElementRef;
   @ViewChild('donateursGrid', { static: false }) donateursGrid!: ElementRef;
+  @ViewChild('beneficiaireForm', { static: false }) beneficiaireForm!: ItemForm;
+  @ViewChild('donateurForm', { static: false }) donateurForm!: ItemForm;
   private beneficiairesSortable?: Sortable;
   private donateursSortable?: Sortable;
 
@@ -150,6 +153,17 @@ export class Edit implements OnInit, AfterViewInit {
     this.editingItem = null;
     this.errorMessage = '';
     this.successMessage = '';
+    // Réinitialiser l'état de soumission des formulaires
+    this.resetFormSubmittingState();
+  }
+
+  private resetFormSubmittingState(): void {
+    if (this.beneficiaireForm) {
+      this.beneficiaireForm.resetSubmittingState();
+    }
+    if (this.donateurForm) {
+      this.donateurForm.resetSubmittingState();
+    }
   }
 
   async onFormSave(data: BeneficiaireCreate): Promise<void> {
@@ -158,14 +172,16 @@ export class Edit implements OnInit, AfterViewInit {
     
     try {
       if (this.editingItem) {
-        // Mise à jour : modifier localement sans recharger
-        const updatedItem = await this.beneficiaireService.update(this.editingItem.id!, data);
+        // Mise à jour : exclure l'ordre pour conserver la position actuelle
+        const { ordre, ...updateData } = data;
         
-        // Mettre à jour l'élément dans la liste locale
+        const updatedItem = await this.beneficiaireService.update(this.editingItem.id!, updateData);
+        
+        // Mettre à jour l'élément dans la liste locale avec l'élément complet retourné par le service
         const targetArray = data.type === 'beneficiaire' ? this.beneficiaires : this.donateurs;
         const index = targetArray.findIndex(item => item.id === this.editingItem!.id);
         if (index !== -1) {
-          targetArray[index] = { ...targetArray[index], ...data };
+          targetArray[index] = updatedItem; // Utiliser l'élément complet avec URL complète
         }
         
         this.successMessage = 'Élément mis à jour avec succès !';
@@ -187,12 +203,13 @@ export class Edit implements OnInit, AfterViewInit {
         this.successMessage = 'Élément créé avec succès !';
       }
       
-      setTimeout(() => {
-        this.cancelEdit();
-      }, 1500);
+      // Fermer immédiatement le formulaire après succès
+      this.cancelEdit();
     } catch (error: any) {
       this.errorMessage = 'Erreur lors de la sauvegarde: ' + error.message;
       console.error('Erreur de sauvegarde:', error);
+      // En cas d'erreur, réinitialiser l'état de soumission pour permettre une nouvelle tentative
+      this.resetFormSubmittingState();
     }
   }
 
@@ -256,16 +273,29 @@ export class Edit implements OnInit, AfterViewInit {
   }
 
   private initializeSortable(): void {
-    // Détruire les instances existantes
-    if (this.beneficiairesSortable) {
-      this.beneficiairesSortable.destroy();
+    // Détruire les instances existantes de manière sécurisée
+    try {
+      if (this.beneficiairesSortable && typeof this.beneficiairesSortable.destroy === 'function') {
+        this.beneficiairesSortable.destroy();
+      }
+    } catch (error) {
+      console.warn('Erreur lors de la destruction de beneficiairesSortable:', error);
     }
-    if (this.donateursSortable) {
-      this.donateursSortable.destroy();
+    
+    try {
+      if (this.donateursSortable && typeof this.donateursSortable.destroy === 'function') {
+        this.donateursSortable.destroy();
+      }
+    } catch (error) {
+      console.warn('Erreur lors de la destruction de donateursSortable:', error);
     }
 
+    // Réinitialiser les références
+    this.beneficiairesSortable = undefined;
+    this.donateursSortable = undefined;
+
     // Configuration SortableJS pour les bénéficiaires
-    if (this.beneficiairesGrid?.nativeElement) {
+    if (this.beneficiairesGrid?.nativeElement && this.beneficiaires.length > 0) {
       this.beneficiairesSortable = Sortable.create(this.beneficiairesGrid.nativeElement, {
         animation: 150,
         ghostClass: 'sortable-ghost',
@@ -279,7 +309,7 @@ export class Edit implements OnInit, AfterViewInit {
     }
 
     // Configuration SortableJS pour les donateurs (seulement si on est sur l'onglet donateurs)
-    if (this.activeTab === 'donateurs' && this.donateursGrid?.nativeElement) {
+    if (this.activeTab === 'donateurs' && this.donateursGrid?.nativeElement && this.donateurs.length > 0) {
       this.donateursSortable = Sortable.create(this.donateursGrid.nativeElement, {
         animation: 150,
         ghostClass: 'sortable-ghost',

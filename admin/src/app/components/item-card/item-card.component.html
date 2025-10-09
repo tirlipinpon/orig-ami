@@ -1,0 +1,33 @@
+<div class="item-card" [class.inactive]="!item.actif">
+  <div class="drag-handle">
+    <span class="drag-icon">✋</span>
+  </div>
+  <a [href]="item.url" target="_blank" rel="noopener noreferrer" class="item-image-link">
+    <div class="item-image">
+      <img [src]="item.image_url" [alt]="item.alt_text" [style.width.px]="item.image_width">
+      @if (!item.actif) {
+        <div class="inactive-badge">Désactivé</div>
+      }
+      <div class="link-overlay">
+        <span class="link-icon">🔗 Voir le site</span>
+      </div>
+    </div>
+  </a>
+  <div class="item-info">
+    <h3>{{ item.nom }}</h3>
+    <p class="item-url">🔗 <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.url }}</a></p>
+    <p class="item-meta">Ordre: {{ item.ordre }} | Largeur: {{ item.image_width }}px</p>
+  </div>
+  <div class="item-actions">
+    <button class="btn-icon btn-edit" (click)="edit.emit(item)" title="Modifier">✏️</button>
+    <button 
+      class="btn-icon btn-toggle" 
+      [class.btn-activate]="!item.actif"
+      [class.btn-deactivate]="item.actif"
+      (click)="toggleActif.emit(item)" 
+      [title]="item.actif ? 'Désactiver' : 'Activer'">
+      {{ item.actif ? '👁️' : '👁️‍🗨️' }}
+    </button>
+    <button class="btn-icon btn-delete" (click)="delete.emit(item)" title="Supprimer">🗑️</button>
+  </div>
+</div>

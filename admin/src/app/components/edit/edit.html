@@ -63,6 +63,7 @@
         <!-- Formulaire Bénéficiaire -->
         @if (showBeneficiaireForm) {
           <app-item-form
+            #beneficiaireForm
             [type]="formType"
             [editingItem]="editingItem"
             (save)="onFormSave($event)"
@@ -75,37 +76,12 @@
           #beneficiairesGrid
           class="items-grid">
           @for (item of beneficiaires; track item.id) {
-            <div class="item-card" [class.inactive]="!item.actif">
-              <div class="drag-handle">
-                <span class="drag-icon">⋮⋮</span>
-              </div>
-              <a [href]="item.url" target="_blank" rel="noopener noreferrer" class="item-image-link">
-                <div class="item-image">
-                  <img [src]="item.image_url" [alt]="item.alt_text" [style.width.px]="item.image_width">
-                  @if (!item.actif) {
-                    <div class="inactive-badge">Désactivé</div>
-                  }
-                  <div class="link-overlay">
-                    <span class="link-icon">🔗 Voir le site</span>
-                  </div>
-                </div>
-              </a>
-              <div class="item-info">
-                <h3>{{ item.nom }}</h3>
-                <p class="item-url">🔗 <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.url }}</a></p>
-                <p class="item-meta">Ordre: {{ item.ordre }} | Largeur: {{ item.image_width }}px</p>
-              </div>
-              <div class="item-actions">
-                <button class="btn-icon btn-edit" (click)="editItem(item)" title="Modifier">✏️</button>
-                <button 
-                  class="btn-icon btn-toggle" 
-                  (click)="toggleActif(item)" 
-                  [title]="item.actif ? 'Désactiver' : 'Activer'">
-                  {{ item.actif ? '👁️' : '🔒' }}
-                </button>
-                <button class="btn-icon btn-delete" (click)="deleteItem(item)" title="Supprimer">🗑️</button>
-              </div>
-            </div>
+            <app-item-card
+              [item]="item"
+              (edit)="editItem($event)"
+              (toggleActif)="toggleActif($event)"
+              (delete)="deleteItem($event)">
+            </app-item-card>
           } @empty {
             <p class="empty-message">Aucun bénéficiaire trouvé.</p>
           }
@@ -126,6 +102,7 @@
         <!-- Formulaire Donateur -->
         @if (showDonateurForm) {
           <app-item-form
+            #donateurForm
             [type]="formType"
             [editingItem]="editingItem"
             (save)="onFormSave($event)"
@@ -138,37 +115,12 @@
           #donateursGrid
           class="items-grid">
           @for (item of donateurs; track item.id) {
-            <div class="item-card" [class.inactive]="!item.actif">
-              <div class="drag-handle">
-                <span class="drag-icon">⋮⋮</span>
-              </div>
-              <a [href]="item.url" target="_blank" rel="noopener noreferrer" class="item-image-link">
-                <div class="item-image">
-                  <img [src]="item.image_url" [alt]="item.alt_text" [style.width.px]="item.image_width">
-                  @if (!item.actif) {
-                    <div class="inactive-badge">Désactivé</div>
-                  }
-                  <div class="link-overlay">
-                    <span class="link-icon">🔗 Voir le site</span>
-                  </div>
-                </div>
-              </a>
-              <div class="item-info">
-                <h3>{{ item.nom }}</h3>
-                <p class="item-url">🔗 <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.url }}</a></p>
-                <p class="item-meta">Ordre: {{ item.ordre }} | Largeur: {{ item.image_width }}px</p>
-              </div>
-              <div class="item-actions">
-                <button class="btn-icon btn-edit" (click)="editItem(item)" title="Modifier">✏️</button>
-                <button 
-                  class="btn-icon btn-toggle" 
-                  (click)="toggleActif(item)" 
-                  [title]="item.actif ? 'Désactiver' : 'Activer'">
-                  {{ item.actif ? '👁️' : '🔒' }}
-                </button>
-                <button class="btn-icon btn-delete" (click)="deleteItem(item)" title="Supprimer">🗑️</button>
-              </div>
-            </div>
+            <app-item-card
+              [item]="item"
+              (edit)="editItem($event)"
+              (toggleActif)="toggleActif($event)"
+              (delete)="deleteItem($event)">
+            </app-item-card>
           } @empty {
             <p class="empty-message">Aucun donateur trouvé.</p>
           }
