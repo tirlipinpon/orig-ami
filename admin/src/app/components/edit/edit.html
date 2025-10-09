@@ -1,0 +1,365 @@
+<div class="edit-container">
+  <div class="header">
+    <h1>Page d'édition - Administration</h1>
+    <div class="user-info">
+      <span>Connecté en tant que: <strong>{{ userEmail }}</strong></span>
+      <button (click)="logout()" class="btn-logout" [disabled]="isLoggingOut">
+        @if (isLoggingOut) {
+          <span>Déconnexion...</span>
+        } @else {
+          <span>Déconnexion</span>
+        }
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Messages -->
+    @if (errorMessage) {
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+    }
+    @if (successMessage) {
+      <div class="alert alert-success">
+        {{ successMessage }}
+      </div>
+    }
+
+    <!-- Onglets -->
+    <div class="tabs">
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'beneficiaires'"
+        (click)="switchTab('beneficiaires')">
+        Bénéficiaires ({{ beneficiaires.length }})
+      </button>
+      <button 
+        class="tab-button" 
+        [class.active]="activeTab === 'donateurs'"
+        (click)="switchTab('donateurs')">
+        Donateurs / Partenaires ({{ donateurs.length }})
+      </button>
+    </div>
+
+    <!-- Loader -->
+    @if (isLoading) {
+      <div class="loader">
+        <div class="spinner"></div>
+        <p>Chargement des données...</p>
+      </div>
+    }
+
+    <!-- Contenu Bénéficiaires -->
+    @if (activeTab === 'beneficiaires' && !isLoading) {
+      <div class="tab-content">
+        <div class="section-header">
+          <h2>Gestion des Bénéficiaires</h2>
+          <button class="btn-add" (click)="openAddForm('beneficiaire')">
+            ➕ Ajouter un bénéficiaire
+          </button>
+        </div>
+
+        <!-- Formulaire Bénéficiaire -->
+        @if (showBeneficiaireForm) {
+          <div class="form-modal">
+            <div class="form-container">
+              <h3>{{ editingItem ? 'Modifier' : 'Ajouter' }} un bénéficiaire</h3>
+              
+              <form (ngSubmit)="saveItem()">
+                <div class="form-group">
+                  <label for="nom">Nom *</label>
+                  <input 
+                    type="text" 
+                    id="nom" 
+                    [(ngModel)]="formData.nom" 
+                    name="nom"
+                    required 
+                    placeholder="Nom du bénéficiaire">
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="url">URL *</label>
+                    <input 
+                      type="url" 
+                      id="url" 
+                      [(ngModel)]="formData.url" 
+                      name="url"
+                      required 
+                      placeholder="https://exemple.com">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="image_url">Chemin de l'image *</label>
+                    <input 
+                      type="text" 
+                      id="image_url" 
+                      [(ngModel)]="formData.image_url" 
+                      name="image_url"
+                      required 
+                      placeholder="img/beneficiaire/nom.jpg">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="alt_text">Texte alternatif *</label>
+                    <input 
+                      type="text" 
+                      id="alt_text" 
+                      [(ngModel)]="formData.alt_text" 
+                      name="alt_text"
+                      required 
+                      placeholder="Description de l'image">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="title">Titre *</label>
+                    <input 
+                      type="text" 
+                      id="title" 
+                      [(ngModel)]="formData.title" 
+                      name="title"
+                      required 
+                      placeholder="Titre au survol">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="image_width">Largeur de l'image (px) *</label>
+                    <input 
+                      type="number" 
+                      id="image_width" 
+                      [(ngModel)]="formData.image_width" 
+                      name="image_width"
+                      required 
+                      min="50" 
+                      max="500">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ordre">Ordre d'affichage *</label>
+                    <input 
+                      type="number" 
+                      id="ordre" 
+                      [(ngModel)]="formData.ordre" 
+                      name="ordre"
+                      required 
+                      min="1">
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" class="btn-cancel" (click)="cancelEdit()">Annuler</button>
+                  <button type="submit" class="btn-save">{{ editingItem ? 'Mettre à jour' : 'Créer' }}</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+
+        <!-- Liste des bénéficiaires -->
+        <div 
+          class="items-grid" 
+          cdkDropList
+          cdkDropListOrientation="horizontal"
+          [cdkDropListAutoScrollDisabled]="false"
+          (cdkDropListDropped)="dropBeneficiaire($event)">
+          @for (item of beneficiaires; track item.id) {
+            <div class="item-card" [class.inactive]="!item.actif" cdkDrag>
+              <div class="drag-handle" cdkDragHandle>
+                <span class="drag-icon">⋮⋮</span>
+              </div>
+              <a [href]="item.url" target="_blank" rel="noopener noreferrer" class="item-image-link">
+                <div class="item-image">
+                  <img [src]="item.image_url" [alt]="item.alt_text" [style.width.px]="item.image_width">
+                  @if (!item.actif) {
+                    <div class="inactive-badge">Désactivé</div>
+                  }
+                  <div class="link-overlay">
+                    <span class="link-icon">🔗 Voir le site</span>
+                  </div>
+                </div>
+              </a>
+              <div class="item-info">
+                <h3>{{ item.nom }}</h3>
+                <p class="item-url">🔗 <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.url }}</a></p>
+                <p class="item-meta">Ordre: {{ item.ordre }} | Largeur: {{ item.image_width }}px</p>
+              </div>
+              <div class="item-actions">
+                <button class="btn-icon btn-edit" (click)="editItem(item)" title="Modifier">✏️</button>
+                <button 
+                  class="btn-icon btn-toggle" 
+                  (click)="toggleActif(item)" 
+                  [title]="item.actif ? 'Désactiver' : 'Activer'">
+                  {{ item.actif ? '👁️' : '🔒' }}
+                </button>
+                <button class="btn-icon btn-delete" (click)="deleteItem(item)" title="Supprimer">🗑️</button>
+              </div>
+            </div>
+          } @empty {
+            <p class="empty-message">Aucun bénéficiaire trouvé.</p>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Contenu Donateurs/Partenaires -->
+    @if (activeTab === 'donateurs' && !isLoading) {
+      <div class="tab-content">
+        <div class="section-header">
+          <h2>Gestion des Donateurs / Partenaires</h2>
+          <button class="btn-add" (click)="openAddForm('donateur')">
+            ➕ Ajouter un donateur
+          </button>
+        </div>
+
+        <!-- Formulaire Donateur -->
+        @if (showDonateurForm) {
+          <div class="form-modal">
+            <div class="form-container">
+              <h3>{{ editingItem ? 'Modifier' : 'Ajouter' }} un donateur</h3>
+              
+              <form (ngSubmit)="saveItem()">
+                  <div class="form-group">
+                    <label for="nom">Nom *</label>
+                    <input 
+                      type="text" 
+                      id="nom" 
+                      [(ngModel)]="formData.nom" 
+                      name="nom"
+                      required 
+                      placeholder="Nom du donateur/partenaire">
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="url">URL *</label>
+                      <input 
+                        type="url" 
+                        id="url" 
+                        [(ngModel)]="formData.url" 
+                        name="url"
+                        required 
+                        placeholder="https://exemple.com">
+                    </div>
+
+                    <div class="form-group">
+                      <label for="image_url">Chemin de l'image *</label>
+                      <input 
+                        type="text" 
+                        id="image_url" 
+                        [(ngModel)]="formData.image_url" 
+                        name="image_url"
+                        required 
+                        placeholder="img/sponsors/nom.jpg">
+                    </div>
+                  </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="alt_text">Texte alternatif *</label>
+                    <input 
+                      type="text" 
+                      id="alt_text" 
+                      [(ngModel)]="formData.alt_text" 
+                      name="alt_text"
+                      required 
+                      placeholder="Description de l'image">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="title">Titre *</label>
+                    <input 
+                      type="text" 
+                      id="title" 
+                      [(ngModel)]="formData.title" 
+                      name="title"
+                      required 
+                      placeholder="Titre au survol">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="image_width">Largeur de l'image (px) *</label>
+                    <input 
+                      type="number" 
+                      id="image_width" 
+                      [(ngModel)]="formData.image_width" 
+                      name="image_width"
+                      required 
+                      min="50" 
+                      max="500">
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ordre">Ordre d'affichage *</label>
+                    <input 
+                      type="number" 
+                      id="ordre" 
+                      [(ngModel)]="formData.ordre" 
+                      name="ordre"
+                      required 
+                      min="1">
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button type="button" class="btn-cancel" (click)="cancelEdit()">Annuler</button>
+                  <button type="submit" class="btn-save">{{ editingItem ? 'Mettre à jour' : 'Créer' }}</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        }
+
+        <!-- Liste des donateurs -->
+        <div 
+          class="items-grid" 
+          cdkDropList
+          cdkDropListOrientation="horizontal"
+          [cdkDropListAutoScrollDisabled]="false"
+          (cdkDropListDropped)="dropDonateur($event)">
+          @for (item of donateurs; track item.id) {
+            <div class="item-card" [class.inactive]="!item.actif" cdkDrag>
+              <div class="drag-handle" cdkDragHandle>
+                <span class="drag-icon">⋮⋮</span>
+              </div>
+              <a [href]="item.url" target="_blank" rel="noopener noreferrer" class="item-image-link">
+                <div class="item-image">
+                  <img [src]="item.image_url" [alt]="item.alt_text" [style.width.px]="item.image_width">
+                  @if (!item.actif) {
+                    <div class="inactive-badge">Désactivé</div>
+                  }
+                  <div class="link-overlay">
+                    <span class="link-icon">🔗 Voir le site</span>
+                  </div>
+                </div>
+              </a>
+              <div class="item-info">
+                <h3>{{ item.nom }}</h3>
+                <p class="item-url">🔗 <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.url }}</a></p>
+                <p class="item-meta">Ordre: {{ item.ordre }} | Largeur: {{ item.image_width }}px</p>
+              </div>
+              <div class="item-actions">
+                <button class="btn-icon btn-edit" (click)="editItem(item)" title="Modifier">✏️</button>
+                <button 
+                  class="btn-icon btn-toggle" 
+                  (click)="toggleActif(item)" 
+                  [title]="item.actif ? 'Désactiver' : 'Activer'">
+                  {{ item.actif ? '👁️' : '🔒' }}
+                </button>
+                <button class="btn-icon btn-delete" (click)="deleteItem(item)" title="Supprimer">🗑️</button>
+              </div>
+            </div>
+          } @empty {
+            <p class="empty-message">Aucun donateur trouvé.</p>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

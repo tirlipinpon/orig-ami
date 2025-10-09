@@ -1,0 +1,62 @@
+-- Migration: Insertion des données des bénéficiaires existants
+-- À exécuter APRÈS 001_create_beneficiaires_table.sql
+
+-- BÉNÉFICIAIRES (ceux qui ont reçu les tentes)
+INSERT INTO public.beneficiaires (nom, url, image_url, alt_text, title, image_width, type, ordre) VALUES
+  ('CPAS de Liège', 'https://www.cpasdeliege.be/', 'img/beneficiaire/cpas-liege.webp', 'cpas liege', 'cpas liege', 100, 'beneficiaire', 1),
+  ('CPAS de Verviers', 'https://www.cpasdeverviers.be/', 'img/beneficiaire/cpas-veriviers.webp', 'cpas verviers', 'cpas verviers', 100, 'beneficiaire', 2),
+  ('Rolling Douche', 'https://rollingdouche.com/', 'img/beneficiaire/rolling-douche.webp', 'rolling douche', 'rolling douche', 100, 'beneficiaire', 3),
+  ('Projet Lama', 'https://www.projetlama.be', 'img/beneficiaire/Lama.png', 'projet lama', 'projet lama', 130, 'beneficiaire', 4),
+  ('Opération Thermos', 'https://www.operationthermos.be', 'img/beneficiaire/operation-thermos.png', 'operation thermos', 'operation thermos', 150, 'beneficiaire', 5),
+  ('Coeur SDF', 'https://www.facebook.com/groups/126310760806454/about', 'img/beneficiaire/coeursdf.jpg', 'coeur-sdf', 'coeur-sdf', 200, 'beneficiaire', 6),
+  ('Le Relais Social', 'https://rsbw.be/', 'img/beneficiaire/lerelaissocial.png', 'le-relais-social', 'le-relais-social', 140, 'beneficiaire', 7),
+  ('MBX', 'https://www.m-bx.brussels/', 'img/beneficiaire/mbx.png', 'mbx', 'mbx', 200, 'beneficiaire', 8),
+  ('Opération Thermos (2)', 'https://www.operationthermos.be/', 'img/beneficiaire/operationthermos.png', 'operation-thermos', 'operation-thermos', 200, 'beneficiaire', 9),
+  ('Sentinelles de la Nuit', 'https://www.sentinellesdelanuit.be/', 'img/beneficiaire/sentinellesdelanuit.png', 'sentinelles-de-la-nuit', 'sentinelles-de-la-nuit', 140, 'beneficiaire', 10),
+  ('Source ASBL', 'https://www.sourceasbl.be/nos-actions/#restaurant', 'img/beneficiaire/source.png', 'source', 'source', 200, 'beneficiaire', 11),
+  ('Un Toit Pour Toi', 'https://asblbenoitetmichel.be/', 'img/beneficiaire/untoipourtoi.jpeg', 'un-toi-pour-toi', 'un-toi-pour-toi', 140, 'beneficiaire', 12),
+  ('CPAS Molenbeek', 'https://www.cpas-molenbeek.be/', 'img/beneficiaire/cpas1080.jpg', 'ORIG-AMI', 'ORIG-AMI', 200, 'beneficiaire', 13),
+  ('CPAS Ganshoren', 'https://cpasganshoren.be/', 'img/beneficiaire/cpasganshoren.jpg', 'cpasganshoren', 'cpasganshoren', 200, 'beneficiaire', 14),
+  ('Croix Rouge', 'https://www.croix-rouge.be/', 'img/beneficiaire/croix-rouge.jpg', 'croix-rouge', 'croix-rouge', 200, 'beneficiaire', 15),
+  ('La Maison 1080', 'http://www.lamaison1080hethuis.be/', 'img/beneficiaire/culture.jpg', 'culture', 'culture', 200, 'beneficiaire', 16),
+  ('Esch', 'https://esch.lu/', 'img/beneficiaire/esch.jpg', 'esch', 'esch', 200, 'beneficiaire', 17),
+  ('Hub', '#', 'img/beneficiaire/hub.jpg', 'hub', 'hub', 200, 'beneficiaire', 18),
+  ('Formidable ASBL', 'http://formidable-asbl.com/', 'img/beneficiaire/formidable.jpg', 'formidable', 'formidable', 200, 'beneficiaire', 19),
+  ('Médecins du Monde', 'https://medecinsdumonde.be/', 'img/beneficiaire/mdm.jpg', 'mdm', 'mdm', 200, 'beneficiaire', 20),
+  ('MSF', 'https://www.msf-azg.be/fr', 'img/beneficiaire/msf.jpg', 'ORIG-AMI', 'ORIG-AMI', 200, 'beneficiaire', 21),
+  ('Order of Malta', 'https://www.orderofmalta.int/', 'img/beneficiaire/order-malta.jpg', 'ORIG-AMI', 'ORIG-AMI', 200, 'beneficiaire', 22),
+  ('Samaritans', '#', 'img/beneficiaire/samaritans.jpg', 'ORIG-AMI', 'ORIG-AMI', 200, 'beneficiaire', 23),
+  ('La Strada', 'https://www.lastrada.brussels/portail/images/PDF/20161107-20170306_RAP_Denombrements_FR_BU20170616.pdf', 'img/beneficiaire/strada.jpg', 'strada', 'strada', 200, 'beneficiaire', 24),
+  ('Sortir du Bois', 'https://www.sortirdubois.org/?fbclid=IwAR3uqRz3Xt2HQppy6lthsve8SpYaf9o1cNPPSIMkY6Ah-o7gsCylakhVF44', 'img/beneficiaire/sortirdubois.jpg', 'sortirdubois', 'sortirdubois', 200, 'beneficiaire', 25),
+  ('Restos du Coeur', 'https://restosducoeur.be/fr/nos-restos/resto-du-coeur-de-saint-gilles', 'img/beneficiaire/restosducoeur.jpg', 'restosducoeur', 'restosducoeur', 200, 'beneficiaire', 26),
+  ('Nativitas', 'https://www.nativitas.be', 'img/beneficiaire/nativitas.jpg', 'nativitas', 'nativitas', 200, 'beneficiaire', 27),
+  ('Team Rabi Jacobs', '', 'img/beneficiaire/teamrabijacobs.jpg', 'team rabi jacobs', 'team rabi jacobs', 200, 'beneficiaire', 28),
+  ('La Source', 'https://centresocial-lasource.com/', 'img/beneficiaire/lasource.jpg', 'la source', 'la source', 200, 'beneficiaire', 29),
+  ('L''Îlot', 'https://ilot.be/', 'img/beneficiaire/ilot.jpg', 'ilot', 'l''ilot', 200, 'beneficiaire', 30),
+  ('FLAJ', 'https://www.flaj.be/', 'img/beneficiaire/FLAJ.jpg', 'FLAJ', 'FLAJ', 200, 'beneficiaire', 31),
+  ('Douche Flux', 'https://doucheflux.be/', 'img/beneficiaire/doucheflux.jpg', 'douche flux', 'douche flux', 200, 'beneficiaire', 32),
+  ('Circe', '', 'img/beneficiaire/circe.jpg', 'circex', 'circe', 200, 'beneficiaire', 33);
+
+-- DONATEURS / PARTENAIRES (sponsors et donateurs)
+INSERT INTO public.beneficiaires (nom, url, image_url, alt_text, title, image_width, type, ordre) VALUES
+  ('After Festival Récup', 'https://www.afterfestivalrecup.be/', 'img/beneficiaire/after-festival-recup.webp', 'after festival recup', 'after festival recup', 200, 'donateur', 1),
+  ('Atelier Archi Schuiten', 'http://www.archi-schuiten.be/', 'img/sponsors/atelier-archi-schuiten.jpg', 'atelier-archi-schuiten', 'atelier-archi-schuiten', 100, 'donateur', 2),
+  ('IFA', '#', 'img/sponsors/ifa.png', 'ifa', 'ifa', 100, 'donateur', 3),
+  ('Nihoul', 'https://www.nihoul.be/', 'img/sponsors/Nihoul.png', 'Nihoul', 'Nihoul', 100, 'donateur', 4),
+  ('Numeris Art', 'https://numerisart.be/', 'img/sponsors/numeris-art.png', 'numeris-art', 'numeris-art', 100, 'donateur', 5),
+  ('Rotary International', 'https://www.rotary.org/fr', 'img/sponsors/rotary-international.PNG', 'rotary-international', 'rotary-international', 100, 'donateur', 6),
+  ('Hilton', 'https://www.hilton.com/fr/hotels/brugrhi-hilton-brussels-grand-place/', 'img/sponsors/hilton.jpeg', 'hilton', 'hilton', 200, 'donateur', 7),
+  ('Megabike', 'https://megabike-store.be/', 'img/sponsors/megabike.png', 'megabike', 'megabike', 200, 'donateur', 8),
+  ('Dagoty', 'https://www.dagotyauction.com/', 'img/sponsors/dagoty.jpeg', 'dagoty', 'dagoty', 200, 'donateur', 9),
+  ('Les Lasagnes du Coeur', 'http://www.leslasagnesducoeur.com/', 'img/sponsors/lasagnes.jpg', 'lasagnes', 'lasagnes', 200, 'donateur', 10),
+  ('DS Smith', 'https://www.dssmith.com/befr/packaging', 'img/sponsors/DS_Master_Full_CMYK.jpg', 'ORIG-AMI', 'DS Smith', 200, 'donateur', 11),
+  ('Hallet', 'https://www.hallet.com/fr/contact.php', 'img/sponsors/hallet.jpg', 'ORIG-AMI', 'Hallet', 200, 'donateur', 12),
+  ('Cultures Com', 'http://www.cultures-com.org/', 'img/sponsors/culturescom.jpg', 'ORIG-AMI', 'Cultures Com', 200, 'donateur', 13),
+  ('Alize Maker', 'http://www.alizemaker.be/fr/accueil', 'img/sponsors/alize.jpg', 'ORIG-AMI', 'Alize Maker', 200, 'donateur', 14),
+  ('L''Appel du Coeur', 'https://www.lappelducoeur.org/', 'img/sponsors/appel.jpg', 'ORIG-AMI', 'L''Appel du Coeur', 200, 'donateur', 15),
+  ('Backstage', 'http://www.backstagecom.be/', 'img/sponsors/backstage.jpg', 'ORIG-AMI', 'Backstage', 200, 'donateur', 16),
+  ('Lions Club', 'http://members.lionsclubs.org/FR/resources/logos/index.php', 'img/sponsors/lions.jpg', 'ORIG-AMI', 'Lions Club', 200, 'donateur', 17),
+  ('Cellmade', 'http://cellmade.be', 'img/sponsors/cellmade.jpg', 'ORIG-AMI', 'Cellmade', 200, 'donateur', 18),
+  ('Jardin d''Ève', 'https://www.jardindeve.be/', 'img/sponsors/jardindeve.jpg', 'jardindeve', 'jardindeve', 200, 'donateur', 19),
+  ('CAL BW', 'https://www.calbw.be/', 'img/sponsors/calbw.jpg', 'calbw', 'calbw', 200, 'donateur', 20);
+

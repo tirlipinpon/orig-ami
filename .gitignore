@@ -1,0 +1,35 @@
+# Dependencies
+**/node_modules/
+**/npm-debug.log
+**/yarn-error.log
+
+# Angular build output
+**/dist/
+**/.angular/
+**/out-tsc/
+
+# Environment files with sensitive data
+admin/src/environments/environment.ts
+admin/src/environments/environment.development.ts
+admin/src/environments/environment.prod.ts
+admin/src/environments/environment.staging.ts
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
