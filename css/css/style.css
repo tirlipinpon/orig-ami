@@ -1,0 +1,374 @@
+.font-style {
+  font-family: 'quicksand', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+h1 {
+  font-family: 'quicksand', sans-serif;
+  font-weight: 500;
+  font-size: 2rem;
+  text-align: center;
+}
+h2 {
+  font-family: 'quicksand', sans-serif;
+  font-weight: 500;
+  font-size: 1.5rem;
+}
+ul {
+  text-align: center;
+}
+li {
+  display: inline;
+}
+a {
+  color: #ff5c5f;
+  font-family: 'quicksand', sans-serif;
+  text-decoration: none;
+}
+* {
+  box-sizing: border-box;
+}
+.padding50 {
+  padding: 0 0 0 0;
+}
+#langues {
+  position: absolute;
+  right: 0;
+  margin: 0 50px;
+}
+#langues .selected {
+  color: #ff5c5f;
+  font-weight: bold;
+}
+#langues a {
+  text-transform: uppercase;
+  color: #747474;
+}
+#langues a:hover {
+  color: #000;
+}
+#container {
+  font-family: 'quicksand', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.4;
+  min-width: 350px;
+  max-width: 1020px;
+  display: flex;
+  margin: 50px auto;
+  flex-direction: column;
+}
+#container .up-title {
+  width: 100%;
+  height: 20px;
+}
+#container .title {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 0 0;
+}
+#container .title * {
+  align-self: center;
+}
+#container .title .fa-question {
+  color: #fff;
+}
+#container .title i {
+  margin: 0 10px 0 0;
+}
+#container .call-to-action {
+  background-color: #ff5c5f;
+  text-align: center;
+  min-width: 30%;
+  margin: 30px auto;
+  padding: 20px 10px;
+  transition: all 1s ease;
+}
+#container .call-to-action:hover {
+  background-color: black;
+  transition: all 1s ease;
+}
+#container .call-to-action:hover a {
+  color: #ff5c5f;
+}
+@media screen and (max-width: 700px) {
+  #container .call-to-action {
+    width: 100%;
+  }
+}
+#container .call-to-action a {
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: white;
+  text-transform: uppercase;
+}
+#container .block-text {
+  margin: 0 50px ;
+}
+#container .owl-theme {
+  height: 50%;
+  width: 80%;
+  margin: 20px auto 0 auto;
+}
+#container .owl-theme .owl-nav {
+  position: absolute;
+  display: flex;
+  width: 100%;
+  margin: -450px auto;
+  justify-content: space-between;
+}
+@media screen and (max-width: 700px) {
+  #container .owl-theme .owl-nav {
+    margin: -200px auto;
+  }
+}
+@media screen and (max-width: 500px) {
+  #container .owl-theme .owl-nav {
+    margin: -150px auto;
+  }
+}
+#container .owl-theme .owl-nav .owl-prev {
+  background-color: #ccc;
+  transition: all 1s ease;
+}
+#container .owl-theme .owl-nav .owl-prev:hover {
+  background-color: black;
+}
+#container .owl-theme .owl-nav .owl-prev i {
+  transition: all 1s ease;
+}
+#container .owl-theme .owl-nav .owl-next {
+  background-color: #ccc;
+  transition: all 1s ease;
+}
+#container .owl-theme .owl-nav .owl-next:hover {
+  background-color: black;
+}
+#container .owl-theme .owl-nav .owl-next i {
+  transition: all 1s ease;
+}
+#container #logo {
+  width: 100%;
+  height: 200px;
+  display: flex;
+}
+#container #logo img {
+  width: 100%;
+  height: 100%;
+}
+#container #menu {
+  width: 100%;
+  margin: 50px auto;
+  display: flex;
+  padding: 0px!important;
+  position: sticky;
+  top: 0px;
+  z-index: 9999;
+  background-color: white;
+}
+@media screen and (max-width: 1000px) {
+  #container #menu {
+    position: relative;
+  }
+}
+#container #menu ul {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+}
+@media screen and (max-width: 1000px) {
+  #container #menu ul {
+    flex-direction: column;
+  }
+}
+#container #menu ul li {
+  border-right: 1px solid #ccc;
+  flex: 1 1 0;
+  padding: 0 5px;
+  align-self: center;
+}
+@media screen and (max-width: 1000px) {
+  #container #menu ul li {
+    border: none !important;
+    padding: 5px 0;
+  }
+}
+#container #menu ul li:last-child {
+  border: none !important;
+}
+#container #menu ul li a {
+  font-family: 'quicksand', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.4;
+  padding-bottom: 10px;
+  color: black;
+  border-bottom: 1px solid white;
+  transition: all 1s ease;
+  line-height: 2.4;
+}
+#container #menu ul li a:hover {
+  border-bottom: 1px solid black;
+}
+#container #sponsors ul {
+  display: flex;
+}
+@media screen and (max-width: 1000px) {
+  #container #sponsors ul {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+#container #sponsors ul li {
+  padding: 1px;
+  margin: 5px;
+}
+#container #sponsors ul li a img {
+  width: 100%;
+  height: auto;
+}
+#container #medias {
+  margin: 0 0 80px 0;
+}
+#container #medias ul {
+  text-align: left;
+  line-height: 30px;
+  margin: 0 20px 0 0;
+}
+#container #medias ul li a {
+  line-height: 5px;
+}
+#container #medias ul li a:hover {
+  color: black;
+}
+#container #map {
+  width: 100%;
+  height: 400px;
+  background-color: grey;
+}
+#container #map #bodyContent {
+  max-width: 500px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+#container #map #bodyContent a {
+  margin: 5px 10px;
+  font-size: 25px;
+  line-height: 1;
+}
+#container #map #bodyContent a:hover {
+  color: black;
+}
+footer {
+  font-family: 'quicksand', sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.4;
+  background-color: #ff5c5f;
+  color: white;
+}
+footer #foot-container {
+  min-width: 350px;
+  max-width: 1020px;
+  display: flex;
+  justify-content: space-around;
+  margin: auto;
+}
+@media screen and (max-width: 600px) {
+  footer #foot-container {
+    flex-direction: column;
+  }
+}
+footer #foot-container .suivre {
+  text-align: center;
+}
+footer #foot-container .suivre a .fa-facebook-square {
+  color: white;
+}
+footer #foot-container .coordonees {
+  text-align: center;
+}
+footer #foot-container .coordonees p a {
+  color: white;
+}
+footer #foot-container .coordonees p a:hover {
+  color: black;
+}
+footer #foot-container .contacter {
+  text-align: center;
+}
+footer #foot-container .contacter a i {
+  color: #fff;
+}
+.displayNone {
+  display: none;
+}
+.displayFlex {
+  display: flex;
+}
+.outer-flex-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+}
+.inner-flex-container {
+  margin: auto;
+  display: flex;
+  width: 300px;
+  /* Add a background color and some padding around the form */
+}
+.inner-flex-container .container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  /* Style inputs with type="text", select elements and textareas */
+  /* Style the submit button with a specific background color etc */
+  /* When moving the mouse over the submit button, add a darker green color */
+}
+.inner-flex-container .container #close_modal_contact {
+  align-self: flex-end;
+  border-radius: 50%;
+  border: 1px solid black;
+  width: 18px;
+  text-align: center;
+  cursor: pointer;
+}
+.inner-flex-container .container input[type=text],
+.inner-flex-container .container input[type=email],
+.inner-flex-container .container select,
+.inner-flex-container .container textarea {
+  width: 100%;
+  /* Full width */
+  padding: 12px;
+  /* Some padding */
+  border: 1px solid #ccc;
+  /* Gray border */
+  border-radius: 4px;
+  /* Rounded borders */
+  box-sizing: border-box;
+  /* Make sure that padding and width stays in place */
+  margin-top: 3px;
+  /* Add a top margin */
+  margin-bottom: 5px;
+  /* Bottom margin */
+  resize: vertical /* Allow the user to vertically resize the textarea (not horizontally) */;
+}
+.inner-flex-container .container input[type=submit] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.inner-flex-container .container input[type=submit]:hover {
+  background-color: #45a049;
+}

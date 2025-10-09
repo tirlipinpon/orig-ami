@@ -1,0 +1,191 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <style>
+    body { margin: 0; }
+    canvas { width: 100%; height: 100%;
+      border: 1px solid red;}
+    #demo, #demo2 {
+      border: 1px solid red;
+      font-size: 30px;
+    }
+  </style>
+</head>
+
+<body>
+<div id="container"></div>
+<div id="demo">aaaaaaaaaaaaaaaaaa</div>
+<div id="demo2">bbbbbbbbbbbbbbbbbb</div>
+<script src="js/three.js"></script>
+<!--<script src="js/GLTFLoader.js"></script>-->
+
+<script>
+  var WEBGL = {
+    isWebGLAvailable: function () {
+      try {
+        var canvas = document.createElement( 'canvas' );
+        return !! ( window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ) );
+      } catch ( e ) {
+        return false;
+      }
+    },
+    isWebGL2Available: function () {
+      try {
+        var canvas = document.createElement( 'canvas' );
+        return !! ( window.WebGL2RenderingContext && canvas.getContext( 'webgl2' ) );
+      } catch ( e ) {
+        return false;
+      }
+    },
+    getWebGLErrorMessage: function () {
+      return this.getErrorMessage( 1 );
+    },
+    getWebGL2ErrorMessage: function () {
+      return this.getErrorMessage( 2 );
+    },
+    getErrorMessage: function ( version ) {
+      var names = {
+        1: 'WebGL',
+        2: 'WebGL 2'
+      };
+      var contexts = {
+        1: window.WebGLRenderingContext,
+        2: window.WebGL2RenderingContext
+      };
+      var message = 'Your $0 does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation" style="color:#000">$1</a>';
+      var element = document.createElement( 'div' );
+      element.id = 'webglmessage';
+      element.style.fontFamily = 'monospace';
+      element.style.fontSize = '13px';
+      element.style.fontWeight = 'normal';
+      element.style.textAlign = 'center';
+      element.style.background = '#fff';
+      element.style.color = '#000';
+      element.style.padding = '1.5em';
+      element.style.width = '400px';
+      element.style.margin = '5em auto 0';
+      if ( contexts[ version ] ) {
+        message = message.replace( '$0', 'graphics card' );
+      } else {
+        message = message.replace( '$0', 'browser' );
+      }
+      message = message.replace( '$1', names[ version ] );
+      element.innerHTML = message;
+      document.getElementById("demo").innerHTML = message;
+      return element;
+    }
+  };
+
+  console.log(WEBGL.getErrorMessage());
+</script>
+
+
+<!--<script>-->
+
+
+  <!--var supportsWebGL = ( function () {-->
+    <!--try {-->
+      <!--return !! window.WebGLRenderingContext && !! document.createElement( 'canvas' ).getContext( 'experimental-webgl' );-->
+    <!--} catch( e ) {-->
+      <!--return e;-->
+    <!--}-->
+  <!--} )();-->
+
+  <!--if(supportsWebGL){-->
+    <!--document.getElementById("demo2").innerHTML = 'support';-->
+  <!--}else{-->
+    <!--document.getElementById("demo2").innerHTML = 'NOT support';-->
+  <!--}-->
+
+
+  <!--if (WEBGL.isWebGLAvailable()) {-->
+    <!--// Initiate function or other initializations here-->
+    <!--animate();-->
+  <!--} else {-->
+    <!--var warning = WEBGL.getWebGLErrorMessage();-->
+    <!--document.getElementById("demo2").appendChild(warning);-->
+  <!--}-->
+
+
+
+
+  <!--var container = document.getElementById('container');-->
+
+  <!--// var loader = new THREE.GLTFLoader();-->
+  <!--// loader.load( 'models/busterdrone/busterDrone.gltf', function ( gltf ) {-->
+  <!--// // loader.load( 'models/microphone/microphone.gltf', function ( gltf ) {-->
+  <!--//   scene.add( gltf.scene );-->
+  <!--// }, undefined, function ( error ) {-->
+  <!--//   console.error( error );-->
+  <!--// } );-->
+
+<!--try {-->
+
+
+  <!--var scene = new THREE.Scene();-->
+  <!--var camera = new THREE.PerspectiveCamera(20, (window.innerWidth / window.innerHeight), 1, 20000);-->
+  <!--var renderer = new THREE.WebGLRenderer({antialias: true});-->
+  <!--renderer.setSize(window.innerWidth, window.innerHeight);-->
+  <!--renderer.setClearColor(0x9ba5ae, 1);-->
+  <!--container.appendChild(renderer.domElement);-->
+
+  <!--var geometry = new THREE.BoxGeometry(1, 1, 1);-->
+  <!--var material = new THREE.MeshBasicMaterial({color: 0x00ff00});-->
+  <!--var cube = new THREE.Mesh(geometry, material);-->
+  <!--scene.add(cube);-->
+
+  <!--//LIGHTNING-->
+  <!--//first point light-->
+  <!--light = new THREE.PointLight(0xffffff, 1, 4000);-->
+  <!--light.position.set(50, 0, 0);-->
+  <!--//the second one-->
+  <!--light_two = new THREE.PointLight(0xffffff, 1, 4000);-->
+  <!--light_two.position.set(-100, 800, 800);-->
+  <!--//And another global lightning some sort of cripple GL-->
+  <!--lightAmbient = new THREE.AmbientLight(0x404040);-->
+  <!--scene.add(light, light_two, lightAmbient);-->
+
+  <!--camera.position.z = 7;-->
+  <!--camera.position.y = camera.position.y - .3;-->
+
+  <!--function animate() {-->
+    <!--requestAnimationFrame(animate);-->
+    <!--renderer.render(scene, camera);-->
+  <!--}-->
+
+  <!--animate();-->
+
+  <!--window.addEventListener('resize', onWindowResize, false);-->
+
+  <!--function onWindowResize() {-->
+    <!--camera.aspect = window.innerWidth / window.innerHeight;-->
+    <!--renderer.setSize(window.innerWidth, window.innerHeight);-->
+    <!--camera.updateProjectionMatrix();-->
+  <!--};-->
+  <!--document.addEventListener('mousemove', onMouseMove, false);-->
+
+  <!--function onMouseMove(event) {-->
+    <!--mouseX = event.clientX - window.innerWidth / 3;-->
+    <!--mouseY = event.clientY - window.innerHeight / 3;-->
+    <!--camera.position.x += (mouseX - camera.position.x) * 0.0002;-->
+    <!--// camera.position.y += (mouseY - camera.position.y) * 0.0002;-->
+    <!--//set up camera position-->
+    <!--camera.lookAt(scene.position);-->
+  <!--};-->
+
+<!--}catch(err){-->
+  <!--document.getElementById("demo").innerHTML = err.message;-->
+  <!--}-->
+<!--</script>-->
+
+
+
+</body>
+
+</html>
