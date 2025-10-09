@@ -247,19 +247,18 @@ a {
 #beneficiaires ul li,
 #donateurs ul li {
   transition: all 0.3s ease;
+  list-style: none;
 }
 
 #beneficiaires ul li a,
 #donateurs ul li a {
   display: block;
-  position: relative;
-  overflow: hidden;
 }
 
 #beneficiaires ul li a img,
 #donateurs ul li a img {
   transition: all 0.3s ease;
-  filter: grayscale(0%);
+  display: block;
 }
 
 #beneficiaires ul li:hover,
@@ -269,7 +268,7 @@ a {
 
 #beneficiaires ul li:hover a img,
 #donateurs ul li:hover a img {
-  transform: scale(1.1);
+  transform: scale(1.05);
   filter: brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
