@@ -38,27 +38,28 @@
             Max: 500x500px, 500KB • Formats: JPG, PNG, WebP, SVG, GIF
           </small>
           
-          <!-- Bouton pour choisir une image -->
-          <div class="image-upload-container">
-            <input 
-              type="file" 
-              #fileInput
-              id="fileInput" 
-              accept="image/jpeg,image/jpg,image/png,image/webp,image/svg+xml,image/gif"
-              (change)="onFileSelected($event)"
-              style="display: none;">
-            
-            <button 
-              type="button" 
-              class="btn-upload"
-              (click)="fileInput.click()"
-              [disabled]="isUploading || isSubmitting || isAutoOptimizing">
-              @if (isUploading || isAutoOptimizing) {
-                <span class="loading-spinner">⏳</span> {{ isAutoOptimizing ? 'Optimisation...' : 'Validation en cours...' }}
-              } @else {
-                📁 Choisir une image
-              }
-            </button>
+          @if (form.get('nom')?.value && form.get('nom')?.value.trim() !== '' && form.get('url')?.value && form.get('url')?.value.trim() !== '') {
+            <!-- Bouton pour choisir une image -->
+            <div class="image-upload-container">
+              <input 
+                type="file" 
+                #fileInput
+                id="fileInput" 
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/svg+xml,image/gif"
+                (change)="onFileSelected($event)"
+                style="display: none;">
+              
+              <button 
+                type="button" 
+                class="btn-upload"
+                (click)="fileInput.click()"
+                [disabled]="isUploading || isSubmitting || isAutoOptimizing">
+                @if (isUploading || isAutoOptimizing) {
+                  <span class="loading-spinner">⏳</span> {{ isAutoOptimizing ? 'Optimisation...' : 'Validation en cours...' }}
+                } @else {
+                  📁 Choisir une image
+                }
+              </button>
 
             @if (uploadError) {
               <span class="error-message">{{ uploadError }}</span>
@@ -195,6 +196,9 @@
           @if (isFieldInvalid('image_url')) {
             <span class="error-message">{{ getErrorMessage('image_url') }}</span>
           }
+          } @else {
+            <p class="info-message">ℹ️ Veuillez d'abord remplir le nom et l'URL pour pouvoir uploader une image.</p>
+          }
         </div>
       </div>
 
@@ -205,7 +209,7 @@
 
       <div class="form-actions">
         <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isSubmitting">Annuler</button>
-        <button type="submit" class="btn-save" [disabled]="form.invalid || (editingItem && !form.dirty) || isSubmitting">
+        <button type="submit" class="btn-save" [disabled]="isSubmitDisabled()">
           @if (isSubmitting) {
             <span class="loading-spinner">⏳</span> {{ editingItem ? 'Mise à jour...' : 'Création...' }}
           } @else {

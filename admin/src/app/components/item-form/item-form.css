@@ -75,6 +75,17 @@
   font-weight: 500;
 }
 
+.info-message {
+  color: #667eea;
+  font-size: 13px;
+  margin-top: 8px;
+  padding: 12px;
+  background: #f0f3ff;
+  border-left: 3px solid #667eea;
+  border-radius: 4px;
+  display: block;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

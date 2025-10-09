@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { Beneficiaire, BeneficiaireCreate } from '../../models/beneficiaire.model';
@@ -14,6 +14,7 @@ import { ImageEditorComponent, ImageEditResult } from '../image-editor/image-edi
 export class ItemForm implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private imageUploadService = inject(ImageUploadService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() type: 'beneficiaire' | 'donateur' = 'beneficiaire';
   @Input() editingItem: Beneficiaire | null = null;
@@ -98,27 +99,47 @@ export class ItemForm implements OnInit, OnDestroy {
     });
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
+    console.log('🚀 [SUBMIT] Début de la soumission du formulaire');
+    
     if (this.form.valid && !this.isSubmitting) {
       this.isSubmitting = true;
+      console.log('✅ [SUBMIT] Formulaire valide, traitement en cours...');
       
-      const formValue = this.form.value;
-      
-      // Trim des valeurs texte
-      const data: BeneficiaireCreate = {
-        nom: formValue.nom.trim(),
-        url: formValue.url.trim(),
-        image_url: formValue.image_url.trim(),
-        alt_text: formValue.alt_text.trim(),
-        title: formValue.title.trim(),
-        image_width: formValue.image_width,
-        type: formValue.type,
-        ordre: formValue.ordre,
-        actif: formValue.actif
-      };
+      try {
+        // Upload Supabase de l'image si un fichier a été sélectionné
+        if (this.selectedFile) {
+          console.log('📤 [SUPABASE] Upload de l\'image:', this.selectedFile.name);
+          await this.uploadToSupabase(this.selectedFile);
+          console.log('✅ [SUPABASE] Upload terminé avec succès');
+        } else {
+          console.log('ℹ️ [SUBMIT] Pas de nouvelle image à uploader');
+        }
+        
+        const formValue = this.form.value;
+        
+        // Trim des valeurs texte
+        const data: BeneficiaireCreate = {
+          nom: formValue.nom.trim(),
+          url: formValue.url.trim(),
+          image_url: formValue.image_url.trim(),
+          alt_text: formValue.alt_text.trim(),
+          title: formValue.title.trim(),
+          image_width: formValue.image_width,
+          type: formValue.type,
+          ordre: formValue.ordre,
+          actif: formValue.actif
+        };
 
-      this.save.emit(data);
+        console.log('💾 [SUBMIT] Émission de l\'événement save');
+        this.save.emit(data);
+      } catch (error: any) {
+        console.error('❌ [SUBMIT] Erreur lors de la soumission:', error);
+        this.uploadError = 'Erreur lors de l\'upload de l\'image: ' + error.message;
+        this.isSubmitting = false;
+      }
     } else if (!this.form.valid) {
+      console.warn('⚠️ [SUBMIT] Formulaire invalide');
       // Marquer tous les champs comme touchés pour afficher les erreurs
       Object.keys(this.form.controls).forEach(key => {
         this.form.get(key)?.markAsTouched();
@@ -132,6 +153,13 @@ export class ItemForm implements OnInit, OnDestroy {
 
   resetSubmittingState(): void {
     this.isSubmitting = false;
+  }
+
+  /**
+   * Détermine si le bouton de sauvegarde doit être désactivé
+   */
+  isSubmitDisabled(): boolean {
+    return this.form.invalid || (this.editingItem && !this.form.dirty) || this.isSubmitting;
   }
 
   ngOnDestroy(): void {
@@ -166,8 +194,8 @@ export class ItemForm implements OnInit, OnDestroy {
     }
     this.imagePreviewUrl = this.imageUploadService.createPreviewUrl(file);
 
-    // Validation du fichier
-    await this.uploadFile(file);
+    // Validation seulement (l'upload se fera au clic sur Créer/Éditer)
+    await this.validateFile(file);
   }
 
   private async extractImageInfo(file: File): Promise<void> {
@@ -224,7 +252,12 @@ export class ItemForm implements OnInit, OnDestroy {
     }
   }
 
-  private async uploadFile(file: File, isRetry: boolean = false): Promise<void> {
+  /**
+   * Validation seule (sans upload)
+   */
+  private async validateFile(file: File, isRetry: boolean = false): Promise<void> {
+    console.log('🔍 [VALIDATION] Validation du fichier:', file.name);
+  
     this.isUploading = true;
     this.uploadError = '';
     this.uploadSuccess = false;
@@ -236,19 +269,23 @@ export class ItemForm implements OnInit, OnDestroy {
     }
 
     try {
-      const folder = this.type === 'beneficiaire' ? 'beneficiaire' : 'sponsors';
-      const result = await this.imageUploadService.uploadImage(file, folder);
+      // Validation seulement, pas d'upload
+      const result = await this.imageUploadService.validateImageOnly(file);
 
       if (result.success && result.fileName) {
         this.uploadedFileName = result.fileName;
         this.uploadSuccess = true;
         
         // Mettre à jour le formulaire avec le nom du fichier
-        this.form.patchValue({
-          image_url: result.fileName
-        });
-        this.form.get('image_url')?.markAsDirty();
-        this.form.get('image_url')?.markAsTouched();
+        const imageControl = this.form.get('image_url');
+        if (imageControl) {
+          imageControl.setValue(result.fileName);
+          imageControl.markAsDirty();
+          imageControl.markAsTouched();
+          imageControl.updateValueAndValidity();
+        }
+        this.form.markAsDirty(); // Marquer tout le formulaire comme modifié
+        console.log('✅ [VALIDATION] Image validée et image_url mis à jour:', imageControl?.value);
 
         // Masquer le message de succès et l'avant/après après 5 secondes
         setTimeout(() => {
@@ -285,6 +322,49 @@ export class ItemForm implements OnInit, OnDestroy {
       }
     } catch (error: any) {
       this.uploadError = 'Erreur lors de la validation: ' + error.message;
+    } finally {
+      this.isUploading = false;
+    }
+  }
+
+  /**
+   * Upload l'image vers Supabase Storage
+   */
+  private async uploadToSupabase(file: File): Promise<void> {
+    console.log('🚀 [UPLOAD-SUPABASE] Début upload vers Supabase');
+    
+    this.isUploading = true;
+    this.uploadError = '';
+    
+    try {
+      const folder = this.type === 'beneficiaire' ? 'beneficiaire' : 'sponsors';
+      const itemName = this.form.get('nom')?.value || '';
+      
+      // Si on édite un item et qu'il avait déjà une image, la supprimer d'abord
+      if (this.editingItem && this.editingItem.image_url) {
+        console.log('🗑️ [UPLOAD-SUPABASE] Suppression ancienne image:', this.editingItem.image_url);
+        await this.imageUploadService.deleteImage(this.editingItem.image_url, folder);
+      }
+      
+      // Upload la nouvelle image avec le nom de l'item
+      const result = await this.imageUploadService.uploadImage(file, folder, itemName);
+      
+      if (result.success && result.fileName) {
+        console.log('✅ [UPLOAD-SUPABASE] Upload réussi:', result.fileName);
+        
+        // Mettre à jour le formulaire avec le nom du fichier
+        this.form.patchValue({
+          image_url: result.fileName
+        });
+        this.form.get('image_url')?.markAsDirty();
+        this.form.get('image_url')?.markAsTouched();
+      } else {
+        console.error('❌ [UPLOAD-SUPABASE] Échec:', result.error);
+        throw new Error(result.error || 'Erreur upload Supabase');
+      }
+    } catch (error: any) {
+      console.error('❌ [UPLOAD-SUPABASE] Exception:', error);
+      throw new Error('Erreur upload Supabase: ' + error.message);
     } finally {
       this.isUploading = false;
     }
@@ -399,7 +479,7 @@ export class ItemForm implements OnInit, OnDestroy {
     this.form.get('image_url')?.markAsTouched();
     
     // Valider la nouvelle image
-    this.uploadFile(result.file);
+    this.validateFile(result.file);
     
     this.showImageEditor = false;
     this.imageToEdit = null;
@@ -451,7 +531,7 @@ export class ItemForm implements OnInit, OnDestroy {
         this.imagePreviewUrl = this.imageUploadService.createPreviewUrl(optimizedFile);
 
         // Valider la nouvelle image (avec flag isRetry à true)
-        await this.uploadFile(optimizedFile, true);
+        await this.validateFile(optimizedFile, true);
       }
     } catch (error) {
       console.error('Erreur lors de l\'optimisation automatique:', error);

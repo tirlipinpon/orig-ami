@@ -136,15 +136,17 @@ export class BeneficiaireService {
       // Construire l'URL Supabase Storage
       const folder = type === 'beneficiaire' ? 'beneficiaire' : 'sponsors';
       const supabaseUrl = this.supabase.client.storage
-        .from('images')
+        .from('orig-ami-image')
         .getPublicUrl(`${folder}/${filename}`);
       return supabaseUrl.data.publicUrl;
     }
 
-    // Pour les anciennes images (compatibilité ascendante)
-    const baseUrl = 'https://www.orig-ami.eu/img/';
+    // Pour toutes les autres images, utiliser Supabase
     const folder = type === 'beneficiaire' ? 'beneficiaire' : 'sponsors';
-    return `${baseUrl}${folder}/${filename}`;
+    const supabaseUrl = this.supabase.client.storage
+      .from('orig-ami-image')
+      .getPublicUrl(`${folder}/${filename}`);
+    return supabaseUrl.data.publicUrl;
   }
 
   private fixImageUrl(imageUrl: string, type: 'beneficiaire' | 'donateur'): string {
