@@ -221,17 +221,14 @@ export class Edit implements OnInit, AfterViewInit {
     try {
       await this.beneficiaireService.delete(item.id!);
       
-      // Supprimer de la liste locale sans recharger
-      if (item.type === 'beneficiaire') {
-        const index = this.beneficiaires.findIndex(b => b.id === item.id);
-        if (index !== -1) {
-          this.beneficiaires.splice(index, 1);
-        }
-      } else {
-        const index = this.donateurs.findIndex(d => d.id === item.id);
-        if (index !== -1) {
-          this.donateurs.splice(index, 1);
-        }
+      // Supprimer de la liste locale
+      // Note: Les gaps dans les ordres n'affectent pas l'affichage car le tri se fait par ORDER BY ordre DESC
+      const targetArray = item.type === 'beneficiaire' ? this.beneficiaires : this.donateurs;
+      const index = targetArray.findIndex(i => i.id === item.id);
+      
+      if (index !== -1) {
+        targetArray.splice(index, 1);
+        console.log(`Élément supprimé. ${targetArray.length} éléments restants.`);
       }
       
       this.successMessage = 'Élément supprimé avec succès !';

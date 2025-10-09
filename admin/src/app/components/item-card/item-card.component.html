@@ -16,7 +16,6 @@
   <div class="item-info">
     <h3>{{ item.nom }}</h3>
     <p class="item-url">🔗 <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.url }}</a></p>
-    <p class="item-meta">Ordre: {{ item.ordre }} | Largeur: {{ item.image_width }}px</p>
   </div>
   <div class="item-actions">
     <button class="btn-icon btn-edit" (click)="edit.emit(item)" title="Modifier">✏️</button>

@@ -124,6 +124,24 @@ export class BeneficiaireService {
   }
 
   private buildImageUrl(filename: string, type: 'beneficiaire' | 'donateur'): string {
+    // Si le nom de fichier contient déjà une URL complète (Supabase Storage), le retourner tel quel
+    if (filename.startsWith('http://') || filename.startsWith('https://')) {
+      return filename;
+    }
+
+    // Vérifier si c'est une image Supabase Storage (contient un timestamp et caractères aléatoires)
+    // Format: timestamp_random.ext (ex: 1234567890_abc123.jpg)
+    const supabasePattern = /^\d+_[a-z0-9]+\.\w+$/i;
+    if (supabasePattern.test(filename)) {
+      // Construire l'URL Supabase Storage
+      const folder = type === 'beneficiaire' ? 'beneficiaire' : 'sponsors';
+      const supabaseUrl = this.supabase.client.storage
+        .from('images')
+        .getPublicUrl(`${folder}/${filename}`);
+      return supabaseUrl.data.publicUrl;
+    }
+
+    // Pour les anciennes images (compatibilité ascendante)
     const baseUrl = 'https://www.orig-ami.eu/img/';
     const folder = type === 'beneficiaire' ? 'beneficiaire' : 'sponsors';
     return `${baseUrl}${folder}/${filename}`;
@@ -132,15 +150,15 @@ export class BeneficiaireService {
   private fixImageUrl(imageUrl: string, type: 'beneficiaire' | 'donateur'): string {
     if (!imageUrl) return '';
     
+    // Si l'URL est déjà complète (Supabase ou autre), la retourner telle quelle
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    
     // Si l'URL contient localhost, extraire le nom de fichier
     if (imageUrl.includes('localhost')) {
       const filename = imageUrl.split('/').pop() || '';
       return this.buildImageUrl(filename, type);
-    }
-    
-    // Si l'URL est déjà complète avec le bon domaine, la retourner telle quelle
-    if (imageUrl.startsWith('https://www.orig-ami.eu/img/')) {
-      return imageUrl;
     }
     
     // Si c'est un chemin relatif comme "img/beneficiaire/fichier.webp", extraire le nom
@@ -149,7 +167,7 @@ export class BeneficiaireService {
       return this.buildImageUrl(filename, type);
     }
     
-    // Si c'est juste un nom de fichier (cas principal après migration), construire l'URL complète
+    // Si c'est juste un nom de fichier, construire l'URL complète
     if (!imageUrl.includes('/')) {
       return this.buildImageUrl(imageUrl, type);
     }

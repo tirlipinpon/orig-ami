@@ -33,62 +33,125 @@
         </div>
 
         <div class="form-group">
-          <label for="image_url">Nom du fichier image *</label>
+          <label for="image_url">Image *</label>
+          <small class="image-constraints">
+            Max: 500x500px, 500KB • Formats: JPG, PNG, WebP, SVG, GIF
+          </small>
+          
+          <!-- Bouton pour choisir une image -->
+          <div class="image-upload-container">
+            <input 
+              type="file" 
+              #fileInput
+              id="fileInput" 
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/svg+xml,image/gif"
+              (change)="onFileSelected($event)"
+              style="display: none;">
+            
+            <div class="upload-buttons">
+              <button 
+                type="button" 
+                class="btn-upload"
+                (click)="fileInput.click()"
+                [disabled]="isUploading || isSubmitting">
+                @if (isUploading) {
+                  <span class="loading-spinner">⏳</span> Validation en cours...
+                } @else {
+                  📁 Choisir une image
+                }
+              </button>
+
+              @if (canEditImage()) {
+                <button 
+                  type="button" 
+                  class="btn-edit"
+                  (click)="openImageEditor()"
+                  [disabled]="isUploading || isSubmitting">
+                  ✏️ Modifier l'image
+                </button>
+              }
+            </div>
+
+            @if (uploadError) {
+              <span class="error-message">{{ uploadError }}</span>
+            }
+
+            @if (uploadSuccess) {
+              <span class="success-message">✓ Image validée avec succès</span>
+            }
+          </div>
+
+          <!-- Informations de l'image -->
+          @if (imageInfo && selectedFile) {
+            <div class="image-info" [class.has-error]="uploadError">
+              <div class="info-row">
+                <span class="info-label">Type :</span>
+                <span class="info-value">{{ imageInfo.type }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Taille :</span>
+                <span class="info-value" [class.invalid-value]="!imageInfo.sizeValid">
+                  {{ formatFileSize(imageInfo.size) }}
+                  @if (!imageInfo.sizeValid) {
+                    <span class="limit-text">(max: 500 KB)</span>
+                  }
+                </span>
+              </div>
+              @if (imageInfo.width > 0 || imageInfo.height > 0) {
+                <div class="info-row">
+                  <span class="info-label">Dimensions :</span>
+                  <span class="info-value">
+                    <span [class.invalid-value]="!imageInfo.widthValid">{{ imageInfo.width }}px</span>
+                    ×
+                    <span [class.invalid-value]="!imageInfo.heightValid">{{ imageInfo.height }}px</span>
+                    @if (!imageInfo.widthValid || !imageInfo.heightValid) {
+                      <span class="limit-text">(max: 500×500 px)</span>
+                    }
+                  </span>
+                </div>
+              }
+              @if (uploadError) {
+                <div class="info-row error-row">
+                  <span class="error-summary">{{ uploadError }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Prévisualisation de l'image -->
+          @if (imagePreviewUrl || editingItem?.image_url) {
+            <div class="image-preview">
+              <img 
+                [src]="imagePreviewUrl || editingItem?.image_url" 
+                [alt]="form.get('alt_text')?.value || 'Aperçu'"
+                [style.width.px]="form.get('image_width')?.value || 200">
+              @if (imagePreviewUrl || selectedFileName) {
+                <button 
+                  type="button" 
+                  class="btn-remove-image"
+                  (click)="removeImage()"
+                  [disabled]="isUploading || isSubmitting">
+                  ✕ Supprimer
+                </button>
+              }
+            </div>
+          }
+
+          <!-- Nom du fichier (caché mais conservé pour compatibilité) -->
           <input 
-            type="text" 
-            id="image_url" 
-            formControlName="image_url"
-            placeholder="nom.jpg (ex: logo.png, image.svg)"
-            [class.invalid]="isFieldInvalid('image_url')"
-            [class.valid]="isFieldValid('image_url')">
+            type="hidden" 
+            formControlName="image_url">
+          
           @if (isFieldInvalid('image_url')) {
             <span class="error-message">{{ getErrorMessage('image_url') }}</span>
           }
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="alt_text">Texte alternatif *</label>
-          <input 
-            type="text" 
-            id="alt_text" 
-            formControlName="alt_text"
-            placeholder="Description de l'image"
-            [class.invalid]="isFieldInvalid('alt_text')"
-            [class.valid]="isFieldValid('alt_text')">
-          @if (isFieldInvalid('alt_text')) {
-            <span class="error-message">{{ getErrorMessage('alt_text') }}</span>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="title">Titre *</label>
-          <input 
-            type="text" 
-            id="title" 
-            formControlName="title"
-            placeholder="Titre au survol"
-            [class.invalid]="isFieldInvalid('title')"
-            [class.valid]="isFieldValid('title')">
-          @if (isFieldInvalid('title')) {
-            <span class="error-message">{{ getErrorMessage('title') }}</span>
-          }
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="image_width">Largeur de l'image (px) *</label>
-        <input 
-          type="number" 
-          id="image_width" 
-          formControlName="image_width"
-          [class.invalid]="isFieldInvalid('image_width')"
-          [class.valid]="isFieldValid('image_width')">
-        @if (isFieldInvalid('image_width')) {
-          <span class="error-message">{{ getErrorMessage('image_width') }}</span>
-        }
-      </div>
+      <!-- Champs cachés (gérés automatiquement) -->
+      <input type="hidden" formControlName="alt_text">
+      <input type="hidden" formControlName="title">
+      <input type="hidden" formControlName="image_width">
 
       <div class="form-actions">
         <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isSubmitting">Annuler</button>
@@ -107,6 +170,17 @@
         </div>
       }
     </form>
+
+    <!-- Éditeur d'image -->
+    <app-image-editor
+      [show]="showImageEditor"
+      [originalFile]="imageToEdit"
+      [maxWidth]="500"
+      [maxHeight]="500"
+      [maxSizeKB]="500"
+      (result)="onImageEditResult($event)"
+      (cancel)="onImageEditCancel()">
+    </app-image-editor>
   </div>
 </div>
 
