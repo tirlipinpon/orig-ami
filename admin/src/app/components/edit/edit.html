@@ -162,14 +162,11 @@
 
         <!-- Liste des bénéficiaires -->
         <div 
-          class="items-grid" 
-          cdkDropList
-          cdkDropListOrientation="horizontal"
-          [cdkDropListAutoScrollDisabled]="false"
-          (cdkDropListDropped)="dropBeneficiaire($event)">
+          #beneficiairesGrid
+          class="items-grid">
           @for (item of beneficiaires; track item.id) {
-            <div class="item-card" [class.inactive]="!item.actif" cdkDrag>
-              <div class="drag-handle" cdkDragHandle>
+            <div class="item-card" [class.inactive]="!item.actif">
+              <div class="drag-handle">
                 <span class="drag-icon">⋮⋮</span>
               </div>
               <a [href]="item.url" target="_blank" rel="noopener noreferrer" class="item-image-link">
@@ -318,14 +315,11 @@
 
         <!-- Liste des donateurs -->
         <div 
-          class="items-grid" 
-          cdkDropList
-          cdkDropListOrientation="horizontal"
-          [cdkDropListAutoScrollDisabled]="false"
-          (cdkDropListDropped)="dropDonateur($event)">
+          #donateursGrid
+          class="items-grid">
           @for (item of donateurs; track item.id) {
-            <div class="item-card" [class.inactive]="!item.actif" cdkDrag>
-              <div class="drag-handle" cdkDragHandle>
+            <div class="item-card" [class.inactive]="!item.actif">
+              <div class="drag-handle">
                 <span class="drag-icon">⋮⋮</span>
               </div>
               <a [href]="item.url" target="_blank" rel="noopener noreferrer" class="item-image-link">

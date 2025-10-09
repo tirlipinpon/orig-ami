@@ -1,19 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-drop';
+import Sortable from 'sortablejs';
 import { Auth } from '../../services/auth';
 import { BeneficiaireService } from '../../services/beneficiaire';
 import { Beneficiaire, BeneficiaireCreate } from '../../models/beneficiaire.model';
 
 @Component({
   selector: 'app-edit',
-  imports: [CommonModule, FormsModule, DragDropModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './edit.html',
   styleUrl: './edit.css'
 })
-export class Edit implements OnInit {
+export class Edit implements OnInit, AfterViewInit {
   userEmail: string | null = '';
   isLoggingOut: boolean = false;
   
@@ -45,6 +45,12 @@ export class Edit implements OnInit {
   // Onglet actif
   activeTab: 'beneficiaires' | 'donateurs' = 'beneficiaires';
 
+  // SortableJS
+  @ViewChild('beneficiairesGrid', { static: false }) beneficiairesGrid!: ElementRef;
+  @ViewChild('donateursGrid', { static: false }) donateursGrid!: ElementRef;
+  private beneficiairesSortable?: Sortable;
+  private donateursSortable?: Sortable;
+
   constructor(
     private authService: Auth,
     private router: Router,
@@ -60,6 +66,16 @@ export class Edit implements OnInit {
     });
 
     await this.loadData();
+    
+    // Vérifier et corriger l'ordre si nécessaire
+    await this.verifierEtCorrigerOrdre();
+  }
+
+  ngAfterViewInit(): void {
+    // Initialiser SortableJS après que la vue soit prête
+    setTimeout(() => {
+      this.initializeSortable();
+    }, 500);
   }
 
   async loadData(): Promise<void> {
@@ -69,6 +85,11 @@ export class Edit implements OnInit {
     try {
       this.beneficiaires = await this.beneficiaireService.getByType('beneficiaire');
       this.donateurs = await this.beneficiaireService.getByType('donateur');
+      
+      // Réinitialiser SortableJS après le chargement des données
+      setTimeout(() => {
+        this.initializeSortable();
+      }, 200);
     } catch (error: any) {
       this.errorMessage = 'Erreur lors du chargement des données: ' + error.message;
       console.error('Erreur de chargement:', error);
@@ -80,7 +101,13 @@ export class Edit implements OnInit {
   switchTab(tab: 'beneficiaires' | 'donateurs'): void {
     this.activeTab = tab;
     this.cancelEdit();
+    
+    // Réinitialiser SortableJS après le changement d'onglet
+    setTimeout(() => {
+      this.initializeSortable();
+    }, 100);
   }
+
 
   openAddForm(type: 'beneficiaire' | 'donateur'): void {
     this.editingItem = null;
@@ -200,25 +227,69 @@ export class Edit implements OnInit {
     }
   }
 
-  async dropBeneficiaire(event: CdkDragDrop<Beneficiaire[]>): Promise<void> {
-    if (event.previousIndex === event.currentIndex) {
+  private initializeSortable(): void {
+    // Détruire les instances existantes
+    if (this.beneficiairesSortable) {
+      this.beneficiairesSortable.destroy();
+    }
+    if (this.donateursSortable) {
+      this.donateursSortable.destroy();
+    }
+
+    // Configuration SortableJS pour les bénéficiaires
+    if (this.beneficiairesGrid?.nativeElement) {
+      this.beneficiairesSortable = Sortable.create(this.beneficiairesGrid.nativeElement, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        handle: '.drag-handle',
+        forceFallback: true,
+        fallbackOnBody: true,
+        onEnd: (evt) => this.onBeneficiaireSortEnd(evt)
+      });
+    }
+
+    // Configuration SortableJS pour les donateurs (seulement si on est sur l'onglet donateurs)
+    if (this.activeTab === 'donateurs' && this.donateursGrid?.nativeElement) {
+      this.donateursSortable = Sortable.create(this.donateursGrid.nativeElement, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        handle: '.drag-handle',
+        forceFallback: true,
+        fallbackOnBody: true,
+        onEnd: (evt) => this.onDonateurSortEnd(evt)
+      });
+    }
+  }
+
+  private async onBeneficiaireSortEnd(evt: any): Promise<void> {
+    const { oldIndex, newIndex } = evt;
+    
+    if (oldIndex === newIndex) {
       return; // Pas de changement
     }
 
-    // Réorganiser localement
-    moveItemInArray(this.beneficiaires, event.previousIndex, event.currentIndex);
+    // SortableJS a déjà réorganisé le DOM, on synchronise notre tableau
+    const movedItem = this.beneficiaires.splice(oldIndex, 1)[0];
+    this.beneficiaires.splice(newIndex, 0, movedItem);
 
     // Mettre à jour les ordres dans la base de données
     await this.updateOrdres(this.beneficiaires);
   }
 
-  async dropDonateur(event: CdkDragDrop<Beneficiaire[]>): Promise<void> {
-    if (event.previousIndex === event.currentIndex) {
+  private async onDonateurSortEnd(evt: any): Promise<void> {
+    const { oldIndex, newIndex } = evt;
+    
+    if (oldIndex === newIndex) {
       return; // Pas de changement
     }
 
-    // Réorganiser localement
-    moveItemInArray(this.donateurs, event.previousIndex, event.currentIndex);
+    // SortableJS a déjà réorganisé le DOM, on synchronise notre tableau
+    const movedItem = this.donateurs.splice(oldIndex, 1)[0];
+    this.donateurs.splice(newIndex, 0, movedItem);
 
     // Mettre à jour les ordres dans la base de données
     await this.updateOrdres(this.donateurs);
@@ -227,9 +298,10 @@ export class Edit implements OnInit {
   private async updateOrdres(items: Beneficiaire[]): Promise<void> {
     try {
       // Mettre à jour l'ordre de chaque élément
-      const updates = items.map((item, index) => 
-        this.beneficiaireService.updateOrdre(item.id!, index + 1)
-      );
+      const updates = items.map((item, index) => {
+        item.ordre = index + 1; // Mettre à jour localement
+        return this.beneficiaireService.updateOrdre(item.id!, index + 1);
+      });
       
       await Promise.all(updates);
       
@@ -240,6 +312,28 @@ export class Edit implements OnInit {
     } catch (error: any) {
       this.errorMessage = 'Erreur lors de la mise à jour de l\'ordre: ' + error.message;
       console.error('Erreur de réorganisation:', error);
+    }
+  }
+
+  private async verifierEtCorrigerOrdre(): Promise<void> {
+    try {
+      // Vérifier si l'ordre est cohérent pour les bénéficiaires
+      const ordreIncoherent = this.beneficiaires.some((item, index) => item.ordre !== index + 1);
+      
+      if (ordreIncoherent) {
+        console.log('Ordre incohérent détecté pour les bénéficiaires, correction automatique...');
+        await this.updateOrdres(this.beneficiaires);
+      }
+
+      // Vérifier si l'ordre est cohérent pour les donateurs
+      const ordreIncoherentDonateurs = this.donateurs.some((item, index) => item.ordre !== index + 1);
+      
+      if (ordreIncoherentDonateurs) {
+        console.log('Ordre incohérent détecté pour les donateurs, correction automatique...');
+        await this.updateOrdres(this.donateurs);
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de la vérification de l\'ordre:', error);
     }
   }
 

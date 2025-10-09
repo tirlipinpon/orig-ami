@@ -5,6 +5,7 @@
 Le fichier `.gitignore` a été configuré pour **protéger vos clés Supabase**.
 
 ### Fichiers IGNORÉS (ne seront pas committés) :
+
 ```
 /src/environments/environment.ts
 /src/environments/environment.development.ts
@@ -13,6 +14,7 @@ Le fichier `.gitignore` a été configuré pour **protéger vos clés Supabase**
 ```
 
 ### Fichier INCLUS (modèle pour les autres développeurs) :
+
 ```
 /src/environments/environment.example.ts ✅
 ```
@@ -22,6 +24,7 @@ Le fichier `.gitignore` a été configuré pour **protéger vos clés Supabase**
 Le dossier `admin/` a été ajouté au repository git du projet `orig-ami`.
 
 ### Structure ajoutée :
+
 ```
 admin/
 ├── .gitignore                    ✅ Protège les secrets
@@ -57,12 +60,14 @@ admin/
 ## ⚠️ IMPORTANT - Fichiers sensibles
 
 Les fichiers suivants contiennent vos **clés Supabase** et ne sont **PAS committés** :
+
 ```
 ❌ src/environments/environment.ts
 ❌ src/environments/environment.development.ts
 ```
 
 ### Pourquoi ?
+
 - Ces fichiers contiennent votre **URL Supabase**
 - Ils contiennent votre **clé anon** (publique mais sensible)
 - Ils sont spécifiques à VOTRE projet
@@ -72,6 +77,7 @@ Les fichiers suivants contiennent vos **clés Supabase** et ne sont **PAS commit
 Si quelqu'un clone le projet, il devra :
 
 ### 1. Copier le fichier exemple
+
 ```bash
 cd admin/src/environments
 cp environment.example.ts environment.ts
@@ -79,15 +85,18 @@ cp environment.example.ts environment.development.ts
 ```
 
 ### 2. Configurer ses credentials
+
 Éditer `environment.ts` et `environment.development.ts` avec ses propres clés Supabase.
 
 ### 3. Installer les dépendances
+
 ```bash
 cd admin
 npm install
 ```
 
 ### 4. Lancer l'app
+
 ```bash
 ng serve
 ```
@@ -105,12 +114,14 @@ git add admin
 ## 🔍 Vérifier ce qui est ignoré
 
 Pour voir les fichiers qui seront ignorés :
+
 ```bash
 cd admin
 git status --ignored
 ```
 
 Pour voir les fichiers qui seront committés :
+
 ```bash
 git status
 ```
@@ -128,6 +139,7 @@ SUPABASE_ANON_KEY=votre-cle-ici
 ```
 
 Puis ajoutez dans `.gitignore` :
+
 ```
 .env.local
 .env.*.local
@@ -141,6 +153,7 @@ Les autres développeurs devront faire `npm install` après le clone.
 ## 🔐 Meilleures pratiques
 
 ### À NE JAMAIS committer :
+
 - ❌ `node_modules/`
 - ❌ `dist/` (build de production)
 - ❌ `environment*.ts` (sauf .example)
@@ -148,6 +161,7 @@ Les autres développeurs devront faire `npm install` après le clone.
 - ❌ Clés API, tokens, passwords
 
 ### À toujours committer :
+
 - ✅ Code source (`.ts`, `.html`, `.css`)
 - ✅ Fichiers de configuration (`angular.json`, `package.json`)
 - ✅ Migrations SQL
@@ -172,6 +186,7 @@ git push
 ## ⚠️ Avertissement
 
 **Avant de pousser sur un repository public** :
+
 1. ✅ Vérifiez que `.gitignore` ignore bien les environments
 2. ✅ Vérifiez qu'aucune clé Supabase n'est committée
 3. ✅ Faites `git log` pour voir le dernier commit
@@ -209,4 +224,3 @@ git push origin feature/nom-de-la-feature
 ```
 
 Votre dossier admin est maintenant prêt à être versionné en toute sécurité ! 🎉
-
