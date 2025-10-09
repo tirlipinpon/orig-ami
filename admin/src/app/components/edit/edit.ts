@@ -154,9 +154,90 @@ export class Edit implements OnInit, AfterViewInit {
     this.successMessage = '';
   }
 
+  private validateFormData(): string | null {
+    // Validation du nom
+    if (!this.formData.nom || this.formData.nom.trim() === '') {
+      return 'Le nom est obligatoire';
+    }
+    if (this.formData.nom.trim().length < 2) {
+      return 'Le nom doit contenir au moins 2 caractères';
+    }
+    if (this.formData.nom.trim().length > 100) {
+      return 'Le nom ne peut pas dépasser 100 caractères';
+    }
+
+    // Validation de l'URL
+    if (!this.formData.url || this.formData.url.trim() === '') {
+      return 'L\'URL est obligatoire';
+    }
+    try {
+      const url = new URL(this.formData.url.trim());
+      if (!['http:', 'https:'].includes(url.protocol)) {
+        return 'L\'URL doit commencer par http:// ou https://';
+      }
+    } catch {
+      return 'L\'URL n\'est pas valide (format attendu: https://exemple.com)';
+    }
+
+    // Validation du chemin de l'image
+    if (!this.formData.image_url || this.formData.image_url.trim() === '') {
+      return 'Le chemin de l\'image est obligatoire';
+    }
+    if (!this.formData.image_url.trim().match(/\.(jpg|jpeg|png|gif|svg|webp)$/i)) {
+      return 'Le chemin de l\'image doit se terminer par une extension valide (.jpg, .png, .gif, .svg, .webp)';
+    }
+
+    // Validation du texte alternatif
+    if (!this.formData.alt_text || this.formData.alt_text.trim() === '') {
+      return 'Le texte alternatif est obligatoire (important pour l\'accessibilité)';
+    }
+    if (this.formData.alt_text.trim().length < 3) {
+      return 'Le texte alternatif doit contenir au moins 3 caractères';
+    }
+
+    // Validation du titre
+    if (!this.formData.title || this.formData.title.trim() === '') {
+      return 'Le titre est obligatoire';
+    }
+    if (this.formData.title.trim().length < 3) {
+      return 'Le titre doit contenir au moins 3 caractères';
+    }
+
+    // Validation de la largeur de l'image
+    if (!this.formData.image_width || this.formData.image_width < 50 || this.formData.image_width > 500) {
+      return 'La largeur de l\'image doit être entre 50 et 500 pixels';
+    }
+
+    // Validation de l'ordre
+    if (!this.formData.ordre || this.formData.ordre < 1) {
+      return 'L\'ordre d\'affichage doit être supérieur ou égal à 1';
+    }
+
+    // Validation du type
+    if (!this.formData.type || !['beneficiaire', 'donateur'].includes(this.formData.type)) {
+      return 'Le type doit être "beneficiaire" ou "donateur"';
+    }
+
+    return null; // Pas d'erreur
+  }
+
   async saveItem(): Promise<void> {
     this.errorMessage = '';
     this.successMessage = '';
+    
+    // Validation des champs
+    const validationError = this.validateFormData();
+    if (validationError) {
+      this.errorMessage = validationError;
+      return;
+    }
+
+    // Nettoyer les espaces dans les champs texte
+    this.formData.nom = this.formData.nom.trim();
+    this.formData.url = this.formData.url.trim();
+    this.formData.image_url = this.formData.image_url.trim();
+    this.formData.alt_text = this.formData.alt_text.trim();
+    this.formData.title = this.formData.title.trim();
     
     try {
       if (this.editingItem) {

@@ -66,6 +66,13 @@
             <div class="form-container">
               <h3>{{ editingItem ? 'Modifier' : 'Ajouter' }} un bénéficiaire</h3>
               
+              <!-- Messages d'erreur -->
+              @if (errorMessage) {
+                <div class="alert alert-error">
+                  ⚠️ {{ errorMessage }}
+                </div>
+              }
+              
               <form (ngSubmit)="saveItem()">
                 <div class="form-group">
                   <label for="nom">Nom *</label>
@@ -218,6 +225,13 @@
           <div class="form-modal">
             <div class="form-container">
               <h3>{{ editingItem ? 'Modifier' : 'Ajouter' }} un donateur</h3>
+              
+              <!-- Messages d'erreur -->
+              @if (errorMessage) {
+                <div class="alert alert-error">
+                  ⚠️ {{ errorMessage }}
+                </div>
+              }
               
               <form (ngSubmit)="saveItem()">
                   <div class="form-group">

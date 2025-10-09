@@ -4,6 +4,44 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Alertes */
+.alert {
+  padding: 15px 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alert-error {
+  background-color: #fee;
+  color: #c33;
+  border: 2px solid #fcc;
+  box-shadow: 0 2px 8px rgba(204, 51, 51, 0.1);
+}
+
+.alert-success {
+  background-color: #efe;
+  color: #3c3;
+  border: 2px solid #cfc;
+  box-shadow: 0 2px 8px rgba(51, 204, 51, 0.1);
+}
+
 .header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -213,16 +251,27 @@
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 2px solid #ddd;
   border-radius: 6px;
   font-size: 14px;
-  transition: border-color 0.3s;
+  transition: all 0.3s;
   box-sizing: border-box;
 }
 
 .form-group input:focus {
   outline: none;
   border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Validation visuelle des champs requis */
+.form-group input:invalid:not(:placeholder-shown) {
+  border-color: #e74c3c;
+  background-color: #fff5f5;
+}
+
+.form-group input:valid:not(:placeholder-shown) {
+  border-color: #27ae60;
 }
 
 .form-row {
