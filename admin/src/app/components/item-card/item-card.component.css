@@ -57,7 +57,27 @@
 }
 
 .item-card.inactive {
+  opacity: 1;
+  border: 2px solid rgba(244, 67, 54, 0.3);
+  background: rgba(244, 67, 54, 0.02);
+}
+
+.item-card.inactive .item-image {
+  background: rgba(244, 67, 54, 0.05);
+  border: 1px solid rgba(244, 67, 54, 0.2);
+}
+
+.item-card.inactive .item-image img {
   opacity: 0.6;
+  filter: grayscale(50%);
+}
+
+.item-card.inactive .item-info h3 {
+  color: #e57373;
+}
+
+.item-card.inactive .item-url a {
+  color: #ef5350;
 }
 
 /* Styles pour SortableJS */
