@@ -100,18 +100,26 @@
   transform: scale(0.95);
 }
 
-.drag-icon {
-  font-size: 20px;
+/* Icône de main avec CSS */
+.drag-handle::after {
+  content: '✋';
+  font-size: 18px;
   font-weight: bold;
   color: #999;
-  user-select: none;
-  display: block;
-  line-height: 1;
-  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  transition: all 0.2s;
 }
 
-.drag-handle:hover .drag-icon {
+.drag-handle:hover::after {
+  content: '✊';
   color: white;
+}
+
+.drag-handle:active::after {
+  content: '✊';
 }
 
 /* Améliorer la visibilité de la poignée */
@@ -126,16 +134,11 @@
   border-radius: 10px;
   opacity: 0;
   transition: opacity 0.2s;
+  z-index: -1;
 }
 
 .drag-handle:hover::before {
   opacity: 1;
-}
-
-.item-image-link {
-  display: block;
-  text-decoration: none;
-  color: inherit;
 }
 
 .item-image {
@@ -150,13 +153,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  transition: all 0.3s ease;
   flex-shrink: 0; /* Empêche la réduction de taille */
-}
-
-.item-image-link:hover .item-image {
-  background: #e8e8e8;
-  transform: scale(1.02);
 }
 
 .item-image img {
@@ -165,37 +162,7 @@
   width: auto;
   height: auto;
   border-radius: 4px;
-  transition: opacity 0.3s ease;
   object-fit: contain; /* Maintient les proportions sans déformation */
-}
-
-.link-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(102, 126, 234, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: 8px;
-}
-
-.item-image-link:hover .link-overlay {
-  opacity: 1;
-}
-
-.link-icon {
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  border: 2px solid white;
 }
 
 .inactive-badge {

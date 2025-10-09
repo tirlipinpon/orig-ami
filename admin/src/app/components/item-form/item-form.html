@@ -48,29 +48,17 @@
               (change)="onFileSelected($event)"
               style="display: none;">
             
-            <div class="upload-buttons">
-              <button 
-                type="button" 
-                class="btn-upload"
-                (click)="fileInput.click()"
-                [disabled]="isUploading || isSubmitting">
-                @if (isUploading) {
-                  <span class="loading-spinner">⏳</span> Validation en cours...
-                } @else {
-                  📁 Choisir une image
-                }
-              </button>
-
-              @if (canEditImage()) {
-                <button 
-                  type="button" 
-                  class="btn-edit"
-                  (click)="openImageEditor()"
-                  [disabled]="isUploading || isSubmitting">
-                  ✏️ Modifier l'image
-                </button>
+            <button 
+              type="button" 
+              class="btn-upload"
+              (click)="fileInput.click()"
+              [disabled]="isUploading || isSubmitting || isAutoOptimizing">
+              @if (isUploading || isAutoOptimizing) {
+                <span class="loading-spinner">⏳</span> {{ isAutoOptimizing ? 'Optimisation...' : 'Validation en cours...' }}
+              } @else {
+                📁 Choisir une image
               }
-            </div>
+            </button>
 
             @if (uploadError) {
               <span class="error-message">{{ uploadError }}</span>
@@ -81,42 +69,104 @@
             }
           </div>
 
-          <!-- Informations de l'image -->
-          @if (imageInfo && selectedFile) {
-            <div class="image-info" [class.has-error]="uploadError">
-              <div class="info-row">
-                <span class="info-label">Type :</span>
-                <span class="info-value">{{ imageInfo.type }}</span>
-              </div>
-              <div class="info-row">
-                <span class="info-label">Taille :</span>
-                <span class="info-value" [class.invalid-value]="!imageInfo.sizeValid">
-                  {{ formatFileSize(imageInfo.size) }}
-                  @if (!imageInfo.sizeValid) {
-                    <span class="limit-text">(max: 500 KB)</span>
-                  }
-                </span>
-              </div>
-              @if (imageInfo.width > 0 || imageInfo.height > 0) {
-                <div class="info-row">
-                  <span class="info-label">Dimensions :</span>
-                  <span class="info-value">
-                    <span [class.invalid-value]="!imageInfo.widthValid">{{ imageInfo.width }}px</span>
-                    ×
-                    <span [class.invalid-value]="!imageInfo.heightValid">{{ imageInfo.height }}px</span>
-                    @if (!imageInfo.widthValid || !imageInfo.heightValid) {
-                      <span class="limit-text">(max: 500×500 px)</span>
-                    }
-                  </span>
-                </div>
-              }
-              @if (uploadError) {
-                <div class="info-row error-row">
-                  <span class="error-summary">{{ uploadError }}</span>
-                </div>
-              }
-            </div>
-          }
+           <!-- Avant/Après Optimisation -->
+           @if (originalImageInfo && optimizedImageInfo) {
+             <div class="before-after-container">
+               <h4 class="optimization-title">✨ Image automatiquement optimisée</h4>
+               
+               <div class="comparison-grid">
+                 <!-- Image Originale -->
+                 <div class="comparison-column">
+                   <h5 class="comparison-header original">Avant</h5>
+                   <div class="comparison-info">
+                     <div class="info-row">
+                       <span class="info-label">Type :</span>
+                       <span class="info-value">{{ originalImageInfo.type }}</span>
+                     </div>
+                     <div class="info-row">
+                       <span class="info-label">Taille :</span>
+                       <span class="info-value invalid-value">{{ formatFileSize(originalImageInfo.size) }}</span>
+                     </div>
+                     <div class="info-row">
+                       <span class="info-label">Dimensions :</span>
+                       <span class="info-value invalid-value">{{ originalImageInfo.width }}×{{ originalImageInfo.height }}px</span>
+                     </div>
+                   </div>
+                 </div>
+
+                 <!-- Flèche -->
+                 <div class="comparison-arrow">→</div>
+
+                 <!-- Image Optimisée -->
+                 <div class="comparison-column">
+                   <h5 class="comparison-header optimized">Après</h5>
+                   <div class="comparison-info">
+                     <div class="info-row">
+                       <span class="info-label">Type :</span>
+                       <span class="info-value valid-value">{{ optimizedImageInfo.type }} ✅</span>
+                     </div>
+                     <div class="info-row">
+                       <span class="info-label">Taille :</span>
+                       <span class="info-value valid-value">
+                         {{ formatFileSize(optimizedImageInfo.size) }} ✅
+                         <span class="reduction-badge">
+                           -{{ ((originalImageInfo.size - optimizedImageInfo.size) / originalImageInfo.size * 100).toFixed(0) }}%
+                         </span>
+                       </span>
+                     </div>
+                     <div class="info-row">
+                       <span class="info-label">Dimensions :</span>
+                       <span class="info-value valid-value">{{ optimizedImageInfo.width }}×{{ optimizedImageInfo.height }}px ✅</span>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           }
+
+           <!-- Informations de l'image (affichage normal) -->
+           @if (imageInfo && selectedFile && !originalImageInfo) {
+             <div class="image-info" [class.has-error]="uploadError">
+               <div class="info-row">
+                 <span class="info-label">Type :</span>
+                 <span class="info-value">{{ imageInfo.type }}</span>
+               </div>
+               <div class="info-row">
+                 <span class="info-label">Taille :</span>
+                 <span class="info-value" [class.invalid-value]="!imageInfo.sizeValid">
+                   {{ formatFileSize(imageInfo.size) }}
+                   @if (!imageInfo.sizeValid) {
+                     <span class="limit-text">(max: 500 KB)</span>
+                   }
+                 </span>
+               </div>
+               @if (imageInfo.width > 0 || imageInfo.height > 0) {
+                 <div class="info-row">
+                   <span class="info-label">Dimensions :</span>
+                   <span class="info-value">
+                     <span [class.invalid-value]="!imageInfo.widthValid">{{ imageInfo.width }}px</span>
+                     ×
+                     <span [class.invalid-value]="!imageInfo.heightValid">{{ imageInfo.height }}px</span>
+                     @if (!imageInfo.widthValid || !imageInfo.heightValid) {
+                       <span class="limit-text">(max: 500×500 px)</span>
+                     }
+                   </span>
+                 </div>
+               }
+               @if (uploadError && !isAutoOptimizing) {
+                 <div class="info-row error-row">
+                   <span class="error-summary">{{ uploadError }}</span>
+                 </div>
+               }
+             </div>
+           }
+
+           <!-- Message d'optimisation en cours -->
+           @if (isAutoOptimizing) {
+             <div class="optimizing-message">
+               <span class="loading-spinner">⏳</span> Optimisation automatique en cours...
+             </div>
+           }
 
           <!-- Prévisualisation de l'image -->
           @if (imagePreviewUrl || editingItem?.image_url) {

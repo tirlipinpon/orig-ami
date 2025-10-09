@@ -47,6 +47,21 @@ export class ItemForm implements OnInit, OnDestroy {
   showImageEditor = false;
   imageToEdit: File | null = null;
 
+  // Avant/Après optimisation
+  originalImageInfo: {
+    type: string;
+    size: number;
+    width: number;
+    height: number;
+  } | null = null;
+  optimizedImageInfo: {
+    type: string;
+    size: number;
+    width: number;
+    height: number;
+  } | null = null;
+  isAutoOptimizing = false;
+
   ngOnInit(): void {
     this.initForm();
   }
@@ -209,10 +224,16 @@ export class ItemForm implements OnInit, OnDestroy {
     }
   }
 
-  private async uploadFile(file: File): Promise<void> {
+  private async uploadFile(file: File, isRetry: boolean = false): Promise<void> {
     this.isUploading = true;
     this.uploadError = '';
     this.uploadSuccess = false;
+    
+    // Ne pas réinitialiser les infos avant/après si c'est un retry après optimisation
+    if (!isRetry) {
+      this.originalImageInfo = null;
+      this.optimizedImageInfo = null;
+    }
 
     try {
       const folder = this.type === 'beneficiaire' ? 'beneficiaire' : 'sponsors';
@@ -229,19 +250,41 @@ export class ItemForm implements OnInit, OnDestroy {
         this.form.get('image_url')?.markAsDirty();
         this.form.get('image_url')?.markAsTouched();
 
-        // Masquer le message de succès après 3 secondes
+        // Masquer le message de succès et l'avant/après après 5 secondes
         setTimeout(() => {
           this.uploadSuccess = false;
+          // Nettoyer l'avant/après après succès
+          if (isRetry) {
+            setTimeout(() => {
+              this.originalImageInfo = null;
+              this.optimizedImageInfo = null;
+            }, 2000); // Garder visible 2 secondes de plus pour que l'utilisateur voie
+          }
         }, 3000);
       } else {
-        this.uploadError = result.error || 'Erreur lors de la validation';
-        // Ne pas supprimer les informations de l'image pour qu'elles restent visibles
-        // this.removeImage(); // Commenté pour garder les infos affichées
+        // Image non conforme - optimiser automatiquement seulement si ce n'est pas déjà un retry
+        if (!isRetry) {
+          this.uploadError = result.error || 'Erreur lors de la validation';
+          
+          // Sauvegarder les infos de l'image originale
+          if (this.imageInfo) {
+            this.originalImageInfo = {
+              type: this.imageInfo.type,
+              size: this.imageInfo.size,
+              width: this.imageInfo.width,
+              height: this.imageInfo.height
+            };
+          }
+
+          // Lancer l'optimisation automatique
+          await this.autoOptimizeImage(file);
+        } else {
+          // Si même après optimisation ça échoue, afficher l'erreur
+          this.uploadError = result.error || 'Erreur lors de la validation après optimisation';
+        }
       }
     } catch (error: any) {
       this.uploadError = 'Erreur lors de la validation: ' + error.message;
-      // Ne pas supprimer les informations de l'image pour qu'elles restent visibles
-      // this.removeImage(); // Commenté pour garder les infos affichées
     } finally {
       this.isUploading = false;
     }
@@ -374,6 +417,105 @@ export class ItemForm implements OnInit, OnDestroy {
 
   canEditImage(): boolean {
     return !!(this.selectedFile && this.imageInfo && (!this.imageInfo.sizeValid || !this.imageInfo.widthValid || !this.imageInfo.heightValid));
+  }
+
+  private async autoOptimizeImage(file: File): Promise<void> {
+    this.isAutoOptimizing = true;
+
+    try {
+      // Utiliser le service d'optimisation d'image directement
+      const optimizedFile = await this.optimizeImageAutomatically(file);
+
+      if (optimizedFile) {
+        // Remplacer le fichier
+        this.selectedFile = optimizedFile;
+        this.selectedFileName = optimizedFile.name;
+
+        // Extraire les infos de l'image optimisée
+        await this.extractImageInfo(optimizedFile);
+
+        // Sauvegarder les infos de l'image optimisée
+        if (this.imageInfo) {
+          this.optimizedImageInfo = {
+            type: this.imageInfo.type,
+            size: this.imageInfo.size,
+            width: this.imageInfo.width,
+            height: this.imageInfo.height
+          };
+        }
+
+        // Mettre à jour la prévisualisation
+        if (this.imagePreviewUrl) {
+          this.imageUploadService.revokePreviewUrl(this.imagePreviewUrl);
+        }
+        this.imagePreviewUrl = this.imageUploadService.createPreviewUrl(optimizedFile);
+
+        // Valider la nouvelle image (avec flag isRetry à true)
+        await this.uploadFile(optimizedFile, true);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'optimisation automatique:', error);
+      this.uploadError = 'Erreur lors de l\'optimisation automatique de l\'image';
+    } finally {
+      this.isAutoOptimizing = false;
+    }
+  }
+
+  private async optimizeImageAutomatically(file: File): Promise<File | null> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const maxWidth = 500;
+          const maxHeight = 500;
+
+          // Calculer les nouvelles dimensions
+          const ratio = Math.min(maxWidth / img.naturalWidth, maxHeight / img.naturalHeight);
+          const width = ratio >= 1 ? img.naturalWidth : Math.round(img.naturalWidth * ratio);
+          const height = ratio >= 1 ? img.naturalHeight : Math.round(img.naturalHeight * ratio);
+
+          // Créer le canvas
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Impossible de créer le contexte canvas'));
+            return;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          // Dessiner l'image redimensionnée
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Convertir en blob WebP avec qualité optimale
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Erreur lors de la conversion'));
+                return;
+              }
+
+              // Créer le nouveau fichier
+              const newFileName = file.name.replace(/\.[^/.]+$/, '') + '_optimized.webp';
+              const newFile = new File([blob], newFileName, { type: 'image/webp' });
+
+              resolve(newFile);
+            },
+            'image/webp',
+            0.85 // Qualité 85%
+          );
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      img.onerror = () => {
+        reject(new Error('Impossible de charger l\'image'));
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
   }
 
   private extractFilename(fullUrl: string): string {
