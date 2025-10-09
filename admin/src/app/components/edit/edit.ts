@@ -111,6 +111,11 @@ export class Edit implements OnInit, AfterViewInit {
 
   openAddForm(type: 'beneficiaire' | 'donateur'): void {
     this.editingItem = null;
+    
+    // Calculer le prochain ordre disponible
+    const items = type === 'beneficiaire' ? this.beneficiaires : this.donateurs;
+    const maxOrdre = items.length > 0 ? Math.max(...items.map(item => item.ordre)) : 0;
+    
     this.formData = {
       nom: '',
       url: '',
@@ -119,7 +124,7 @@ export class Edit implements OnInit, AfterViewInit {
       title: '',
       image_width: 200,
       type: type,
-      ordre: 0, // Nouvel élément toujours en premier
+      ordre: maxOrdre + 1, // Ajouter à la fin
       actif: true
     };
     
@@ -159,18 +164,9 @@ export class Edit implements OnInit, AfterViewInit {
         await this.beneficiaireService.update(this.editingItem.id!, this.formData);
         this.successMessage = 'Élément mis à jour avec succès !';
       } else {
-        // Création - Nouvel élément en premier, décaler les autres
-        const itemsToUpdate = this.formData.type === 'beneficiaire' ? this.beneficiaires : this.donateurs;
-        
-        // Créer le nouvel élément
+        // Création - Ajouter à la fin avec l'ordre calculé
         await this.beneficiaireService.create(this.formData);
-        
-        // Décaler tous les autres éléments d'un cran
-        for (const item of itemsToUpdate) {
-          await this.beneficiaireService.updateOrdre(item.id!, item.ordre + 1);
-        }
-        
-        this.successMessage = 'Élément créé avec succès en première position !';
+        this.successMessage = 'Élément créé avec succès !';
       }
       
       await this.loadData();
