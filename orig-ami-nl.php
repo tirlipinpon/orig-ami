@@ -1,3 +1,7 @@
+<?php
+// Récupérer les données depuis Supabase
+require_once 'get-data-supabase.php';
+?>
 <!doctype html>
 <html class="no-js" lang="">
 <head>
@@ -175,81 +179,33 @@
                     <i class="fa  fa-2x" aria-hidden="true"></i>
                     <h1>Zij hebben onze tenten ontvangen</h1>
            </div>
-
-
                <div id="beneficiaires">
                    <ul>
-                    <!-- bénéficiaires  -->
-                   <li><a target="_blank" href="https://www.cpasdeliege.be/"><img src="img/beneficiaire/cpas-liege.webp" alt="cpas liege" title="cpas liege" style="width:100px;"/></a></li>
-                   <li><a target="_blank" href="https://www.cpasdeverviers.be/"><img src="img/beneficiaire/cpas-veriviers.webp" alt="cpas verviers" title="cpas verviers" style="width:100px;"/></a></li>
-                   <li><a target="_blank" href="https://rollingdouche.com/"><img src="img/beneficiaire/rolling-douche.webp" alt="rolling douche" title="rolling douche" style="width:100px;"/></a></li>
-                       <li><a target="_blank" href="https://www.projetlama.be"><img src="img/beneficiaire/Lama.png" alt="projet lama" title="projet lama" style="width:130px;"/></a></li>
-                       <li><a target="_blank" href="https://www.operationthermos.be"><img src="img/beneficiaire/operation-thermos.png" alt="operation thermos" title="operation thermos" style="width:150px;"/></a></li>
-                       <li><a target="_blank" href="https://www.facebook.com/groups/126310760806454/about"><img src="img/beneficiaire/coeursdf.jpg" alt="coeur-sdf" title="coeur-sdf" style="width:200px;"/></a></li>
-                       <li><a target="_blank" href="https://rsbw.be/"><img src="img/beneficiaire/lerelaissocial.png" alt="le-relais-social" title="le-relais-social" style="width:140px;"/></a></li>
-                       <li><a target="_blank" href="https://www.m-bx.brussels/"><img src="img/beneficiaire/mbx.png" alt="mbx" title="mbx" style="width:200px;"/></a></li>
-                       <li><a target="_blank" href="https://www.operationthermos.be/"><img src="img/beneficiaire/operationthermos.png" alt="operation-thermos" title="operation-thermos" style="width:200px;"/></a></li>
-                       <li><a target="_blank" href="https://www.sentinellesdelanuit.be/"><img src="img/beneficiaire/sentinellesdelanuit.png" alt="sentinelles-de-la-nuit" title="sentinelles-de-la-nuit" style="width:140px;"/></a></li>
-                       <li><a target="_blank" href="https://www.sourceasbl.be/nos-actions/#restaurant"><img src="img/beneficiaire/source.png" alt="source" title="source" style="width:200px;"/></a></li>
-                       <li><a target="_blank" href="https://asblbenoitetmichel.be/"><img src="img/beneficiaire/untoipourtoi.jpeg" alt="un-toi-pour-toi" title="un-toi-pour-toi" style="width:140px;"/></a></li>
-                       <li><a target="_blank" href="https://www.cpas-molenbeek.be/"><img src="img/beneficiaire/cpas1080.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"/></a></li>
-                       <li><a target="_blank" href="https://cpasganshoren.be/"><img src="img/beneficiaire/cpasganshoren.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"></a></li>
-                       <li><a target="_blank" href="https://www.croix-rouge.be/"><img src="img/beneficiaire/croix-rouge.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"></a></li>
-                       <li><a target="_blank" href="http://www.lamaison1080hethuis.be/"><img src="img/beneficiaire/culture.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"></a></li>
-                       <li><a target="_blank" href="https://esch.lu/"><img src="img/beneficiaire/esch.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"></a></li>
-                       <li><a target="_blank" href="#"><img src="img/beneficiaire/hub.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"></a></li>
-                       <li><a target="_blank" href="http://formidable-asbl.com/"><img src="img/beneficiaire/formidable.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"></a></li>
-                       <li><a target="_blank" href="https://medecinsdumonde.be/"><img src="img/beneficiaire/mdm.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"></a></li>
-                       <li><a target="_blank" href="https://www.msf-azg.be/fr"><img src="img/beneficiaire/msf.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"></a></li>
-                       <li><a target="_blank" href="https://www.orderofmalta.int/"><img src="img/beneficiaire/order-malta.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"></a></li>
-                       <li><a target="_blank" href="#"><img src="img/beneficiaire/samaritans.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"></a></li>
-		               <li><a target="_blank" href="https://www.lastrada.brussels/portail/images/PDF/20161107-20170306_RAP_Denombrements_FR_BU20170616.pdf"><img src="img/beneficiaire/strada.jpg" alt="ORIG-AMI" title="ORIG-AMI" style="width:200px;"></a></li>
-		               <li><a target="_blank" href="https://www.sortirdubois.org/?fbclid=IwAR3uqRz3Xt2HQppy6lthsve8SpYaf9o1cNPPSIMkY6Ah-o7gsCylakhVF44"><img src="img/beneficiaire/sortirdubois.jpg" alt="sortirdubois" title="sortirdubois" style="width:200px;"/></a></li>
-                       <li><a target="_blank" href="https://restosducoeur.be/fr/nos-restos/resto-du-coeur-de-saint-gilles"><img src="img/beneficiaire/restosducoeur.jpg" alt="restosducoeur" title="restosducoeur" style="width:200px;"/></a></li>
-                       <li><a target="_blank" href="https://www.nativitas.be"><img src="img/beneficiaire/nativitas.jpg" alt="nativitas" title="nativitas" style="width:200px;"/></a></li>
-                        <li><a target="_blank" href=""><img src="img/beneficiaire/teamrabijacobs.jpg" alt="team rabi jacobs" title="team rabi jacobs" style="width:200px;"/></a></li>
-                        <li><a target="_blank" href="https://centresocial-lasource.com/"><img src="img/beneficiaire/lasource.jpg" alt="la source" title="la source" style="width:200px;"/></a></li>
-                        <li><a target="_blank" href="https://ilot.be/"><img src="img/beneficiaire/ilot.jpg" alt="ilot" title="l'ilot" style="width:200px;"/></a></li>
-                        <li><a target="_blank" href="https://www.flaj.be/"><img src="img/beneficiaire/FLAJ.jpg" alt="FLAJ" title="FLAJ" style="width:200px;"/></a></li>
-                        <li><a target="_blank" href="https://doucheflux.be/"><img src="img/beneficiaire/doucheflux.jpg" alt="douche flux" title="douche flux" style="width:200px;"/></a></li>
-                        <li><a target="_blank" href=""><img src="img/beneficiaire/circe.jpg" alt="circex" title="circe" style="width:200px;"/></a></li>
+                    <!-- bénéficiaires (données dynamiques depuis Supabase) -->
+                    <?php foreach ($beneficiaires as $item): ?>
+                    <li><a target="_blank" href="<?= htmlspecialchars($item['url']) ?>"><img src="<?= htmlspecialchars($item['image_url_full']) ?>" alt="<?= htmlspecialchars($item['alt_text']) ?>" title="<?= htmlspecialchars($item['title']) ?>" style="width:<?= intval($item['image_width']) ?>px;"/></a></li>
+                    <?php endforeach; ?>
                    </ul>
                </div>
 
 
 
-          <div class="title padding50" id="sponsors">
-                    <i class="fa  fa-2x" aria-hidden="true"></i>
-                    <h1>Partners</h1>
-           </div>
+       
 
 
-
+               <div class="title padding50" id="sponsors">
+                        <i class="fa  fa-2x" aria-hidden="true"></i>
+                        <h1>Partners</h1>
+                </div>
         <div id="donateurs">
-        <ul>
-            <!-- donateurs -->
-            <li><a target="_blank" href="https://www.afterfestivalrecup.be/"><img src="img/beneficiaire/after-festival-recup.webp" alt="after festival recup" title="after festival recup" style="width:200px;"/></a></li>
-            <li><a target="_blank" href="http://www.archi-schuiten.be/"><img src="img/sponsors/atelier-archi-schuiten.jpg" alt="atelier-archi-schuiten" title="atelier-archi-schuiten" style="width:100px;"/></a></li>
-                    <li><a target="_blank" href="#"><img src="img/sponsors/ifa.png" alt="ifa" title="ifa" style="width:100px;"/></a></li>
-                    <li><a target="_blank" href="https://www.nihoul.be/"><img src="img/sponsors/Nihoul.png" alt="Nihoul" title="Nihoul" style="width:100px;"/></a></li>
-                    <li><a target="_blank" href="https://numerisart.be/"><img src="img/sponsors/numeris-art.png" alt="numeris-art" title="numeris-art" style="width:100px;"/></a></li>
-                    <li><a target="_blank" href="https://www.rotary.org/fr"><img src="img/sponsors/rotary-international.PNG" alt="rotary-international" title="rotary-international" style="width:100px;"/></a></li>
-            <li><a target="_blank" href="https://www.hilton.com/fr/hotels/brugrhi-hilton-brussels-grand-place/"><img src="img/sponsors/hilton.jpeg" alt="hilton" title="hilton" style="width:200px;"/></a></li>
-            <li><a target="_blank" href="https://megabike-store.be/"><img src="img/sponsors/megabike.png" alt="megabike" title="megabike" style="width:200px;"/></a></li>
-            <li><a target="_blank" href="https://www.dagotyauction.com/"><img src="img/sponsors/dagoty.jpeg" alt="dagoty" title="dagoty" style="width:200px;"/></a></li>
-            <li><a target="_blank" href="http://www.leslasagnesducoeur.com/"><img src="img/sponsors/lasagnes.jpg" alt="" title="" style="width:53%; margin:50px 0 0 0"/></a></li>
-            <li><a target="_blank" href="https://www.dssmith.com/befr/packaging"><img src="img/sponsors/DS_Master_Full_CMYK.jpg" alt="ORIG-AMI" style="width:13%;"></a></li>
-            <li><a target="_blank" href="https://www.hallet.com/fr/contact.php"><img src="img/sponsors/hallet.jpg" alt="ORIG-AMI"></a></li>
-            <li><a target="_blank" href="http://www.cultures-com.org/"><img src="img/sponsors/culturescom.jpg" alt="ORIG-AMI"></a></li>
-            <li><a target="_blank" href="http://www.alizemaker.be/fr/accueil"><img src="img/sponsors/alize.jpg" alt="ORIG-AMI"></a></li>
-            <li><a target="_blank" href="https://www.lappelducoeur.org/"><img src="img/sponsors/appel.jpg" alt="ORIG-AMI"></a></li>
-            <li><a target="_blank" href="http://www.backstagecom.be/"><img src="img/sponsors/backstage.jpg" alt="ORIG-AMI"></a></li>
-            <li><a target="_blank" href="http://members.lionsclubs.org/FR/resources/logos/index.php"><img src="img/sponsors/lions.jpg" alt="ORIG-AMI"></a></li>
-            <li><a href="http://cellmade.be"><img src="img/sponsors/cellmade.jpg" alt="ORIG-AMI"></a></li>
-	    <li><a target="_blank" href="https://www.jardindeve.be/"><img src="img/sponsors/jardindeve.jpg" alt="jardindeve"></a></li>
-            <li><a target="_blank" href="https://www.calbw.be/"><img src="img/sponsors/calbw.jpg" alt="calbw"></a></li>
-        </ul>
-    </div>
+            <ul>
+                <!-- donateurs (données dynamiques depuis Supabase) -->
+            
+                <?php foreach ($donateurs as $item): ?>
+                <li><a target="_blank" href="<?= htmlspecialchars($item['url']) ?>"><img src="<?= htmlspecialchars($item['image_url_full']) ?>" alt="<?= htmlspecialchars($item['alt_text']) ?>" title="<?= htmlspecialchars($item['title']) ?>" style="width:<?= intval($item['image_width']) ?>px;"/></a></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
 
     <div id="content">
         <h1 id="firstHeading" class="firstHeading">Belgïe</h1>
