@@ -44,8 +44,9 @@ export class Auth {
       }
 
       return { success: false, error: 'Erreur de connexion' };
-    } catch (error: any) {
-      return { success: false, error: error.message || 'Erreur de connexion' };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur de connexion';
+      return { success: false, error: errorMessage };
     }
   }
 

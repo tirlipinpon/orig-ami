@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { Beneficiaire } from '../../models/beneficiaire.model';
 
 @Component({
@@ -7,8 +7,9 @@ import { Beneficiaire } from '../../models/beneficiaire.model';
   styleUrls: ['./item-card.component.css']
 })
 export class ItemCardComponent {
-  @Input() item!: Beneficiaire;
-  @Output() edit = new EventEmitter<Beneficiaire>();
-  @Output() toggleActif = new EventEmitter<Beneficiaire>();
-  @Output() delete = new EventEmitter<Beneficiaire>();
+  // Modern Angular signals-based inputs/outputs
+  item = input.required<Beneficiaire>();
+  edit = output<Beneficiaire>();
+  toggleActif = output<Beneficiaire>();
+  delete = output<Beneficiaire>();
 }

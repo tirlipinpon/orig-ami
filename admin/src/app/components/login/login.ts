@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Auth } from '../../services/auth';
@@ -11,12 +11,13 @@ import { CommonModule } from '@angular/common';
   styleUrl: './login.css'
 })
 export class Login {
+  private readonly authService = inject(Auth);
+  private readonly router = inject(Router);
+
   email: string = '';
   password: string = '';
   errorMessage: string = '';
   isLoading: boolean = false;
-
-  constructor(private authService: Auth, private router: Router) {}
 
   async onSubmit(): Promise<void> {
     this.errorMessage = '';
@@ -30,7 +31,7 @@ export class Login {
       } else {
         this.errorMessage = result.error || 'Email ou mot de passe invalide';
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.errorMessage = 'Erreur de connexion. Vérifiez votre configuration Supabase.';
       console.error('Erreur de connexion:', error);
     } finally {

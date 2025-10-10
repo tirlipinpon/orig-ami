@@ -1,8 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, input, output, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { Beneficiaire, BeneficiaireCreate } from '../../models/beneficiaire.model';
 import { ImageUploadService } from '../../services/image-upload.service';
+import { ImageProcessingService } from '../../services/image-processing.service';
+import { IMAGE_CONSTRAINTS } from '../../constants/image-constraints.const';
 import { ImageEditorComponent, ImageEditResult } from '../image-editor/image-editor.component';
 
 @Component({
@@ -12,15 +14,17 @@ import { ImageEditorComponent, ImageEditResult } from '../image-editor/image-edi
   styleUrl: './item-form.css'
 })
 export class ItemForm implements OnInit, OnDestroy {
-  private fb = inject(FormBuilder);
-  private imageUploadService = inject(ImageUploadService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly fb = inject(FormBuilder);
+  private readonly imageUploadService = inject(ImageUploadService);
+  private readonly imageProcessingService = inject(ImageProcessingService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  @Input() type: 'beneficiaire' | 'donateur' = 'beneficiaire';
-  @Input() editingItem: Beneficiaire | null = null;
+  // Modern Angular signals-based inputs/outputs
+  type = input<'beneficiaire' | 'donateur'>('beneficiaire');
+  editingItem = input<Beneficiaire | null>(null);
   
-  @Output() save = new EventEmitter<BeneficiaireCreate>();
-  @Output() cancel = new EventEmitter<void>();
+  save = output<BeneficiaireCreate>();
+  cancel = output<void>();
 
   form!: FormGroup;
   isSubmitting = false;
@@ -63,39 +67,49 @@ export class ItemForm implements OnInit, OnDestroy {
   } | null = null;
   isAutoOptimizing = false;
 
+  constructor() {
+    // Use effect to react to editingItem changes (replaces ngOnChanges)
+    effect(() => {
+      const item = this.editingItem();
+      // Re-initialize form when editingItem changes
+      this.initForm();
+    });
+  }
+
   ngOnInit(): void {
     this.initForm();
   }
 
   private initForm(): void {
+    const item = this.editingItem();
     this.form = this.fb.group({
       nom: [
-        this.editingItem?.nom || '', 
+        item?.nom || '', 
         [Validators.required, Validators.minLength(2), Validators.maxLength(100)]
       ],
       url: [
-        this.editingItem?.url || '', 
+        item?.url || '', 
         [Validators.required, Validators.pattern(/^https?:\/\/.+/)]
       ],
       image_url: [
-        this.extractFilename(this.editingItem?.image_url || ''), 
+        this.extractFilename(item?.image_url || ''), 
         [Validators.required, Validators.pattern(/\.(jpg|jpeg|png|gif|svg|webp)$/i)]
       ],
       alt_text: [
-        this.editingItem?.alt_text || '', 
+        item?.alt_text || '', 
         [Validators.required, Validators.minLength(3)]
       ],
       title: [
-        this.editingItem?.title || '', 
+        item?.title || '', 
         [Validators.required, Validators.minLength(3)]
       ],
       image_width: [
-        this.editingItem?.image_width || 150, 
+        item?.image_width || 150, 
         [Validators.required, Validators.min(50), Validators.max(500)]
       ],
       ordre: [1], // Valeur par défaut, non utilisée avec le tri par date
-      type: [this.type],
-      actif: [this.editingItem?.actif ?? true]
+      type: [this.type()],
+      actif: [item?.actif ?? true]
     });
   }
 
@@ -133,9 +147,10 @@ export class ItemForm implements OnInit, OnDestroy {
 
         console.log('💾 [SUBMIT] Émission de l\'événement save');
         this.save.emit(data);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('❌ [SUBMIT] Erreur lors de la soumission:', error);
-        this.uploadError = 'Erreur lors de l\'upload de l\'image: ' + error.message;
+        const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+        this.uploadError = 'Erreur lors de l\'upload de l\'image: ' + errorMessage;
         this.isSubmitting = false;
       }
     } else if (!this.form.valid) {
@@ -159,7 +174,7 @@ export class ItemForm implements OnInit, OnDestroy {
    * Détermine si le bouton de sauvegarde doit être désactivé
    */
   isSubmitDisabled(): boolean {
-    return this.form.invalid || (this.editingItem && !this.form.dirty) || this.isSubmitting;
+    return this.form.invalid || (this.editingItem() && !this.form.dirty) || this.isSubmitting;
   }
 
   ngOnDestroy(): void {
@@ -200,52 +215,7 @@ export class ItemForm implements OnInit, OnDestroy {
 
   private async extractImageInfo(file: File): Promise<void> {
     try {
-      // Informations de base
-      const maxSize = 500 * 1024; // 500KB
-      const maxWidth = 500;
-      const maxHeight = 500;
-
-      // Extraire le type de fichier lisible
-      let fileType = 'Inconnu';
-      if (file.type === 'image/jpeg' || file.type === 'image/jpg') fileType = 'JPEG';
-      else if (file.type === 'image/png') fileType = 'PNG';
-      else if (file.type === 'image/webp') fileType = 'WebP';
-      else if (file.type === 'image/svg+xml') fileType = 'SVG';
-      else if (file.type === 'image/gif') fileType = 'GIF';
-
-      // Obtenir les dimensions
-      let width = 0;
-      let height = 0;
-
-      if (file.type !== 'image/svg+xml') {
-        const img = new Image();
-        const url = URL.createObjectURL(file);
-
-        await new Promise((resolve, reject) => {
-          img.onload = () => {
-            width = img.naturalWidth;
-            height = img.naturalHeight;
-            URL.revokeObjectURL(url);
-            resolve(true);
-          };
-          img.onerror = () => {
-            URL.revokeObjectURL(url);
-            reject(new Error('Impossible de lire les dimensions'));
-          };
-          img.src = url;
-        });
-      }
-
-      // Stocker les informations avec validation
-      this.imageInfo = {
-        type: fileType,
-        size: file.size,
-        width: width,
-        height: height,
-        sizeValid: file.size <= maxSize,
-        widthValid: width === 0 || width <= maxWidth, // 0 pour SVG
-        heightValid: height === 0 || height <= maxHeight // 0 pour SVG
-      };
+      this.imageInfo = await this.imageProcessingService.extractImageInfo(file);
     } catch (error) {
       console.error('Erreur lors de l\'extraction des infos:', error);
       this.imageInfo = null;
@@ -320,8 +290,9 @@ export class ItemForm implements OnInit, OnDestroy {
           this.uploadError = result.error || 'Erreur lors de la validation après optimisation';
         }
       }
-    } catch (error: any) {
-      this.uploadError = 'Erreur lors de la validation: ' + error.message;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      this.uploadError = 'Erreur lors de la validation: ' + errorMessage;
     } finally {
       this.isUploading = false;
     }
@@ -337,13 +308,16 @@ export class ItemForm implements OnInit, OnDestroy {
     this.uploadError = '';
     
     try {
-      const folder = this.type === 'beneficiaire' ? 'beneficiaire' : 'sponsors';
+      const folder = this.type() === 'beneficiaire' 
+        ? IMAGE_CONSTRAINTS.STORAGE_FOLDERS.BENEFICIAIRE 
+        : IMAGE_CONSTRAINTS.STORAGE_FOLDERS.SPONSORS;
       const itemName = this.form.get('nom')?.value || '';
       
       // Si on édite un item et qu'il avait déjà une image, la supprimer d'abord
-      if (this.editingItem && this.editingItem.image_url) {
-        console.log('🗑️ [UPLOAD-SUPABASE] Suppression ancienne image:', this.editingItem.image_url);
-        await this.imageUploadService.deleteImage(this.editingItem.image_url, folder);
+      const item = this.editingItem();
+      if (item && item.image_url) {
+        console.log('🗑️ [UPLOAD-SUPABASE] Suppression ancienne image:', item.image_url);
+        await this.imageUploadService.deleteImage(item.image_url, folder);
       }
       
       // Upload la nouvelle image avec le nom de l'item
@@ -362,9 +336,10 @@ export class ItemForm implements OnInit, OnDestroy {
         console.error('❌ [UPLOAD-SUPABASE] Échec:', result.error);
         throw new Error(result.error || 'Erreur upload Supabase');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ [UPLOAD-SUPABASE] Exception:', error);
-      throw new Error('Erreur upload Supabase: ' + error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      throw new Error('Erreur upload Supabase: ' + errorMessage);
     } finally {
       this.isUploading = false;
     }
@@ -400,10 +375,7 @@ export class ItemForm implements OnInit, OnDestroy {
 
   // Méthodes utilitaires pour l'affichage
   formatFileSize(bytes: number): string {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    if (bytes < k) return bytes + ' B';
-    return (bytes / k).toFixed(1) + ' KB';
+    return this.imageProcessingService.formatFileSize(bytes);
   }
 
   private autoFillAltTextAndTitle(): void {
@@ -415,7 +387,7 @@ export class ItemForm implements OnInit, OnDestroy {
     }
 
     // Formater le nom correctement (nettoyer les caractères spéciaux)
-    const formattedNom = this.formatNomForAltText(nom);
+    const formattedNom = this.imageProcessingService.formatNameForAltText(nom);
 
     // Pré-remplir alt_text si vide
     if (!this.form.get('alt_text')?.value) {
@@ -430,20 +402,6 @@ export class ItemForm implements OnInit, OnDestroy {
         title: formattedNom
       });
     }
-  }
-
-  private formatNomForAltText(nom: string): string {
-    // Nettoyer le nom : enlever les caractères spéciaux problématiques
-    let formatted = nom.trim();
-    
-    // Remplacer les caractères spéciaux par des espaces ou les supprimer
-    formatted = formatted
-      .replace(/[<>\"'\/\\]/g, '') // Supprimer les caractères dangereux
-      .replace(/[_-]+/g, ' ') // Remplacer underscores et tirets par des espaces
-      .replace(/\s+/g, ' ') // Remplacer les espaces multiples par un seul
-      .trim();
-    
-    return formatted;
   }
 
   // Méthodes pour l'éditeur d'image
@@ -503,99 +461,40 @@ export class ItemForm implements OnInit, OnDestroy {
     this.isAutoOptimizing = true;
 
     try {
-      // Utiliser le service d'optimisation d'image directement
-      const optimizedFile = await this.optimizeImageAutomatically(file);
+      // Utiliser le service d'optimisation d'image
+      const result = await this.imageProcessingService.optimizeImage(file);
 
-      if (optimizedFile) {
-        // Remplacer le fichier
-        this.selectedFile = optimizedFile;
-        this.selectedFileName = optimizedFile.name;
+      // Remplacer le fichier
+      this.selectedFile = result.file;
+      this.selectedFileName = result.file.name;
 
-        // Extraire les infos de l'image optimisée
-        await this.extractImageInfo(optimizedFile);
+      // Extraire les infos de l'image optimisée
+      await this.extractImageInfo(result.file);
 
-        // Sauvegarder les infos de l'image optimisée
-        if (this.imageInfo) {
-          this.optimizedImageInfo = {
-            type: this.imageInfo.type,
-            size: this.imageInfo.size,
-            width: this.imageInfo.width,
-            height: this.imageInfo.height
-          };
-        }
-
-        // Mettre à jour la prévisualisation
-        if (this.imagePreviewUrl) {
-          this.imageUploadService.revokePreviewUrl(this.imagePreviewUrl);
-        }
-        this.imagePreviewUrl = this.imageUploadService.createPreviewUrl(optimizedFile);
-
-        // Valider la nouvelle image (avec flag isRetry à true)
-        await this.validateFile(optimizedFile, true);
+      // Sauvegarder les infos de l'image optimisée
+      if (this.imageInfo) {
+        this.optimizedImageInfo = {
+          type: this.imageInfo.type,
+          size: this.imageInfo.size,
+          width: this.imageInfo.width,
+          height: this.imageInfo.height
+        };
       }
+
+      // Mettre à jour la prévisualisation
+      if (this.imagePreviewUrl) {
+        this.imageUploadService.revokePreviewUrl(this.imagePreviewUrl);
+      }
+      this.imagePreviewUrl = this.imageUploadService.createPreviewUrl(result.file);
+
+      // Valider la nouvelle image (avec flag isRetry à true)
+      await this.validateFile(result.file, true);
     } catch (error) {
       console.error('Erreur lors de l\'optimisation automatique:', error);
       this.uploadError = 'Erreur lors de l\'optimisation automatique de l\'image';
     } finally {
       this.isAutoOptimizing = false;
     }
-  }
-
-  private async optimizeImageAutomatically(file: File): Promise<File | null> {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        try {
-          const maxWidth = 500;
-          const maxHeight = 500;
-
-          // Calculer les nouvelles dimensions
-          const ratio = Math.min(maxWidth / img.naturalWidth, maxHeight / img.naturalHeight);
-          const width = ratio >= 1 ? img.naturalWidth : Math.round(img.naturalWidth * ratio);
-          const height = ratio >= 1 ? img.naturalHeight : Math.round(img.naturalHeight * ratio);
-
-          // Créer le canvas
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Impossible de créer le contexte canvas'));
-            return;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-
-          // Dessiner l'image redimensionnée
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Convertir en blob WebP avec qualité optimale
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                reject(new Error('Erreur lors de la conversion'));
-                return;
-              }
-
-              // Créer le nouveau fichier
-              const newFileName = file.name.replace(/\.[^/.]+$/, '') + '_optimized.webp';
-              const newFile = new File([blob], newFileName, { type: 'image/webp' });
-
-              resolve(newFile);
-            },
-            'image/webp',
-            0.85 // Qualité 85%
-          );
-        } catch (error) {
-          reject(error);
-        }
-      };
-
-      img.onerror = () => {
-        reject(new Error('Impossible de charger l\'image'));
-      };
-
-      img.src = URL.createObjectURL(file);
-    });
   }
 
   private extractFilename(fullUrl: string): string {

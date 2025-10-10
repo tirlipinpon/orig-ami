@@ -1,6 +1,7 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import Sortable from 'sortablejs';
 import { Auth } from '../../services/auth';
 import { BeneficiaireService } from '../../services/beneficiaire';
@@ -15,6 +16,11 @@ import { ItemCardComponent } from '../item-card/item-card.component';
   styleUrl: './edit.css'
 })
 export class Edit implements OnInit, AfterViewInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly authService = inject(Auth);
+  private readonly router = inject(Router);
+  private readonly beneficiaireService = inject(BeneficiaireService);
+  
   userEmail: string | null = '';
   isLoggingOut: boolean = false;
   
@@ -39,19 +45,15 @@ export class Edit implements OnInit, AfterViewInit {
   private beneficiairesSortable?: Sortable;
   private donateursSortable?: Sortable;
 
-  constructor(
-    private authService: Auth,
-    private router: Router,
-    private beneficiaireService: BeneficiaireService
-  ) {}
-
   async ngOnInit(): Promise<void> {
     this.userEmail = this.authService.getUserEmail();
     
-    // S'abonner aux changements d'utilisateur
-    this.authService.currentUser$.subscribe(user => {
-      this.userEmail = user?.email ?? null;
-    });
+    // S'abonner aux changements d'utilisateur (avec nettoyage automatique)
+    this.authService.currentUser$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
+        this.userEmail = user?.email ?? null;
+      });
 
     await this.loadData();
     
@@ -106,8 +108,9 @@ export class Edit implements OnInit, AfterViewInit {
       setTimeout(() => {
         this.initializeSortable();
       }, 200);
-    } catch (error: any) {
-      this.errorMessage = 'Erreur lors du chargement des données: ' + error.message;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      this.errorMessage = 'Erreur lors du chargement des données: ' + errorMessage;
       console.error('Erreur de chargement:', error);
     } finally {
       this.isLoading = false;
@@ -205,8 +208,9 @@ export class Edit implements OnInit, AfterViewInit {
       
       // Fermer immédiatement le formulaire après succès
       this.cancelEdit();
-    } catch (error: any) {
-      this.errorMessage = 'Erreur lors de la sauvegarde: ' + error.message;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      this.errorMessage = 'Erreur lors de la sauvegarde: ' + errorMessage;
       console.error('Erreur de sauvegarde:', error);
       // En cas d'erreur, réinitialiser l'état de soumission pour permettre une nouvelle tentative
       this.resetFormSubmittingState();
@@ -236,8 +240,9 @@ export class Edit implements OnInit, AfterViewInit {
       setTimeout(() => {
         this.successMessage = '';
       }, 3000);
-    } catch (error: any) {
-      this.errorMessage = 'Erreur lors de la suppression: ' + error.message;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      this.errorMessage = 'Erreur lors de la suppression: ' + errorMessage;
       console.error('Erreur de suppression:', error);
     }
   }
@@ -263,8 +268,9 @@ export class Edit implements OnInit, AfterViewInit {
       setTimeout(() => {
         this.successMessage = '';
       }, 3000);
-    } catch (error: any) {
-      this.errorMessage = 'Erreur lors du changement de statut: ' + error.message;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      this.errorMessage = 'Erreur lors du changement de statut: ' + errorMessage;
       console.error('Erreur de statut:', error);
     }
   }
@@ -378,8 +384,9 @@ export class Edit implements OnInit, AfterViewInit {
       setTimeout(() => {
         this.successMessage = '';
       }, 2000);
-    } catch (error: any) {
-      this.errorMessage = 'Erreur lors de la mise à jour: ' + error.message;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      this.errorMessage = 'Erreur lors de la mise à jour: ' + errorMessage;
       console.error('Erreur:', error);
     }
   }

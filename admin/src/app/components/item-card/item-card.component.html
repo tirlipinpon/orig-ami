@@ -1,25 +1,25 @@
-<div class="item-card" [class.inactive]="!item.actif" [class.donateur-item]="item.type === 'donateur'">
+<div class="item-card" [class.inactive]="!item().actif" [class.donateur-item]="item().type === 'donateur'">
   <div class="drag-handle"></div>
   <div class="item-image">
-    <img [src]="item.image_url" [alt]="item.alt_text" [style.width.px]="item.image_width">
-    @if (!item.actif) {
+    <img [src]="item().image_url" [alt]="item().alt_text" [style.width.px]="item().image_width">
+    @if (!item().actif) {
       <div class="inactive-badge">Désactivé</div>
     }
   </div>
   <div class="item-info">
-    <h3>{{ item.nom }}</h3>
-    <p class="item-url">🔗 <a [href]="item.url" target="_blank" rel="noopener noreferrer">{{ item.url }}</a></p>
+    <h3>{{ item().nom }}</h3>
+    <p class="item-url">🔗 <a [href]="item().url" target="_blank" rel="noopener noreferrer">{{ item().url }}</a></p>
   </div>
   <div class="item-actions">
-    <button class="btn-icon btn-edit" (click)="edit.emit(item)" title="Modifier">✏️</button>
+    <button class="btn-icon btn-edit" (click)="edit.emit(item())" title="Modifier">✏️</button>
     <button 
       class="btn-icon btn-toggle" 
-      [class.btn-activate]="!item.actif"
-      [class.btn-deactivate]="item.actif"
-      (click)="toggleActif.emit(item)" 
-      [title]="item.actif ? 'Désactiver' : 'Activer'">
-      {{ item.actif ? '👁️' : '👁️‍🗨️' }}
+      [class.btn-activate]="!item().actif"
+      [class.btn-deactivate]="item().actif"
+      (click)="toggleActif.emit(item())" 
+      [title]="item().actif ? 'Désactiver' : 'Activer'">
+      {{ item().actif ? '👁️' : '👁️‍🗨️' }}
     </button>
-    <button class="btn-icon btn-delete" (click)="delete.emit(item)" title="Supprimer">🗑️</button>
+    <button class="btn-icon btn-delete" (click)="delete.emit(item())" title="Supprimer">🗑️</button>
   </div>
 </div>

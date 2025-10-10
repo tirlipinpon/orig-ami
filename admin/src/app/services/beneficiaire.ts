@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Supabase } from './supabase';
 import { Beneficiaire, BeneficiaireCreate } from '../models/beneficiaire.model';
+import { IMAGE_CONSTRAINTS } from '../constants/image-constraints.const';
 
 @Injectable({
   providedIn: 'root'
@@ -134,17 +135,21 @@ export class BeneficiaireService {
     const supabasePattern = /^\d+_[a-z0-9]+\.\w+$/i;
     if (supabasePattern.test(filename)) {
       // Construire l'URL Supabase Storage
-      const folder = type === 'beneficiaire' ? 'beneficiaire' : 'sponsors';
+      const folder = type === 'beneficiaire' 
+        ? IMAGE_CONSTRAINTS.STORAGE_FOLDERS.BENEFICIAIRE 
+        : IMAGE_CONSTRAINTS.STORAGE_FOLDERS.SPONSORS;
       const supabaseUrl = this.supabase.client.storage
-        .from('orig-ami-image')
+        .from(IMAGE_CONSTRAINTS.STORAGE_BUCKET)
         .getPublicUrl(`${folder}/${filename}`);
       return supabaseUrl.data.publicUrl;
     }
 
     // Pour toutes les autres images, utiliser Supabase
-    const folder = type === 'beneficiaire' ? 'beneficiaire' : 'sponsors';
+    const folder = type === 'beneficiaire' 
+      ? IMAGE_CONSTRAINTS.STORAGE_FOLDERS.BENEFICIAIRE 
+      : IMAGE_CONSTRAINTS.STORAGE_FOLDERS.SPONSORS;
     const supabaseUrl = this.supabase.client.storage
-      .from('orig-ami-image')
+      .from(IMAGE_CONSTRAINTS.STORAGE_BUCKET)
       .getPublicUrl(`${folder}/${filename}`);
     return supabaseUrl.data.publicUrl;
   }
