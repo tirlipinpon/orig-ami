@@ -40,6 +40,12 @@
         (click)="switchTab('donateurs')">
         Donateurs ({{ donateurs.length }})
       </button>
+      <button 
+        class="tab-button media-tab" 
+        [class.active]="activeTab === 'medias'"
+        (click)="switchTab('medias')">
+        📰 Médias ({{ mediasBelgique.length + mediasNeerlandais.length + mediasInternational.length }})
+      </button>
     </div>
 
     <!-- Loader -->
@@ -125,6 +131,120 @@
             <p class="empty-message">Aucun donateur trouvé.</p>
           }
         </div>
+      </div>
+    }
+
+    <!-- Contenu Médias -->
+    @if (activeTab === 'medias' && !isLoading) {
+      <div class="tab-content">
+        <div class="section-header">
+          <h2>Gestion des Médias</h2>
+        </div>
+
+        <!-- Sous-onglets pour Médias -->
+        <div class="sub-tabs">
+          <button 
+            class="sub-tab-button" 
+            [class.active]="activeMediaTab === 'belgique'"
+            (click)="switchMediaTab('belgique')">
+            🇧🇪 Belgique ({{ mediasBelgique.length }})
+          </button>
+          <button 
+            class="sub-tab-button" 
+            [class.active]="activeMediaTab === 'neerlandais'"
+            (click)="switchMediaTab('neerlandais')">
+            🇳🇱 Néerlandais ({{ mediasNeerlandais.length }})
+          </button>
+          <button 
+            class="sub-tab-button" 
+            [class.active]="activeMediaTab === 'international'"
+            (click)="switchMediaTab('international')">
+            🌍 International ({{ mediasInternational.length }})
+          </button>
+        </div>
+
+        <!-- Formulaire Média -->
+        @if (showMediaForm) {
+          <app-media-form
+            #mediaForm
+            [categorie]="mediaFormCategorie"
+            [editingMedia]="editingMedia"
+            (save)="onMediaSave($event)"
+            (cancel)="cancelEdit()">
+          </app-media-form>
+        }
+
+        <!-- Médias Belgique -->
+        @if (activeMediaTab === 'belgique') {
+          <div class="media-section">
+            <button class="btn-add" (click)="openAddMediaForm('belgique')">
+              ➕ Ajouter un média Belgique
+            </button>
+            
+            <div 
+              #mediasBelgiqueGrid
+              class="medias-grid">
+              @for (media of mediasBelgique; track media.id) {
+                <app-media-card
+                  [media]="media"
+                  (edit)="editMedia($event)"
+                  (toggleActif)="toggleMediaActif($event)"
+                  (delete)="deleteMedia($event)">
+                </app-media-card>
+              } @empty {
+                <p class="empty-message">Aucun média belge trouvé.</p>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Médias Néerlandais -->
+        @if (activeMediaTab === 'neerlandais') {
+          <div class="media-section">
+            <button class="btn-add" (click)="openAddMediaForm('neerlandais')">
+              ➕ Ajouter un média Néerlandais
+            </button>
+            
+            <div 
+              #mediasNeerlandaisGrid
+              class="medias-grid">
+              @for (media of mediasNeerlandais; track media.id) {
+                <app-media-card
+                  [media]="media"
+                  (edit)="editMedia($event)"
+                  (toggleActif)="toggleMediaActif($event)"
+                  (delete)="deleteMedia($event)">
+                </app-media-card>
+              } @empty {
+                <p class="empty-message">Aucun média néerlandais trouvé.</p>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Médias International -->
+        @if (activeMediaTab === 'international') {
+          <div class="media-section">
+            <button class="btn-add" (click)="openAddMediaForm('international')">
+              ➕ Ajouter un média International
+            </button>
+            
+            <div 
+              #mediasInternationalGrid
+              class="medias-grid">
+              @for (media of mediasInternational; track media.id) {
+                <app-media-card
+                  [media]="media"
+                  (edit)="editMedia($event)"
+                  (toggleActif)="toggleMediaActif($event)"
+                  (delete)="deleteMedia($event)">
+                </app-media-card>
+              } @empty {
+                <p class="empty-message">Aucun média international trouvé.</p>
+              }
+            </div>
+          </div>
+        }
       </div>
     }
   </div>

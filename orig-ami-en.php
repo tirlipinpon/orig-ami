@@ -204,34 +204,14 @@ require_once 'get-data-supabase.php';
     <div id="content">
         <h1 id="firstHeading" class="firstHeading">Belgium</h1>
         <div id="bodyContent" class="media-belge">
-                    <a target="_blank" href="http://www.vivreici.be/article/detail_pour-20-vous-offrez-une-solution-d-hebergement-temporaire-d-urgence-a-un-sans-abri?id=468460">vivreici</a>
-                    <a target="_blank" href="https://www.sudinfo.be/id289142/article/2020-12-01/des-tentes-en-carton-20-euros-pour-les-sans-abri-bruxelles-liege-namur-charleroi">sudinfo</a>
-                    <a target="_blank" href="https://www.telesambre.be/orig-ami-des-tentes-en-carton-pour-les-sans-abri">telesambre</a>
-                    <a target="_blank" href="https://www.dhnet.be/regions/charleroi/des-tentes-en-carton-pour-les-sans-abri-5fc774b09978e23b12e07bb4%3FoutputType=amp">dhnet</a>
-                    <a target="_blank" href="https://www.flair.be/fr/lifestyle/societe/orig-ami-tentes-en-carton-sans-abris-belgique/">flair</a>
-                    <a target="_blank" href="https://weekend.levif.be/lifestyle/news/l-operation-orig-ami-renouvelle-son-appel-a-la-solidarite/article-normal-1058117.html?cookie_check=1543260880">levif</a>
-                    <a target="_blank" href="https://www.7sur7.be/7s7/fr/3007/Bruxelles/article/detail/3495418/2018/11/23/Financez-une-idee-simple-et-efficace-pour-aider-les-sans-abri-cet-hiver.dhtml">7sur7</a>
-                    <a target="_blank" href="http://www.lesoir.be/131570/article/2017-12-29/des-abris-en-carton-origamis-distribues-aux-sdf-bruxellois">lesoir</a>
-                    <a target="_blank" href="https://bx1.be/news/orig-amis-abris-carton-innovants-distribues-aux-sdf-bruxellois/">bx1</a>
-                    <a target="_blank" href="https://www.rtbf.be/info/regions/bruxelles/detail_des-abris-en-carton-innovants-distribues-aux-sdf-bruxellois?id=9799838">rtbf</a>
-                    <a target="_blank" href="http://www.levif.be/actualite/belgique/des-abris-en-carton-distribues-aux-sdf-bruxellois/article-normal-776623.html?utm_campaign=Echobox&utm_medium=social_vif&utm_source=Facebook">levif</a>
-                    <a target="_blank" href="https://bx1.be/news/orig-ami-tentes-carton-pliables-abri/">bx1</a>
-                    <a target="_blank" href="https://fr.metrotime.be/2017/12/29/actualite/video-abris-carton-innovants-origamis-distribues-aux-sdf-bruxellois/">metrotime</a>
-                    <a target="_blank" href="http://www.7sur7.be/7s7/fr/3007/Bruxelles/article/detail/3331600/2017/12/23/Un-abri-pliable-et-transportable-pour-SDF.dhtml"></a>
-                    <a target="_blank" href="http://www.sudinfo.be/2020271/article/2017-12-22/bruxelles-et-si-vous-parrainiez-un-orig-ami-au-prix-de-30-euros-pour-aider-les-s">sudinfo</a>
-                    <a target="_blank" href="http://www.lacapitale.be/169639/article/2017-12-21/des-tentes-en-origami-pour-les-sans-abri">lacapitale</a>
-                    <a target="_blank" href="http://www.lameuse.be/169639/article/2017-12-21/des-tentes-en-origami-pour-les-sans-abri">lameuse</a>
-                    <a target="_blank" href="https://www.youtube.com/watch?v=m4-RV4C2PaU">youtube</a>
-                    <a target="_blank" href="http://www.belgique21.tv/detail.asp?subjectID=47&emissionID=1986#sthash.eL3X8XGw.dpbs">belgique21</a>
-                    <a target="_blank" href="https://www.rtbf.be/auvio/detail_la-presque-star?id=2294581">rtbf</a>
-            <a target="_blank" href="https://www.7sur7.be/7s7/fr/3007/Bruxelles/article/detail/3495418/2018/11/23/Financez-une-idee-simple-et-efficace-pour-aider-les-sans-abri-cet-hiver.dhtml">7sur7</a>
-            <a target="_blank" href="https://www.bruzz.be/samenleving/brusselaar-deelt-kartonnen-tenten-orig-ami-uit-aan-daklozen-2017-12-29">bruzz</a>
-            <a target="_blank" href="http://www.nieuwsblad.be/cnt/dmf20171229_03273006">nieuwsblad</a>
-            <a target="_blank" href="https://www.hln.be/nieuws/binnenland/brusselse-daklozen-krijgen-tentjes-van-karton~aace01fa/">hln</a>
-            <a target="_blank" href="https://www.hln.be/tag/xavier-van-der-stappen">hln 2</a>
-            <a target="_blank" href="http://www.standaard.be/cnt/dmf20171229_03272745">standaard</a>
-            </div>
+            <!-- Tous les médias Belgique + Néerlandais (données dynamiques depuis Supabase) -->
+            <?php foreach ($mediasBelgiqueEtNeerlandais as $media): ?>
+                <a target="_blank" href="<?= htmlspecialchars($media['url']) ?>" rel="noopener noreferrer">
+                    <?= htmlspecialchars($media['titre']) ?>
+                </a>
+            <?php endforeach; ?>
         </div>
+    </div>
 
     <h1>International Media</h1>
     <div id="map"></div>

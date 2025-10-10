@@ -23,7 +23,7 @@ function buildImageUrl($fileName, $folder) {
 function getItems($type) {
     global $supabaseUrl, $supabaseKey;
     
-    $url = "{$supabaseUrl}/rest/v1/beneficiaires?type=eq.{$type}&actif=eq.true&order=ordre.desc";
+    $url = "{$supabaseUrl}/rest/v1/orig_ami_beneficiaires?type=eq.{$type}&actif=eq.true&order=ordre.desc";
     
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -55,8 +55,69 @@ function getItems($type) {
     return $data;
 }
 
+/**
+ * Récupère les médias depuis Supabase
+ */
+function getMedias($categorie) {
+    global $supabaseUrl, $supabaseKey;
+    
+    $url = "{$supabaseUrl}/rest/v1/orig_ami_medias?categorie=eq.{$categorie}&actif=eq.true&order=ordre.desc";
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "apikey: {$supabaseKey}",
+        "Authorization: Bearer {$supabaseKey}"
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) {
+        return [];
+    }
+    
+    return json_decode($response, true);
+}
+
+/**
+ * Récupère tous les médias belges ET néerlandais (pour la version EN)
+ */
+function getAllBelgianAndDutchMedias() {
+    global $supabaseUrl, $supabaseKey;
+    
+    // Utiliser filter "or" pour récupérer belgique ET neerlandais
+    $url = "{$supabaseUrl}/rest/v1/orig_ami_medias?or=(categorie.eq.belgique,categorie.eq.neerlandais)&actif=eq.true&order=ordre.desc";
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "apikey: {$supabaseKey}",
+        "Authorization: Bearer {$supabaseKey}"
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) {
+        return [];
+    }
+    
+    return json_decode($response, true);
+}
+
 // Récupérer les bénéficiaires et donateurs
 $beneficiaires = getItems('beneficiaire');
 $donateurs = getItems('donateur');
+
+// Récupérer les médias
+$mediasBelgique = getMedias('belgique');
+$mediasNeerlandais = getMedias('neerlandais');
+$mediasInternational = getMedias('international');
+
+// Récupérer tous les médias belges + néerlandais ensemble (pour version EN)
+$mediasBelgiqueEtNeerlandais = getAllBelgianAndDutchMedias();
 ?>
 

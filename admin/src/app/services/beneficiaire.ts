@@ -7,7 +7,7 @@ import { IMAGE_CONSTRAINTS } from '../constants/image-constraints.const';
   providedIn: 'root'
 })
 export class BeneficiaireService {
-  private readonly tableName = 'beneficiaires';
+  private readonly tableName = 'orig_ami_beneficiaires';
 
   constructor(private supabase: Supabase) {}
 

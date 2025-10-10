@@ -1,0 +1,36 @@
+<div class="media-card" [class.inactive]="!media().actif">
+  <div class="drag-handle">☰</div>
+  
+  <div class="media-info">
+    <h3>{{ media().titre }}</h3>
+    <p class="media-url">
+      🔗 <a [href]="media().url" target="_blank" rel="noopener noreferrer">{{ media().url }}</a>
+    </p>
+    @if (media().date_publication) {
+      <p class="media-date">📅 {{ media().date_publication | date:'dd/MM/yyyy' }}</p>
+    }
+    <span class="media-category" 
+      [class.category-belgique]="media().categorie === 'belgique'" 
+      [class.category-neerlandais]="media().categorie === 'neerlandais'"
+      [class.category-international]="media().categorie === 'international'">
+      {{ media().categorie === 'belgique' ? '🇧🇪 Belgique' : media().categorie === 'neerlandais' ? '🇳🇱 Néerlandais' : '🌍 International' }}
+    </span>
+    @if (!media().actif) {
+      <span class="inactive-badge">Désactivé</span>
+    }
+  </div>
+  
+  <div class="media-actions">
+    <button class="btn-icon btn-edit" (click)="edit.emit(media())" title="Modifier">✏️</button>
+    <button 
+      class="btn-icon btn-toggle" 
+      [class.btn-activate]="!media().actif"
+      [class.btn-deactivate]="media().actif"
+      (click)="toggleActif.emit(media())" 
+      [title]="media().actif ? 'Désactiver' : 'Activer'">
+      {{ media().actif ? '👁️' : '👁️‍🗨️' }}
+    </button>
+    <button class="btn-icon btn-delete" (click)="delete.emit(media())" title="Supprimer">🗑️</button>
+  </div>
+</div>
+

@@ -302,34 +302,16 @@ require_once 'get-data-supabase.php';
     </div>
 
     <div id="content">
-        <h1 id="firstHeading" class="firstHeading">Belgique</h1>
+        <h1 id="firstHeading" class="firstHeading">Nederlandstalige media</h1>
         <div id="bodyContent" class="media-belge">
-            <a target="_blank" href="https://www.rtl.be/page-videos/belgique/societe/concert-de-100-choristes-schaerbeek-en-solidarite-avec-les-sans-abris/2024-01-21/video/629085">RTL</a>
-		    <a target="_blank" href="https://bx1.be/categories/news/schaerbeek-100-choristes-ont-participe-a-un-concert-pour-venir-en-aide-aux-sans-abris/#:~:text=D%C3%A8s%2018h00%2C%20une%20centaine%20de,tentes%20gr%C3%A2ce%20%C3%A0%20l%27%C3%A9v%C3%A9nement.">BX1</a>
-		    <a target="_blank" href="https://www.dhnet.be/dernieres-depeches/2024/01/20/un-concert-reunit-100-choristes-a-schaerbeek-pour-venir-en-aide-aux-sans-abris-DVKCMGFODJATXCYWE37JW5PEA4/">DHNET</a>
-		    <a target="_blank" href="https://www.lalibre.be/regions/bruxelles/2024/01/20/100-choristes-se-reunissent-a-schaerbeek-voici-la-raison-derriere-leur-concert-6RFAFSIGJNG4NIZIHSQAXXCW5U/">LALIBRE</a>
-		    <a target="_blank" href="https://culturius.com/events/c8906cf1-0e18-4959-9fe4-798731dc90a7/100-choristes-pour-sans-abris">CULTURIUS</a>
-            <a target="_blank" href="https://bx1.be/categories/news/une-tente-de-carton-pour-isoler-du-froid-loperation-orig-ami-de-retour-aupres-des-sans-abris/">bx1</a>
-            <a target="_blank" href="https://www.ln24.be/2021-12-24/pour-info-noel-et-initiatives-solidaires-pour-les-plus-demunis">ln24</a>
-            <a target="_blank" href="https://www.flair.be/fr/society/societe/orig-ami-tentes-carton-sans-abris/">flair</a>
-            <a target="_blank" href="https://soundcloud.com/bxfmradio/linvite-du-jour-xavier-van-der-stappen-orig-ami?si=baf880e53ebc489199a872235eacd9fa&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing">bxfmradio</a>
-            <a target="_blank" href="https://www.sudinfo.be/id289142/article/2020-12-01/des-tentes-en-carton-20-euros-pour-les-sans-abri-bruxelles-liege-namur-charleroi">sudinfo</a>
-            <a target="_blank" href="https://www.telesambre.be/orig-ami-des-tentes-en-carton-pour-les-sans-abri">telesambre</a>
-            <a target="_blank" href="https://www.flair.be/fr/lifestyle/societe/orig-ami-tentes-en-carton-sans-abris-belgique/">flair</a>
-            <a target="_blank" href="https://weekend.levif.be/lifestyle/news/l-operation-orig-ami-renouvelle-son-appel-a-la-solidarite/article-normal-1058117.html?cookie_check=1543260880">levif</a>
-            <a target="_blank" href="http://www.lesoir.be/131570/article/2017-12-29/des-abris-en-carton-origamis-distribues-aux-sdf-bruxellois">lesoir</a>
-            <a target="_blank" href="https://bx1.be/news/orig-amis-abris-carton-innovants-distribues-aux-sdf-bruxellois/">bx1</a>
-            <a target="_blank" href="https://www.rtbf.be/info/regions/bruxelles/detail_des-abris-en-carton-innovants-distribues-aux-sdf-bruxellois?id=9799838">rtbf</a>
-            <a target="_blank" href="http://www.levif.be/actualite/belgique/des-abris-en-carton-distribues-aux-sdf-bruxellois/article-normal-776623.html?utm_campaign=Echobox&utm_medium=social_vif&utm_source=Facebook">levif</a>
-            <a target="_blank" href="https://bx1.be/news/orig-ami-tentes-carton-pliables-abri/">bx1</a>
-            <a target="_blank" href="https://fr.metrotime.be/2017/12/29/actualite/video-abris-carton-innovants-origamis-distribues-aux-sdf-bruxellois/">metrotime</a>
-            <a target="_blank" href="http://www.lacapitale.be/169639/article/2017-12-21/des-tentes-en-origami-pour-les-sans-abri">lacapitale</a>
-            <a target="_blank" href="https://www.youtube.com/watch?v=m4-RV4C2PaU">youtube</a>
-            <a target="_blank" href="https://www.ln24.be/index.php/2022-02-06/des-tentes-en-carton-pour-aider-les-sans-abris">ln24</a>
-            <a target="_blank" href="https://campus.be/sous-la-loupe-le-vw-amarok-pick-up-bien-sur-mais-confort-de-suv/">campus.be</a>
-
-            </div>
+            <!-- Médias Belgique (données dynamiques depuis Supabase) -->
+            <?php foreach ($mediasBelgique as $media): ?>
+                <a target="_blank" href="<?= htmlspecialchars($media['url']) ?>" rel="noopener noreferrer">
+                    <?= htmlspecialchars($media['titre']) ?>
+                </a>
+            <?php endforeach; ?>
         </div>
+    </div>
 
     <h1>Médias internationaux</h1>
     <div id="map"></div>

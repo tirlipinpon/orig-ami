@@ -1,0 +1,87 @@
+<div class="media-form-container">
+  <h2>{{ editingMedia() ? 'Modifier le média' : 'Ajouter un média' }}</h2>
+  
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- Titre du média -->
+    <div class="form-group">
+      <label for="titre">Nom du média *</label>
+      <input 
+        type="text" 
+        id="titre" 
+        formControlName="titre"
+        placeholder="Ex: RTL, BX1, Le Soir..."
+        [class.invalid]="isFieldInvalid('titre')"
+        [class.valid]="isFieldValid('titre')">
+      @if (isFieldInvalid('titre')) {
+        <span class="error-message">{{ getErrorMessage('titre') }}</span>
+      }
+    </div>
+
+    <!-- URL -->
+    <div class="form-group">
+      <label for="url">URL de l'article *</label>
+      <input 
+        type="url" 
+        id="url" 
+        formControlName="url"
+        placeholder="https://..."
+        [class.invalid]="isFieldInvalid('url')"
+        [class.valid]="isFieldValid('url')">
+      @if (isFieldInvalid('url')) {
+        <span class="error-message">{{ getErrorMessage('url') }}</span>
+      }
+    </div>
+
+    <!-- Catégorie -->
+    <div class="form-group">
+      <label for="categorie">Catégorie *</label>
+      <select 
+        id="categorie" 
+        formControlName="categorie"
+        [class.invalid]="isFieldInvalid('categorie')"
+        [class.valid]="isFieldValid('categorie')">
+        <option value="belgique">🇧🇪 Médias Belgique</option>
+        <option value="neerlandais">🇳🇱 Médias Néerlandais</option>
+        <option value="international">🌍 Médias International</option>
+      </select>
+    </div>
+
+    <!-- Date de publication (optionnelle) -->
+    <div class="form-group">
+      <label for="date_publication">Date de publication (optionnelle)</label>
+      <input 
+        type="date" 
+        id="date_publication" 
+        formControlName="date_publication">
+    </div>
+
+    <!-- Actif -->
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" formControlName="actif">
+        Actif (visible sur le site)
+      </label>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        class="btn-primary"
+        [disabled]="isSubmitDisabled()">
+        @if (isSubmitting) {
+          <span class="spinner">⏳</span>
+        }
+        {{ editingMedia() ? 'Modifier' : 'Créer' }}
+      </button>
+      
+      <button 
+        type="button" 
+        class="btn-secondary"
+        (click)="onCancel()">
+        Annuler
+      </button>
+    </div>
+  </form>
+</div>
+

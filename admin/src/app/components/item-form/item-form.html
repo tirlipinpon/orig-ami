@@ -1,6 +1,6 @@
 <div class="form-modal">
-  <div class="form-container" [class.donateur-mode]="type === 'donateur'">
-    <h3>{{ editingItem ? 'Modifier' : 'Ajouter' }} {{ type === 'beneficiaire' ? 'un bénéficiaire' : 'un donateur' }}</h3>
+  <div class="form-container" [class.donateur-mode]="type() === 'donateur'">
+    <h3>{{ editingItem() ? 'Modifier' : 'Ajouter' }} {{ type() === 'beneficiaire' ? 'un bénéficiaire' : 'un donateur' }}</h3>
     
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="form-group">
@@ -9,7 +9,7 @@
           type="text" 
           id="nom" 
           formControlName="nom"
-          placeholder="Nom du {{ type === 'beneficiaire' ? 'bénéficiaire' : 'donateur' }}"
+          placeholder="Nom du {{ type() === 'beneficiaire' ? 'bénéficiaire' : 'donateur' }}"
           [class.invalid]="isFieldInvalid('nom')"
           [class.valid]="isFieldValid('nom')">
         @if (isFieldInvalid('nom')) {
@@ -170,10 +170,10 @@
            }
 
           <!-- Prévisualisation de l'image -->
-          @if (imagePreviewUrl || editingItem?.image_url) {
+          @if (imagePreviewUrl || editingItem()?.image_url) {
             <div class="image-preview">
               <img 
-                [src]="imagePreviewUrl || editingItem?.image_url" 
+                [src]="imagePreviewUrl || editingItem()?.image_url" 
                 [alt]="form.get('alt_text')?.value || 'Aperçu'"
                 [style.width.px]="form.get('image_width')?.value || 200">
               @if (imagePreviewUrl || selectedFileName) {
@@ -211,14 +211,14 @@
         <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isSubmitting">Annuler</button>
         <button type="submit" class="btn-save" [disabled]="isSubmitDisabled()">
           @if (isSubmitting) {
-            <span class="loading-spinner">⏳</span> {{ editingItem ? 'Mise à jour...' : 'Création...' }}
+            <span class="loading-spinner">⏳</span> {{ editingItem() ? 'Mise à jour...' : 'Création...' }}
           } @else {
-            {{ editingItem ? 'Mettre à jour' : 'Créer' }}
+            {{ editingItem() ? 'Mettre à jour' : 'Créer' }}
           }
         </button>
       </div>
       
-      @if (editingItem && !form.dirty && form.valid) {
+      @if (editingItem() && !form.dirty && form.valid) {
         <div class="no-changes-message">
           ℹ️ Aucune modification détectée. Modifiez au moins un champ pour sauvegarder.
         </div>
