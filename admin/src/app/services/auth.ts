@@ -1,18 +1,22 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Supabase } from './supabase';
 import { User } from '@supabase/supabase-js';
+import { ErrorHandlerService } from './error-handler.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Auth {
+  private readonly supabase = inject(Supabase);
+  private readonly errorHandler = inject(ErrorHandlerService);
+
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$: Observable<boolean> = this.isAuthenticatedSubject.asObservable();
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
 
-  constructor(private supabase: Supabase) {
+  constructor() {
     this.initializeAuth();
   }
 
@@ -45,7 +49,7 @@ export class Auth {
 
       return { success: false, error: 'Erreur de connexion' };
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur de connexion';
+      const errorMessage = this.errorHandler.handleError('Login', error, 'Erreur de connexion');
       return { success: false, error: errorMessage };
     }
   }

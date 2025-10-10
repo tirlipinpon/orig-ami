@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import Sortable from 'sortablejs';
 import { Auth } from '../../services/auth';
 import { BeneficiaireService } from '../../services/beneficiaire';
+import { ErrorHandlerService } from '../../services/error-handler.service';
 import { Beneficiaire, BeneficiaireCreate } from '../../models/beneficiaire.model';
 import { ItemForm } from '../item-form/item-form';
 import { ItemCardComponent } from '../item-card/item-card.component';
@@ -20,6 +21,7 @@ export class Edit implements OnInit, AfterViewInit {
   private readonly authService = inject(Auth);
   private readonly router = inject(Router);
   private readonly beneficiaireService = inject(BeneficiaireService);
+  private readonly errorHandler = inject(ErrorHandlerService);
   
   userEmail: string | null = '';
   isLoggingOut: boolean = false;
@@ -109,9 +111,11 @@ export class Edit implements OnInit, AfterViewInit {
         this.initializeSortable();
       }, 200);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      this.errorMessage = 'Erreur lors du chargement des données: ' + errorMessage;
-      console.error('Erreur de chargement:', error);
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Load Data', 
+        error, 
+        'Erreur lors du chargement des données'
+      );
     } finally {
       this.isLoading = false;
     }
@@ -209,9 +213,11 @@ export class Edit implements OnInit, AfterViewInit {
       // Fermer immédiatement le formulaire après succès
       this.cancelEdit();
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      this.errorMessage = 'Erreur lors de la sauvegarde: ' + errorMessage;
-      console.error('Erreur de sauvegarde:', error);
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Save Item', 
+        error, 
+        'Erreur lors de la sauvegarde'
+      );
       // En cas d'erreur, réinitialiser l'état de soumission pour permettre une nouvelle tentative
       this.resetFormSubmittingState();
     }
@@ -241,9 +247,11 @@ export class Edit implements OnInit, AfterViewInit {
         this.successMessage = '';
       }, 3000);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      this.errorMessage = 'Erreur lors de la suppression: ' + errorMessage;
-      console.error('Erreur de suppression:', error);
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Delete Item', 
+        error, 
+        'Erreur lors de la suppression'
+      );
     }
   }
 
@@ -269,9 +277,11 @@ export class Edit implements OnInit, AfterViewInit {
         this.successMessage = '';
       }, 3000);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      this.errorMessage = 'Erreur lors du changement de statut: ' + errorMessage;
-      console.error('Erreur de statut:', error);
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Toggle Actif', 
+        error, 
+        'Erreur lors du changement de statut'
+      );
     }
   }
 
@@ -385,9 +395,11 @@ export class Edit implements OnInit, AfterViewInit {
         this.successMessage = '';
       }, 2000);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      this.errorMessage = 'Erreur lors de la mise à jour: ' + errorMessage;
-      console.error('Erreur:', error);
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Update Order', 
+        error, 
+        'Erreur lors de la mise à jour'
+      );
     }
   }
 

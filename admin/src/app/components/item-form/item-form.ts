@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } 
 import { Beneficiaire, BeneficiaireCreate } from '../../models/beneficiaire.model';
 import { ImageUploadService } from '../../services/image-upload.service';
 import { ImageProcessingService } from '../../services/image-processing.service';
+import { ErrorHandlerService } from '../../services/error-handler.service';
 import { IMAGE_CONSTRAINTS } from '../../constants/image-constraints.const';
 import { ImageEditorComponent, ImageEditResult } from '../image-editor/image-editor.component';
 
@@ -17,6 +18,7 @@ export class ItemForm implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly imageUploadService = inject(ImageUploadService);
   private readonly imageProcessingService = inject(ImageProcessingService);
+  private readonly errorHandler = inject(ErrorHandlerService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   // Modern Angular signals-based inputs/outputs
@@ -148,9 +150,11 @@ export class ItemForm implements OnInit, OnDestroy {
         console.log('💾 [SUBMIT] Émission de l\'événement save');
         this.save.emit(data);
       } catch (error: unknown) {
-        console.error('❌ [SUBMIT] Erreur lors de la soumission:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-        this.uploadError = 'Erreur lors de l\'upload de l\'image: ' + errorMessage;
+        this.uploadError = this.errorHandler.handleErrorWithPrefix(
+          'Submit Form', 
+          error, 
+          'Erreur lors de l\'upload de l\'image'
+        );
         this.isSubmitting = false;
       }
     } else if (!this.form.valid) {
@@ -291,8 +295,11 @@ export class ItemForm implements OnInit, OnDestroy {
         }
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      this.uploadError = 'Erreur lors de la validation: ' + errorMessage;
+      this.uploadError = this.errorHandler.handleErrorWithPrefix(
+        'Validate File', 
+        error, 
+        'Erreur lors de la validation'
+      );
     } finally {
       this.isUploading = false;
     }
@@ -337,9 +344,12 @@ export class ItemForm implements OnInit, OnDestroy {
         throw new Error(result.error || 'Erreur upload Supabase');
       }
     } catch (error: unknown) {
-      console.error('❌ [UPLOAD-SUPABASE] Exception:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      throw new Error('Erreur upload Supabase: ' + errorMessage);
+      const errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Upload Supabase', 
+        error, 
+        'Erreur upload Supabase'
+      );
+      throw new Error(errorMessage);
     } finally {
       this.isUploading = false;
     }

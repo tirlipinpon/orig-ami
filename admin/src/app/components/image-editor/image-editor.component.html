@@ -1,0 +1,85 @@
+<div class="image-editor-modal" *ngIf="show()" (click)="onCancel($event)">
+  <div class="image-editor-container" (click)="$event.stopPropagation()">
+    <div class="editor-header">
+      <h3>🖼️ Éditeur d'Image</h3>
+      <button type="button" class="btn-close" (click)="onCancel($event)">✕</button>
+    </div>
+
+    <div class="editor-content">
+      <!-- Image originale -->
+      <div class="image-section">
+        <h4>Image Originale</h4>
+        <div class="image-container">
+          <img [src]="originalImageUrl" [alt]="'Image originale'">
+          <div class="image-info">
+            <div class="info-item">
+              <span class="label">Taille :</span>
+              <span class="value" [class.invalid-value]="!isOriginalSizeValid()">
+                {{ formatFileSize(originalSize) }}
+                @if (!isOriginalSizeValid()) {
+                  <span class="limit-text">(max: {{ maxSizeKB() }} KB)</span>
+                }
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="label">Dimensions :</span>
+              <span class="value" [class.invalid-value]="!isOriginalDimensionsValid()">
+                {{ originalDimensions.width }}×{{ originalDimensions.height }}px
+                @if (!isOriginalDimensionsValid()) {
+                  <span class="limit-text">(max: {{ maxWidth() }}×{{ maxHeight() }} px)</span>
+                }
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aperçu de l'édition -->
+      <div class="preview-section">
+        <h4>Aperçu Modifié</h4>
+        <div class="image-container">
+          <img [src]="previewImageUrl" [alt]="'Aperçu modifié'" *ngIf="previewImageUrl">
+          <div class="image-info" *ngIf="previewInfo">
+            <div class="info-item">
+              <span class="label">Taille :</span>
+              <span class="value valid-value">
+                {{ formatFileSize(previewInfo.newSize) }}
+                <span class="check-icon">✅</span>
+              </span>
+              <span class="reduction" *ngIf="previewInfo.compressionRatio > 0">
+                ({{ (previewInfo.compressionRatio * 100).toFixed(0) }}% de réduction)
+              </span>
+            </div>
+            <div class="info-item">
+              <span class="label">Dimensions :</span>
+              <span class="value valid-value">
+                {{ previewInfo.newDimensions.width }}×{{ previewInfo.newDimensions.height }}px
+                <span class="check-icon">✅</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="action-buttons">
+        <button 
+          type="button" 
+          class="btn-apply"
+          [disabled]="!previewImageUrl || isProcessing"
+          (click)="applyChanges($event)">
+          <span *ngIf="isProcessing" class="loading-spinner">⏳</span>
+          {{ isProcessing ? 'Traitement...' : '✨ Appliquer automatiquement' }}
+        </button>
+        
+        <button 
+          type="button" 
+          class="btn-cancel"
+          (click)="onCancel($event)">
+          Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
