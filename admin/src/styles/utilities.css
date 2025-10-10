@@ -1,0 +1,120 @@
+/* Utilitaires CSS - Classes réutilisables */
+
+/* Animations */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Classes utilitaires pour les boutons */
+.btn-base {
+  padding: 12px 24px;
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px var(--color-primary-shadow);
+}
+
+.btn-secondary {
+  background: var(--gradient-secondary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px var(--color-secondary-shadow);
+}
+
+.btn-base:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Classes utilitaires pour les ombres hover */
+.hover-lift {
+  transition: var(--transition-fast);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Classes utilitaires pour box-shadow */
+.shadow-primary {
+  box-shadow: 0 5px 15px var(--color-primary-shadow);
+}
+
+.shadow-secondary {
+  box-shadow: 0 5px 15px var(--color-secondary-shadow);
+}
+
+.shadow-primary-strong {
+  box-shadow: 0 15px 50px var(--color-primary-shadow-strong);
+}
+
+.shadow-secondary-strong {
+  box-shadow: 0 15px 50px var(--color-secondary-shadow-strong);
+}
+
+/* Classes pour le mode donateur (à utiliser avec des contextes spécifiques) */
+.theme-primary {
+  --theme-color: var(--color-primary);
+  --theme-color-dark: var(--color-primary-dark);
+  --theme-gradient: var(--gradient-primary);
+  --theme-shadow: var(--color-primary-shadow);
+  --theme-shadow-strong: var(--color-primary-shadow-strong);
+  --theme-light: var(--color-primary-light);
+}
+
+.theme-secondary {
+  --theme-color: var(--color-secondary);
+  --theme-color-dark: var(--color-secondary-dark);
+  --theme-gradient: var(--gradient-secondary);
+  --theme-shadow: var(--color-secondary-shadow);
+  --theme-shadow-strong: var(--color-secondary-shadow-strong);
+  --theme-light: var(--color-secondary-light);
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+

@@ -107,10 +107,10 @@
 }
 
 .drag-handle:hover {
-  background: #667eea;
+  background: var(--color-primary);
   color: white;
   transform: scale(1.1);
-  border-color: #667eea;
+  border-color: var(--color-primary);
 }
 
 .drag-handle:active {
@@ -148,10 +148,10 @@
   left: -5px;
   right: -5px;
   bottom: -5px;
-  background: rgba(102, 126, 234, 0.1);
-  border-radius: 10px;
+  background: var(--color-primary-light);
+  border-radius: var(--spacing-sm);
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: var(--transition-fast);
   z-index: -1;
 }
 
@@ -237,15 +237,15 @@
 }
 
 .item-url a {
-  color: #667eea;
+  color: var(--color-primary);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: var(--transition-fast);
   display: inline;
   word-break: break-all; /* Force la coupure de tous les mots */
 }
 
 .item-url a:hover {
-  color: #764ba2;
+  color: var(--color-primary-dark);
   text-decoration: underline;
 }
 
@@ -294,7 +294,7 @@
 
 /* Styles pour les cartes Donateurs */
 .item-card.donateur-item {
-  border-left: 4px solid #f39c12;
+  border-left: 4px solid var(--color-secondary);
 }
 
 .item-card.donateur-item:hover {
@@ -303,19 +303,19 @@
 
 /* Poignée de drag pour les donateurs */
 .item-card.donateur-item .drag-handle:hover {
-  background: #f39c12;
-  border-color: #f39c12;
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
 }
 
 .item-card.donateur-item .drag-handle::before {
-  background: rgba(243, 156, 18, 0.1);
+  background: var(--color-secondary-light);
 }
 
 /* Lien URL pour les donateurs */
 .item-card.donateur-item .item-url a {
-  color: #f39c12;
+  color: var(--color-secondary);
 }
 
 .item-card.donateur-item .item-url a:hover {
-  color: #e67e22;
+  color: var(--color-secondary-dark);
 }
