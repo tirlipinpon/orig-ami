@@ -1,7 +1,8 @@
-<div class="media-form-container">
-  <h2>{{ editingMedia() ? 'Modifier le média' : 'Ajouter un média' }}</h2>
-  
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+<div class="form-modal">
+  <div class="form-container">
+    <h3>{{ editingMedia() ? 'Modifier' : 'Ajouter' }} un média</h3>
+    
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <!-- Titre du média -->
     <div class="form-group">
       <label for="titre">Nom du média *</label>
@@ -32,56 +33,60 @@
       }
     </div>
 
-    <!-- Catégorie -->
-    <div class="form-group">
-      <label for="categorie">Catégorie *</label>
-      <select 
-        id="categorie" 
-        formControlName="categorie"
-        [class.invalid]="isFieldInvalid('categorie')"
-        [class.valid]="isFieldValid('categorie')">
-        <option value="belgique">🇧🇪 Médias Belgique</option>
-        <option value="neerlandais">🇳🇱 Médias Néerlandais</option>
-        <option value="international">🌍 Médias International</option>
-      </select>
-    </div>
+    <!-- Catégorie (visible seulement en mode édition) -->
+    @if (editingMedia()) {
+      <div class="form-group">
+        <label for="categorie">Catégorie *</label>
+        <select 
+          id="categorie" 
+          formControlName="categorie"
+          [class.invalid]="isFieldInvalid('categorie')"
+          [class.valid]="isFieldValid('categorie')">
+          <option value="belgique">🇧🇪 Médias Belgique</option>
+          <option value="neerlandais">🇳🇱 Médias Néerlandais</option>
+          <option value="international">🌍 Médias International</option>
+        </select>
+        <p class="info-hint">💡 Changer la catégorie déplacera le média vers l'onglet correspondant.</p>
+      </div>
+    } @else {
+      <div class="form-group">
+        <p class="category-badge category-{{ categorie() }}">
+          @if (categorie() === 'belgique') {
+            🇧🇪 Média Belgique
+          } @else if (categorie() === 'neerlandais') {
+            🇳🇱 Média Néerlandais
+          } @else {
+            🌍 Média International
+          }
+        </p>
+      </div>
+    }
 
-    <!-- Date de publication (optionnelle) -->
-    <div class="form-group">
-      <label for="date_publication">Date de publication (optionnelle)</label>
-      <input 
-        type="date" 
-        id="date_publication" 
-        formControlName="date_publication">
-    </div>
-
-    <!-- Actif -->
-    <div class="form-group checkbox-group">
-      <label>
-        <input type="checkbox" formControlName="actif">
-        Actif (visible sur le site)
-      </label>
-    </div>
+    <!-- Messages d'erreur -->
+    @if (errorMessage) {
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
+    }
 
     <!-- Boutons d'action -->
     <div class="form-actions">
-      <button 
-        type="submit" 
-        class="btn-primary"
-        [disabled]="isSubmitDisabled()">
+      <button type="button" class="btn-cancel" (click)="onCancel()" [disabled]="isSubmitting">Annuler</button>
+      <button type="submit" class="btn-save" [disabled]="isSubmitDisabled()">
         @if (isSubmitting) {
-          <span class="spinner">⏳</span>
+          <span class="loading-spinner">⏳</span> {{ editingMedia() ? 'Mise à jour...' : 'Création...' }}
+        } @else {
+          {{ editingMedia() ? 'Mettre à jour' : 'Créer' }}
         }
-        {{ editingMedia() ? 'Modifier' : 'Créer' }}
-      </button>
-      
-      <button 
-        type="button" 
-        class="btn-secondary"
-        (click)="onCancel()">
-        Annuler
       </button>
     </div>
+    
+    @if (editingMedia() && !form.dirty && form.valid) {
+      <div class="no-changes-message">
+        ℹ️ Aucune modification détectée. Modifiez au moins un champ pour sauvegarder.
+      </div>
+    }
   </form>
+  </div>
 </div>
 

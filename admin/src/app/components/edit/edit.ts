@@ -48,6 +48,7 @@ export class Edit implements OnInit, AfterViewInit {
   editingMedia: Media | null = null;
   formType: 'beneficiaire' | 'donateur' = 'beneficiaire';
   mediaFormCategorie: 'belgique' | 'neerlandais' | 'international' = 'belgique';
+  originalMediaCategorie: 'belgique' | 'neerlandais' | 'international' | null = null;
 
   activeTab: 'beneficiaires' | 'donateurs' | 'medias' = 'beneficiaires';
 
@@ -145,6 +146,32 @@ export class Edit implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Recharge une catégorie spécifique de médias depuis la base de données
+   */
+  private async reloadMediaCategorie(categorie: 'belgique' | 'neerlandais' | 'international'): Promise<void> {
+    try {
+      console.log(`🔄 Rechargement de la liste "${categorie}"...`);
+      
+      if (categorie === 'belgique') {
+        this.mediasBelgique = await this.mediaService.getByCategorie('belgique');
+        console.log(`✅ ${this.mediasBelgique.length} médias Belgique rechargés`);
+      } else if (categorie === 'neerlandais') {
+        this.mediasNeerlandais = await this.mediaService.getByCategorie('neerlandais');
+        console.log(`✅ ${this.mediasNeerlandais.length} médias Néerlandais rechargés`);
+      } else {
+        this.mediasInternational = await this.mediaService.getByCategorie('international');
+        console.log(`✅ ${this.mediasInternational.length} médias International rechargés`);
+      }
+    } catch (error: unknown) {
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Reload Media Categorie', 
+        error, 
+        `Erreur lors du rechargement de la catégorie ${categorie}`
+      );
+    }
+  }
+
   switchTab(tab: 'beneficiaires' | 'donateurs' | 'medias'): void {
     this.activeTab = tab;
     this.cancelEdit();
@@ -155,9 +182,12 @@ export class Edit implements OnInit, AfterViewInit {
     }, 100);
   }
 
-  switchMediaTab(tab: 'belgique' | 'neerlandais' | 'international'): void {
+  async switchMediaTab(tab: 'belgique' | 'neerlandais' | 'international'): Promise<void> {
     this.activeMediaTab = tab;
     this.cancelEdit();
+    
+    // Recharger la liste de la catégorie vers laquelle on bascule
+    await this.reloadMediaCategorie(tab);
     
     // Réinitialiser SortableJS après le changement de sous-onglet
     setTimeout(() => {
@@ -197,6 +227,7 @@ export class Edit implements OnInit, AfterViewInit {
   editMedia(media: Media): void {
     this.editingMedia = media;
     this.mediaFormCategorie = media.categorie;
+    this.originalMediaCategorie = media.categorie; // Sauvegarder la catégorie d'origine
     this.showMediaForm = true;
   }
 
@@ -206,6 +237,7 @@ export class Edit implements OnInit, AfterViewInit {
     this.showMediaForm = false;
     this.editingItem = null;
     this.editingMedia = null;
+    this.originalMediaCategorie = null;
     this.errorMessage = '';
     this.successMessage = '';
     // Réinitialiser l'état de soumission des formulaires
@@ -285,18 +317,38 @@ export class Edit implements OnInit, AfterViewInit {
         
         const updatedMedia = await this.mediaService.update(this.editingMedia.id!, updateData);
         
-        // Mettre à jour l'élément dans la liste locale
-        const targetArray = data.categorie === 'belgique' 
-          ? this.mediasBelgique 
-          : data.categorie === 'neerlandais' 
-            ? this.mediasNeerlandais 
-            : this.mediasInternational;
-        const index = targetArray.findIndex(m => m.id === this.editingMedia!.id);
-        if (index !== -1) {
-          targetArray[index] = updatedMedia;
-        }
+        // Vérifier si la catégorie a changé
+        const hasChangedCategorie = this.originalMediaCategorie && this.originalMediaCategorie !== data.categorie;
         
-        this.successMessage = 'Média mis à jour avec succès !';
+        if (hasChangedCategorie) {
+          // La catégorie a changé : retirer le média de l'ancienne liste
+          const oldArray = this.originalMediaCategorie === 'belgique' 
+            ? this.mediasBelgique 
+            : this.originalMediaCategorie === 'neerlandais' 
+              ? this.mediasNeerlandais 
+              : this.mediasInternational;
+          
+          const oldIndex = oldArray.findIndex(m => m.id === this.editingMedia!.id);
+          if (oldIndex !== -1) {
+            oldArray.splice(oldIndex, 1);
+            console.log(`Média retiré de la liste ${this.originalMediaCategorie}. ${oldArray.length} médias restants.`);
+          }
+          
+          this.successMessage = `Média déplacé vers "${data.categorie}" avec succès ! Changez d'onglet pour le voir.`;
+        } else {
+          // La catégorie n'a pas changé : mettre à jour dans la liste actuelle
+          const targetArray = data.categorie === 'belgique' 
+            ? this.mediasBelgique 
+            : data.categorie === 'neerlandais' 
+              ? this.mediasNeerlandais 
+              : this.mediasInternational;
+          const index = targetArray.findIndex(m => m.id === this.editingMedia!.id);
+          if (index !== -1) {
+            targetArray[index] = updatedMedia;
+          }
+          
+          this.successMessage = 'Média mis à jour avec succès !';
+        }
       } else {
         // Nouveau : trouver le max et ajouter +1
         const medias = data.categorie === 'belgique' 
