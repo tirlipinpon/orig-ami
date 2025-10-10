@@ -1,5 +1,5 @@
 <div class="form-modal">
-  <div class="form-container">
+  <div class="form-container" [class.donateur-mode]="type === 'donateur'">
     <h3>{{ editingItem ? 'Modifier' : 'Ajouter' }} {{ type === 'beneficiaire' ? 'un bénéficiaire' : 'un donateur' }}</h3>
     
     <form [formGroup]="form" (ngSubmit)="onSubmit()">

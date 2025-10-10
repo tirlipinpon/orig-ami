@@ -1,4 +1,4 @@
-<div class="item-card" [class.inactive]="!item.actif">
+<div class="item-card" [class.inactive]="!item.actif" [class.donateur-item]="item.type === 'donateur'">
   <div class="drag-handle"></div>
   <div class="item-image">
     <img [src]="item.image_url" [alt]="item.alt_text" [style.width.px]="item.image_width">

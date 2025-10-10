@@ -143,6 +143,16 @@
   border-bottom-color: #667eea;
 }
 
+/* Onglet Donateur */
+.tab-button.donateur-tab:hover {
+  color: #f39c12;
+}
+
+.tab-button.donateur-tab.active {
+  color: #f39c12;
+  border-bottom-color: #f39c12;
+}
+
 /* Loader */
 .loader {
   display: flex;
@@ -203,6 +213,15 @@
   box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
 
+/* Bouton Ajouter Donateur */
+.btn-add.donateur-button {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+.btn-add.donateur-button:hover {
+  box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+}
+
 /* Modal Formulaire */
 /* Styles de formulaire déplacés dans item-form.css */
 
@@ -241,6 +260,11 @@
   cursor: grabbing;
 }
 
+/* Élément en cours de déplacement - Donateurs */
+.donateur-grid .sortable-drag {
+  box-shadow: 0 15px 50px rgba(243, 156, 18, 0.6);
+}
+
 /* Élément fantôme (placeholder) */
 .sortable-ghost {
   opacity: 0.6;
@@ -265,11 +289,25 @@
   transform: translate(-50%, -50%);
 }
 
+/* Élément fantôme - Donateurs */
+.donateur-grid .sortable-ghost {
+  border-color: #f39c12;
+}
+
+.donateur-grid .sortable-ghost::after {
+  color: #f39c12;
+}
+
 /* Élément sélectionné pour le déplacement */
 .sortable-chosen {
   transform: scale(1.02);
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
   transition: all 0.2s ease;
+}
+
+/* Élément sélectionné - Donateurs */
+.donateur-grid .sortable-chosen {
+  box-shadow: 0 8px 25px rgba(243, 156, 18, 0.3);
 }
 
 /* Animation fluide pour tous les éléments */
@@ -312,6 +350,12 @@
   border-color: #667eea;
 }
 
+/* Poignée de drag - Donateurs */
+.donateur-grid .drag-handle:hover {
+  background: #f39c12;
+  border-color: #f39c12;
+}
+
 .drag-handle:active {
   cursor: grabbing;
   transform: scale(0.95);
@@ -347,6 +391,11 @@
 
 .drag-handle:hover::before {
   opacity: 1;
+}
+
+/* Effet before - Donateurs */
+.donateur-grid .drag-handle::before {
+  background: rgba(243, 156, 18, 0.1);
 }
 
 .item-image-link {

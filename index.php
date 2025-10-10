@@ -305,10 +305,10 @@ require_once 'get-data-supabase.php';
         <h1 id="firstHeading" class="firstHeading">Belgique</h1>
         <div id="bodyContent" class="media-belge">
             <a target="_blank" href="https://www.rtl.be/page-videos/belgique/societe/concert-de-100-choristes-schaerbeek-en-solidarite-avec-les-sans-abris/2024-01-21/video/629085">RTL</a>
-		<a target="_blank" href="https://bx1.be/categories/news/schaerbeek-100-choristes-ont-participe-a-un-concert-pour-venir-en-aide-aux-sans-abris/#:~:text=D%C3%A8s%2018h00%2C%20une%20centaine%20de,tentes%20gr%C3%A2ce%20%C3%A0%20l%27%C3%A9v%C3%A9nement.">BX1</a>
-		<a target="_blank" href="https://www.dhnet.be/dernieres-depeches/2024/01/20/un-concert-reunit-100-choristes-a-schaerbeek-pour-venir-en-aide-aux-sans-abris-DVKCMGFODJATXCYWE37JW5PEA4/">DHNET</a>
-		<a target="_blank" href="https://www.lalibre.be/regions/bruxelles/2024/01/20/100-choristes-se-reunissent-a-schaerbeek-voici-la-raison-derriere-leur-concert-6RFAFSIGJNG4NIZIHSQAXXCW5U/">LALIBRE</a>
-		<a target="_blank" href="https://culturius.com/events/c8906cf1-0e18-4959-9fe4-798731dc90a7/100-choristes-pour-sans-abris">CULTURIUS</a>
+		    <a target="_blank" href="https://bx1.be/categories/news/schaerbeek-100-choristes-ont-participe-a-un-concert-pour-venir-en-aide-aux-sans-abris/#:~:text=D%C3%A8s%2018h00%2C%20une%20centaine%20de,tentes%20gr%C3%A2ce%20%C3%A0%20l%27%C3%A9v%C3%A9nement.">BX1</a>
+		    <a target="_blank" href="https://www.dhnet.be/dernieres-depeches/2024/01/20/un-concert-reunit-100-choristes-a-schaerbeek-pour-venir-en-aide-aux-sans-abris-DVKCMGFODJATXCYWE37JW5PEA4/">DHNET</a>
+		    <a target="_blank" href="https://www.lalibre.be/regions/bruxelles/2024/01/20/100-choristes-se-reunissent-a-schaerbeek-voici-la-raison-derriere-leur-concert-6RFAFSIGJNG4NIZIHSQAXXCW5U/">LALIBRE</a>
+		    <a target="_blank" href="https://culturius.com/events/c8906cf1-0e18-4959-9fe4-798731dc90a7/100-choristes-pour-sans-abris">CULTURIUS</a>
             <a target="_blank" href="https://bx1.be/categories/news/une-tente-de-carton-pour-isoler-du-froid-loperation-orig-ami-de-retour-aupres-des-sans-abris/">bx1</a>
             <a target="_blank" href="https://www.ln24.be/2021-12-24/pour-info-noel-et-initiatives-solidaires-pour-les-plus-demunis">ln24</a>
             <a target="_blank" href="https://www.flair.be/fr/society/societe/orig-ami-tentes-carton-sans-abris/">flair</a>
