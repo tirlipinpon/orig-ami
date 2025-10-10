@@ -53,5 +53,25 @@ export class Supabase {
   onAuthStateChange(callback: (event: string, session: any) => void) {
     return this.supabase.auth.onAuthStateChange(callback);
   }
+
+  /**
+   * Envoie un email de réinitialisation du mot de passe
+   * L'utilisateur recevra un lien pour créer un nouveau mot de passe
+   */
+  async resetPasswordForEmail(email: string) {
+    return await this.supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/admin/reset-password`
+    });
+  }
+
+  /**
+   * Met à jour le mot de passe de l'utilisateur connecté
+   * @param newPassword Le nouveau mot de passe
+   */
+  async updatePassword(newPassword: string) {
+    return await this.supabase.auth.updateUser({
+      password: newPassword
+    });
+  }
 }
 

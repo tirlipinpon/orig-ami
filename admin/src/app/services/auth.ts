@@ -80,4 +80,44 @@ export class Auth {
   async getCurrentUserAsync(): Promise<User | null> {
     return await this.supabase.getCurrentUser();
   }
+
+  /**
+   * Envoie un email de réinitialisation du mot de passe
+   * @param email L'adresse email de l'utilisateur
+   * @returns Un objet avec success et error
+   */
+  async resetPasswordForEmail(email: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { error } = await this.supabase.resetPasswordForEmail(email);
+      
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error: unknown) {
+      const errorMessage = this.errorHandler.handleError('Reset Password', error, 'Erreur de réinitialisation');
+      return { success: false, error: errorMessage };
+    }
+  }
+
+  /**
+   * Met à jour le mot de passe de l'utilisateur connecté
+   * @param newPassword Le nouveau mot de passe
+   * @returns Un objet avec success et error
+   */
+  async updatePassword(newPassword: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { error } = await this.supabase.updatePassword(newPassword);
+      
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error: unknown) {
+      const errorMessage = this.errorHandler.handleError('Update Password', error, 'Erreur de mise à jour du mot de passe');
+      return { success: false, error: errorMessage };
+    }
+  }
 }

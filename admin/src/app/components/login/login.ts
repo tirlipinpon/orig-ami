@@ -16,10 +16,18 @@ export class Login {
   private readonly router = inject(Router);
   private readonly errorHandler = inject(ErrorHandlerService);
 
+  // Login
   email: string = '';
   password: string = '';
   errorMessage: string = '';
   isLoading: boolean = false;
+  
+  // Reset password
+  showForgotPassword: boolean = false;
+  resetEmail: string = '';
+  resetErrorMessage: string = '';
+  resetSuccessMessage: string = '';
+  isResetting: boolean = false;
 
   async onSubmit(): Promise<void> {
     this.errorMessage = '';
@@ -41,6 +49,44 @@ export class Login {
       );
     } finally {
       this.isLoading = false;
+    }
+  }
+
+  toggleForgotPassword(event: Event): void {
+    event.preventDefault();
+    this.showForgotPassword = !this.showForgotPassword;
+    // Réinitialiser les messages
+    this.errorMessage = '';
+    this.resetErrorMessage = '';
+    this.resetSuccessMessage = '';
+    this.resetEmail = '';
+  }
+
+  async onResetPassword(): Promise<void> {
+    this.resetErrorMessage = '';
+    this.resetSuccessMessage = '';
+    this.isResetting = true;
+
+    try {
+      const result = await this.authService.resetPasswordForEmail(this.resetEmail);
+      
+      if (result.success) {
+        this.resetSuccessMessage = '✅ Un email de réinitialisation a été envoyé à votre adresse. Vérifiez votre boîte de réception.';
+        // Réinitialiser le champ email après 3 secondes
+        setTimeout(() => {
+          this.resetEmail = '';
+        }, 3000);
+      } else {
+        this.resetErrorMessage = result.error || 'Erreur lors de l\'envoi de l\'email';
+      }
+    } catch (error: unknown) {
+      this.resetErrorMessage = this.errorHandler.handleError(
+        'Reset Password', 
+        error, 
+        'Erreur lors de la réinitialisation du mot de passe'
+      );
+    } finally {
+      this.isResetting = false;
     }
   }
 }
