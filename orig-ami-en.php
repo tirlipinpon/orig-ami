@@ -66,25 +66,24 @@ require_once 'get-data-supabase.php';
     <h1 id="quoi" class="padding50">What is it about ?</h1>
     <p class="block-text">The <strong>ORIG-AMI</strong>  is a cardboard shelter. It is insulating, protective due to its structure, folding like an accordion, transportable as a backpack and recyclable. The shelter for the homeless was conceived on the principal of origami, a Japanese technique of folding paper.</p>
 
-    <div><!-- Set up your HTML -->
-    <div class="owl-carousel owl-theme">
-        <div class="item"><img src="img/slide/origami-4.png" alt="ORIG-AMI"/></div>
-        <div class="item"><img src="img/slide/origami-5.JPG" alt="ORIG-AMI"/></div>
-        <div class="item"><img src="img/slide/origami-6.jpg" alt="ORIG-AMI"/></div>
-        <div class="item"><img src="img/slide/origami-7.png" alt="ORIG-AMI"/></div>
-        <div class="item"><img src="img/slide/origami-8.png" alt="ORIG-AMI"/></div>
-	    <div class="item"><img src="img/slide/courtesy-Olivier-Pollet.jpg" alt="courtesy-Olivier-Pollet"/></div>
-	    <div class="item"><img src="img/slide/press-23.jpg" alt="press-23"/></div>
-	    <div class="item"><img src="img/slide/toit-tente.jpg" alt="toit-tente"/></div>
-        <div class="item"><img src="img/slide/origami-1.jpg" alt="ORIG-AMI"/></div>
-        <div class="item"><img src="img/slide/origami-2.jpg" alt="ORIG-AMI"/></div>
-        <div class="item"><img src="img/slide/origami-3.jpg" alt="ORIG-AMI"/></div>
-        <div class="item"><img src="img/slide/origami-4.jpg" alt="ORIG-AMI"/></div>
-        <div class="item">
+    <!-- carousel -->
+    <div>
+        <div class="owl-carousel owl-theme">
+            <?php if (!empty($carouselSlides)): ?>
+                <?php foreach ($carouselSlides as $slide): ?>
+                    <div class="item">
+                        <img src="<?= htmlspecialchars($slide['image_url_full']) ?>" 
+                             alt="<?= htmlspecialchars($slide['alt_text']) ?>"
+                             title="<?= htmlspecialchars($slide['titre']) ?>"/>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            
+            <!-- Vidéo YouTube toujours présente -->
+            <div class="item">
                 <iframe width="100%" height="600" src="https://www.youtube.com/embed/m4-RV4C2PaU?rel=0&amp;controls=0"
                         frameborder="0" gesture="media" allow="encrypted-media" allowfullscreen></iframe>
             </div>
-            <!--<div class="item"><img src="img/slide/origami-6.jpg" alt=""/></div>-->
         </div>
     </div>
 
