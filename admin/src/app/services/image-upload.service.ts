@@ -51,11 +51,12 @@ export class ImageUploadService {
   /**
    * Valide et upload une image vers Supabase Storage
    * @param file Fichier image à valider et uploader
-   * @param folder Dossier de destination ('beneficiaire' ou 'sponsors')
+   * @param folder Dossier de destination ('beneficiaire', 'sponsors' ou 'caroussel')
    * @param itemName Nom du bénéficiaire/donateur pour le nom du fichier
+   * @param skipDimensionValidation Si true, ne valide pas les dimensions (pour carousel)
    * @returns Résultat de la validation et upload
    */
-  async uploadImage(file: File, folder: StorageFolder, itemName?: string): Promise<UploadResult> {
+  async uploadImage(file: File, folder: StorageFolder, itemName?: string, skipDimensionValidation: boolean = false): Promise<UploadResult> {
     console.log('🚀 [SUPABASE] Début upload Supabase:', file.name, 'vers', folder);
   
     try {
@@ -68,17 +69,21 @@ export class ImageUploadService {
       }
       console.log('✅ [SUPABASE] Type et taille validés');
 
-      // Validation des dimensions de l'image
-      console.log('📐 [SUPABASE] Vérification dimensions...');
-      const dimensions = await this.imageProcessingService.getImageDimensions(file);
-      console.log('📊 [SUPABASE] Dimensions:', dimensions.width, 'x', dimensions.height);
-      
-      const dimensionValidation = this.imageProcessingService.validateDimensions(dimensions);
-      if (!dimensionValidation.valid) {
-        console.error('❌ [SUPABASE] Dimensions invalides:', dimensionValidation.error);
-        return { success: false, error: dimensionValidation.error };
+      // Validation des dimensions de l'image (sauf pour carousel)
+      if (!skipDimensionValidation) {
+        console.log('📐 [SUPABASE] Vérification dimensions...');
+        const dimensions = await this.imageProcessingService.getImageDimensions(file);
+        console.log('📊 [SUPABASE] Dimensions:', dimensions.width, 'x', dimensions.height);
+        
+        const dimensionValidation = this.imageProcessingService.validateDimensions(dimensions);
+        if (!dimensionValidation.valid) {
+          console.error('❌ [SUPABASE] Dimensions invalides:', dimensionValidation.error);
+          return { success: false, error: dimensionValidation.error };
+        }
+        console.log('✅ [SUPABASE] Dimensions validées');
+      } else {
+        console.log('⏭️ [SUPABASE] Validation des dimensions désactivée (carousel)');
       }
-      console.log('✅ [SUPABASE] Dimensions validées');
 
       // Générer un nom de fichier unique avec le nom de l'item
       const timestamp = Date.now();

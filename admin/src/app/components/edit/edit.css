@@ -58,6 +58,23 @@
   font-size: 14px;
 }
 
+.carousel-tab {
+  /* Styles spécifiques pour l'onglet carousel */
+}
+
+.info-box {
+  background-color: #e7f3ff;
+  border-left: 4px solid #2196F3;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 4px;
+}
+
+.info-box p {
+  margin: 0.5rem 0;
+  color: #0d47a1;
+}
+
 .btn-logout {
   padding: 8px 20px;
   background: rgba(255, 255, 255, 0.2);

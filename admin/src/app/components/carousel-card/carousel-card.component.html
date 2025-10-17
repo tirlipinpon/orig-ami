@@ -1,0 +1,39 @@
+<div class="card" [class.inactive]="!slide().actif">
+  <div class="drag-handle"></div>
+  <div class="card-header">
+    <span class="status-badge" [class.active]="slide().actif">
+      {{ slide().actif ? '✓ Actif' : '✗ Inactif' }}
+    </span>
+  </div>
+  
+  <div class="card-image">
+    <img [src]="slide().image_url" [alt]="slide().alt_text" loading="lazy">
+  </div>
+  
+  <div class="card-content">
+    <p class="alt-text">{{ slide().alt_text }}</p>
+    <p class="ordre">Ordre: {{ slide().ordre }}</p>
+  </div>
+  
+  <div class="card-actions">
+    <button 
+      class="btn-edit" 
+      (click)="edit.emit(slide())"
+      title="Modifier">
+      ✏️ Modifier
+    </button>
+    <button 
+      class="btn-toggle" 
+      (click)="toggleActif.emit(slide())"
+      [title]="slide().actif ? 'Désactiver' : 'Activer'">
+      {{ slide().actif ? '👁️ Désactiver' : '👁️‍🗨️ Activer' }}
+    </button>
+    <button 
+      class="btn-delete" 
+      (click)="delete.emit(slide())"
+      title="Supprimer">
+      🗑️ Supprimer
+    </button>
+  </div>
+</div>
+

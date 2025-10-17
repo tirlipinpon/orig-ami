@@ -46,6 +46,12 @@
         (click)="switchTab('medias')">
         📰 Médias ({{ mediasBelgique.length + mediasNeerlandais.length + mediasInternational.length }})
       </button>
+      <button 
+        class="tab-button carousel-tab" 
+        [class.active]="activeTab === 'carousel'"
+        (click)="switchTab('carousel')">
+        🎠 Carousel ({{ carouselSlides.length }})
+      </button>
     </div>
 
     <!-- Loader -->
@@ -245,6 +251,62 @@
             </div>
           </div>
         }
+      </div>
+    }
+
+    <!-- Contenu Carousel -->
+    @if (activeTab === 'carousel' && !isLoading) {
+      <div class="tab-content">
+        <div class="section-header">
+          <h2>🎠 Gestion du Carousel</h2>
+          <div class="section-stats">
+            <span class="stat-item">
+              <span class="stat-number">{{ carouselSlides.length }}</span>
+              <span class="stat-label">Total</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-number">{{ activeCarouselSlides.length }}</span>
+              <span class="stat-label">Actifs</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-number">{{ inactiveCarouselSlides.length }}</span>
+              <span class="stat-label">Inactifs</span>
+            </span>
+          </div>
+          <button class="btn-add" (click)="openAddCarouselForm()">
+            ➕ Ajouter un slide
+          </button>
+        </div>
+
+        <div class="info-box">
+          <p><strong>💡 Astuce :</strong> Glissez-déposez les images pour réorganiser l'ordre d'affichage. Les images inactives restent visibles dans l'admin mais n'apparaissent pas sur le site.</p>
+        </div>
+
+        <!-- Formulaire Carousel -->
+        @if (showCarouselForm) {
+          <app-carousel-form
+            #carouselForm
+            [editingSlide]="editingCarousel"
+            (save)="onCarouselFormSave($event)"
+            (cancel)="cancelEdit()">
+          </app-carousel-form>
+        }
+
+        <!-- Liste des slides -->
+        <div 
+          #carouselGrid
+          class="items-grid">
+          @for (slide of carouselSlides; track slide.id) {
+            <app-carousel-card
+              [slide]="slide"
+              (edit)="editCarouselSlide($event)"
+              (toggleActif)="toggleCarouselActif($event)"
+              (delete)="deleteCarouselSlide($event)">
+            </app-carousel-card>
+          } @empty {
+            <p class="empty-message">Aucun slide trouvé. Ajoutez-en un !</p>
+          }
+        </div>
       </div>
     }
   </div>

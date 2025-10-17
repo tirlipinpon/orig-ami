@@ -6,17 +6,21 @@ import Sortable from 'sortablejs';
 import { Auth } from '../../services/auth';
 import { BeneficiaireService } from '../../services/beneficiaire';
 import { MediaService } from '../../services/media.service';
+import { CarouselService } from '../../services/carousel.service';
 import { ErrorHandlerService } from '../../services/error-handler.service';
 import { Beneficiaire, BeneficiaireCreate } from '../../models/beneficiaire.model';
 import { Media, MediaCreate } from '../../models/media.model';
+import { Carousel, CarouselCreate } from '../../models/carousel.model';
 import { ItemForm } from '../item-form/item-form';
 import { ItemCardComponent } from '../item-card/item-card.component';
 import { MediaFormComponent } from '../media-form/media-form.component';
 import { MediaCardComponent } from '../media-card/media-card.component';
+import { CarouselFormComponent } from '../carousel-form/carousel-form.component';
+import { CarouselCardComponent } from '../carousel-card/carousel-card.component';
 
 @Component({
   selector: 'app-edit',
-  imports: [CommonModule, ItemForm, ItemCardComponent, MediaFormComponent, MediaCardComponent],
+  imports: [CommonModule, ItemForm, ItemCardComponent, MediaFormComponent, MediaCardComponent, CarouselFormComponent, CarouselCardComponent],
   templateUrl: './edit.html',
   styleUrl: './edit.css'
 })
@@ -26,6 +30,7 @@ export class Edit implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly beneficiaireService = inject(BeneficiaireService);
   private readonly mediaService = inject(MediaService);
+  private readonly carouselService = inject(CarouselService);
   private readonly errorHandler = inject(ErrorHandlerService);
   
   userEmail: string | null = '';
@@ -37,6 +42,16 @@ export class Edit implements OnInit, AfterViewInit {
   mediasBelgique: Media[] = [];
   mediasNeerlandais: Media[] = [];
   mediasInternational: Media[] = [];
+  carouselSlides: Carousel[] = [];
+
+  // Getters pour les statistiques du carousel
+  get activeCarouselSlides(): Carousel[] {
+    return this.carouselSlides.filter(slide => slide.actif);
+  }
+
+  get inactiveCarouselSlides(): Carousel[] {
+    return this.carouselSlides.filter(slide => !slide.actif);
+  }
   isLoading: boolean = false;
   errorMessage: string = '';
   successMessage: string = '';
@@ -44,27 +59,32 @@ export class Edit implements OnInit, AfterViewInit {
   showBeneficiaireForm: boolean = false;
   showDonateurForm: boolean = false;
   showMediaForm: boolean = false;
+  showCarouselForm: boolean = false;
   editingItem: Beneficiaire | null = null;
   editingMedia: Media | null = null;
+  editingCarousel: Carousel | null = null;
   formType: 'beneficiaire' | 'donateur' = 'beneficiaire';
   mediaFormCategorie: 'belgique' | 'neerlandais' | 'international' = 'belgique';
   originalMediaCategorie: 'belgique' | 'neerlandais' | 'international' | null = null;
 
-  activeTab: 'beneficiaires' | 'donateurs' | 'medias' = 'beneficiaires';
+  activeTab: 'beneficiaires' | 'donateurs' | 'medias' | 'carousel' = 'beneficiaires';
 
   @ViewChild('beneficiairesGrid', { static: false }) beneficiairesGrid!: ElementRef;
   @ViewChild('donateursGrid', { static: false }) donateursGrid!: ElementRef;
   @ViewChild('mediasBelgiqueGrid', { static: false }) mediasBelgiqueGrid!: ElementRef;
   @ViewChild('mediasNeerlandaisGrid', { static: false }) mediasNeerlandaisGrid!: ElementRef;
   @ViewChild('mediasInternationalGrid', { static: false }) mediasInternationalGrid!: ElementRef;
+  @ViewChild('carouselGrid', { static: false }) carouselGrid!: ElementRef;
   @ViewChild('beneficiaireForm', { static: false }) beneficiaireForm!: ItemForm;
   @ViewChild('donateurForm', { static: false }) donateurForm!: ItemForm;
   @ViewChild('mediaForm', { static: false }) mediaForm!: MediaFormComponent;
+  @ViewChild('carouselForm', { static: false }) carouselForm!: CarouselFormComponent;
   private beneficiairesSortable?: Sortable;
   private donateursSortable?: Sortable;
   private mediasBelgiqueSortable?: Sortable;
   private mediasNeerlandaisSortable?: Sortable;
   private mediasInternationalSortable?: Sortable;
+  private carouselSortable?: Sortable;
   
   // Sous-onglet pour les médias
   activeMediaTab: 'belgique' | 'neerlandais' | 'international' = 'belgique';
@@ -126,6 +146,7 @@ export class Edit implements OnInit, AfterViewInit {
     
     try {
       this.beneficiaires = await this.beneficiaireService.getByType('beneficiaire');
+      this.carouselSlides = await this.carouselService.getAll();
       this.donateurs = await this.beneficiaireService.getByType('donateur');
       this.mediasBelgique = await this.mediaService.getByCategorie('belgique');
       this.mediasNeerlandais = await this.mediaService.getByCategorie('neerlandais');
@@ -172,7 +193,7 @@ export class Edit implements OnInit, AfterViewInit {
     }
   }
 
-  switchTab(tab: 'beneficiaires' | 'donateurs' | 'medias'): void {
+  switchTab(tab: 'beneficiaires' | 'donateurs' | 'medias' | 'carousel'): void {
     this.activeTab = tab;
     this.cancelEdit();
     
@@ -235,8 +256,10 @@ export class Edit implements OnInit, AfterViewInit {
     this.showBeneficiaireForm = false;
     this.showDonateurForm = false;
     this.showMediaForm = false;
+    this.showCarouselForm = false;
     this.editingItem = null;
     this.editingMedia = null;
+    this.editingCarousel = null;
     this.originalMediaCategorie = null;
     this.errorMessage = '';
     this.successMessage = '';
@@ -554,12 +577,21 @@ export class Edit implements OnInit, AfterViewInit {
       console.warn('Erreur lors de la destruction de mediasInternationalSortable:', error);
     }
 
+    try {
+      if (this.carouselSortable && typeof this.carouselSortable.destroy === 'function') {
+        this.carouselSortable.destroy();
+      }
+    } catch (error) {
+      console.warn('Erreur lors de la destruction de carouselSortable:', error);
+    }
+
     // Réinitialiser les références
     this.beneficiairesSortable = undefined;
     this.donateursSortable = undefined;
     this.mediasBelgiqueSortable = undefined;
     this.mediasNeerlandaisSortable = undefined;
     this.mediasInternationalSortable = undefined;
+    this.carouselSortable = undefined;
 
     // Configuration SortableJS pour les bénéficiaires
     if (this.beneficiairesGrid?.nativeElement && this.beneficiaires.length > 0) {
@@ -628,6 +660,20 @@ export class Edit implements OnInit, AfterViewInit {
         forceFallback: true,
         fallbackOnBody: true,
         onEnd: (evt) => this.onMediaInternationalSortEnd(evt)
+      });
+    }
+
+    // Configuration SortableJS pour le carousel
+    if (this.activeTab === 'carousel' && this.carouselGrid?.nativeElement && this.carouselSlides.length > 0) {
+      this.carouselSortable = Sortable.create(this.carouselGrid.nativeElement, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        handle: '.drag-handle',
+        forceFallback: true,
+        fallbackOnBody: true,
+        onEnd: (evt) => this.onCarouselSortEnd(evt)
       });
     }
   }
@@ -788,6 +834,131 @@ export class Edit implements OnInit, AfterViewInit {
       console.error('Erreur lors de la déconnexion:', error);
     } finally {
       this.isLoggingOut = false;
+    }
+  }
+
+  // ==================== MÉTHODES CAROUSEL ====================
+
+  openAddCarouselForm(): void {
+    this.editingCarousel = null;
+    this.showCarouselForm = true;
+  }
+
+  editCarouselSlide(slide: Carousel): void {
+    this.editingCarousel = slide;
+    this.showCarouselForm = true;
+  }
+
+  async onCarouselFormSave(slideData: CarouselCreate): Promise<void> {
+    this.isLoading = true;
+    try {
+      if (this.editingCarousel?.id) {
+        await this.carouselService.update(this.editingCarousel.id, slideData);
+        this.successMessage = 'Slide modifié avec succès';
+      } else {
+        await this.carouselService.create(slideData);
+        this.successMessage = 'Slide ajouté avec succès';
+      }
+      
+      this.carouselSlides = await this.carouselService.getAll();
+      this.showCarouselForm = false;
+      this.editingCarousel = null;
+      
+      setTimeout(() => {
+        this.successMessage = '';
+        this.initializeSortable();
+      }, 2000);
+    } catch (error: unknown) {
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Save Carousel', 
+        error, 
+        this.editingCarousel?.id ? 'Erreur lors de la modification' : 'Erreur lors de l\'ajout'
+      );
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async toggleCarouselActif(slide: Carousel): Promise<void> {
+    if (!slide.id) return;
+    
+    this.isLoading = true;
+    try {
+      await this.carouselService.toggleActif(slide.id, !slide.actif);
+      this.carouselSlides = await this.carouselService.getAll();
+      this.successMessage = `Slide ${!slide.actif ? 'activé' : 'désactivé'} avec succès`;
+      setTimeout(() => this.successMessage = '', 2000);
+    } catch (error: unknown) {
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Toggle Carousel Actif', 
+        error, 
+        'Erreur lors de la modification du statut'
+      );
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async deleteCarouselSlide(slide: Carousel): Promise<void> {
+    if (!slide.id) return;
+    
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer le slide "${slide.titre}" ?`)) {
+      return;
+    }
+    
+    this.isLoading = true;
+    try {
+      await this.carouselService.delete(slide.id);
+      this.carouselSlides = await this.carouselService.getAll();
+      this.successMessage = 'Slide supprimé avec succès';
+      setTimeout(() => this.successMessage = '', 2000);
+    } catch (error: unknown) {
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Delete Carousel', 
+        error, 
+        'Erreur lors de la suppression'
+      );
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  private async onCarouselSortEnd(evt: any): Promise<void> {
+    const { oldIndex, newIndex } = evt;
+    
+    if (oldIndex === newIndex) {
+      return;
+    }
+
+    const movedSlide = this.carouselSlides.splice(oldIndex, 1)[0];
+    this.carouselSlides.splice(newIndex, 0, movedSlide);
+
+    try {
+      const maxOrdre = Math.max(...this.carouselSlides.map(s => s.ordre));
+      const updates = [];
+      
+      for (let i = 0; i < this.carouselSlides.length; i++) {
+        const slide = this.carouselSlides[i];
+        const newOrdre = maxOrdre - i;
+        
+        if (slide.ordre !== newOrdre) {
+          slide.ordre = newOrdre;
+          updates.push(this.carouselService.updateOrdre(slide.id!, newOrdre));
+        }
+      }
+      
+      if (updates.length > 0) {
+        await Promise.all(updates);
+      }
+      
+      this.successMessage = 'Ordre mis à jour !';
+      setTimeout(() => this.successMessage = '', 2000);
+    } catch (error: unknown) {
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Update Carousel Order', 
+        error, 
+        'Erreur lors de la mise à jour de l\'ordre'
+      );
     }
   }
 }

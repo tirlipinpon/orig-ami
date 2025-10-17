@@ -282,6 +282,65 @@ export class ImageProcessingService {
   }
 
   /**
+   * Redimensionne et compresse une image avec des dimensions spécifiques
+   */
+  async resizeAndCompress(
+    file: File,
+    targetWidth: number,
+    targetHeight: number,
+    format: ImageFormat,
+    quality: number
+  ): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          // Créer le canvas avec les dimensions cibles
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Impossible de créer le contexte canvas'));
+            return;
+          }
+
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+
+          // Dessiner l'image redimensionnée
+          ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+          // Convertir en blob
+          const mimeType = `image/${format}`;
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Erreur lors de la conversion'));
+                return;
+              }
+
+              // Créer le nouveau fichier
+              const newFileName = this.generateOptimizedFileName(file.name, format);
+              const newFile = new File([blob], newFileName, { type: mimeType });
+
+              resolve(newFile);
+            },
+            mimeType,
+            quality
+          );
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      img.onerror = () => {
+        reject(new Error('Impossible de charger l\'image'));
+      };
+
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  /**
    * Nettoie et formate un nom pour l'utiliser dans un nom de fichier
    */
   sanitizeFileName(name: string): string {

@@ -1,0 +1,182 @@
+<div class="form-modal">
+  <div class="form-container">
+    <h3>{{ editingSlide() ? 'Modifier' : 'Ajouter' }} un slide du carousel</h3>
+    
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="image_url">Image du Carousel *</label>
+        <small class="image-constraints">
+          🎯 Hauteur cible: 600px • Format: WebP • Taille max: 500KB
+        </small>
+        
+        <div class="image-upload-container">
+          <input 
+            type="file" 
+            #fileInput
+            id="image-file" 
+            accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+            (change)="onFileSelected($event)"
+            style="display: none;">
+          
+          <button 
+            type="button" 
+            class="btn-upload"
+            (click)="fileInput.click()"
+            [disabled]="isUploading || isSubmitting || isAutoOptimizing">
+            @if (isUploading || isAutoOptimizing) {
+              <span class="loading-spinner">⏳</span> {{ isAutoOptimizing ? 'Optimisation...' : 'Upload en cours...' }}
+            } @else {
+              📁 Choisir une image
+            }
+          </button>
+
+          @if (uploadError) {
+            <span class="error-message">{{ uploadError }}</span>
+          }
+
+          @if (uploadSuccess) {
+            <span class="success-message">✓ Image uploadée avec succès</span>
+          }
+        </div>
+
+        <!-- Avant/Après Optimisation -->
+        @if (originalImageInfo && optimizedImageInfo) {
+          <div class="before-after-container">
+            <h4 class="optimization-title">✨ Image automatiquement optimisée</h4>
+            
+            <div class="comparison-grid">
+              <div class="comparison-column">
+                <h5 class="comparison-header original">Avant</h5>
+                <div class="comparison-info">
+                  <div class="info-row">
+                    <span class="info-label">Type :</span>
+                    <span class="info-value">{{ originalImageInfo.type }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Taille :</span>
+                    <span class="info-value invalid-value">{{ formatFileSize(originalImageInfo.size) }}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Dimensions :</span>
+                    <span class="info-value invalid-value">{{ originalImageInfo.width }}×{{ originalImageInfo.height }}px</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="comparison-arrow">→</div>
+
+              <div class="comparison-column">
+                <h5 class="comparison-header optimized">Après</h5>
+                <div class="comparison-info">
+                  <div class="info-row">
+                    <span class="info-label">Type :</span>
+                    <span class="info-value valid-value">{{ optimizedImageInfo.type }} ✅</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Taille :</span>
+                    <span class="info-value valid-value">
+                      {{ formatFileSize(optimizedImageInfo.size) }} ✅
+                      <span class="reduction-badge">
+                        -{{ ((originalImageInfo.size - optimizedImageInfo.size) / originalImageInfo.size * 100).toFixed(0) }}%
+                      </span>
+                    </span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Dimensions :</span>
+                    <span class="info-value valid-value">{{ optimizedImageInfo.width }}×{{ optimizedImageInfo.height }}px ✅</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Informations de l'image -->
+        @if (imageInfo && selectedFile && !originalImageInfo) {
+          <div class="image-info">
+            <div class="info-row">
+              <span class="info-label">Type :</span>
+              <span class="info-value" [class.valid-value]="imageInfo.type === 'image/webp'">
+                {{ imageInfo.type }}
+                @if (imageInfo.type === 'image/webp') { ✅ }
+              </span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Taille :</span>
+              <span class="info-value" [class.invalid-value]="!imageInfo.sizeValid" [class.valid-value]="imageInfo.sizeValid">
+                {{ formatFileSize(imageInfo.size) }}
+                @if (imageInfo.sizeValid) { ✅ } @else { <span class="limit-text">(max: 500 KB)</span> }
+              </span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Dimensions :</span>
+              <span class="info-value" [class.invalid-value]="!imageInfo.heightValid" [class.valid-value]="imageInfo.heightValid">
+                {{ imageInfo.width }}×{{ imageInfo.height }}px
+                @if (imageInfo.heightValid) { ✅ } @else { <span class="limit-text">(hauteur cible: {{ TARGET_HEIGHT }}px)</span> }
+              </span>
+            </div>
+          </div>
+        }
+
+        <!-- Message d'optimisation -->
+        @if (isAutoOptimizing) {
+          <div class="optimizing-message">
+            <span class="loading-spinner">⏳</span> Optimisation automatique en cours...
+          </div>
+        }
+
+        <!-- Prévisualisation -->
+        @if (imagePreviewUrl || editingSlide()?.image_url) {
+          <div class="image-preview">
+            <img 
+              [src]="imagePreviewUrl || editingSlide()?.image_url" 
+              alt="Aperçu de l'image du carousel"
+              style="max-width: 100%; height: auto;">
+            @if (selectedFile) {
+              <button 
+                type="button" 
+                class="btn-remove-image"
+                (click)="removeSelectedImage()"
+                [disabled]="isUploading || isSubmitting">
+                ✕ Supprimer
+              </button>
+            }
+          </div>
+        }
+
+        <input type="hidden" formControlName="image_url">
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn-cancel"
+          (click)="onCancelClick()"
+          [disabled]="isSubmitting || isUploading">
+          Annuler
+        </button>
+        <button 
+          type="submit" 
+          class="btn-submit"
+          [disabled]="!selectedFile || !uploadSuccess || isSubmitting || isUploading || isAutoOptimizing">
+          @if (isSubmitting) {
+            <span>⏳ Enregistrement...</span>
+          } @else {
+            <span>{{ editingSlide() ? 'Modifier' : 'Ajouter' }}</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Éditeur d'image -->
+@if (showImageEditor && imageToEdit) {
+  <app-image-editor
+    [originalFile]="imageToEdit"
+    [show]="true"
+    (result)="onImageEdited($event)"
+    (cancel)="onImageEditorCancel()">
+  </app-image-editor>
+}
+

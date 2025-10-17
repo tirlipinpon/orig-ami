@@ -38,7 +38,8 @@ export const IMAGE_CONSTRAINTS = {
   // Dossiers de stockage
   STORAGE_FOLDERS: {
     BENEFICIAIRE: 'beneficiaire' as const,
-    SPONSORS: 'sponsors' as const
+    SPONSORS: 'sponsors' as const,
+    CAROUSEL: 'caroussel' as const
   }
 } as const;
 

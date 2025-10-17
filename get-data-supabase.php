@@ -119,5 +119,45 @@ $mediasInternational = getMedias('international');
 
 // Récupérer tous les médias belges + néerlandais ensemble (pour version EN)
 $mediasBelgiqueEtNeerlandais = getAllBelgianAndDutchMedias();
+
+/**
+ * Récupère les slides du carousel
+ */
+function getCarousel() {
+    global $supabaseUrl, $supabaseKey;
+    
+    $url = "{$supabaseUrl}/rest/v1/orig_ami_carousel?actif=eq.true&order=ordre.desc";
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "apikey: {$supabaseKey}",
+        "Authorization: Bearer {$supabaseKey}"
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) {
+        return [];
+    }
+    
+    $data = json_decode($response, true);
+    
+    // Construire les URLs complètes des images
+    foreach ($data as &$slide) {
+        if (!empty($slide['image_url'])) {
+            $slide['image_url_full'] = buildImageUrl($slide['image_url'], 'caroussel');
+        } else {
+            $slide['image_url_full'] = '';
+        }
+    }
+    
+    return $data;
+}
+
+// Récupérer les slides du carousel
+$carouselSlides = getCarousel();
 ?>
 
