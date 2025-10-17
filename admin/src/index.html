@@ -7,9 +7,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   
-  <!-- Quill.js -->
-  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <!-- TinyMCE Self-Hosted (no API key required) -->
+    <script src="https://unpkg.com/tinymce@6/tinymce.min.js"></script>
+    <script>
+      // Configuration des chemins pour les thèmes et plugins
+      if (typeof tinymce !== 'undefined') {
+        tinymce.baseURL = 'https://unpkg.com/tinymce@6/';
+        tinymce.suffix = '.min';
+      }
+    </script>
 </head>
 <body>
   <app-root></app-root>

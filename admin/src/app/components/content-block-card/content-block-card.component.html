@@ -2,7 +2,7 @@
   <div class="card-header">
     <div class="header-left">
       <span class="ordre-badge">#{{ getOrdre() }}</span>
-      <h3>{{ getBlockDisplayName(contentGroup.block_key) }}</h3>
+      <h3>{{ contentGroup.fr?.title || 'Non défini' }}</h3>
     </div>
   </div>
 

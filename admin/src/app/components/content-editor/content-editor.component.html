@@ -33,8 +33,10 @@
 
         <div class="form-group">
           <label for="content">Contenu</label>
-          <div class="quill-container">
-            <div #editor class="quill-editor"></div>
+          <div class="tinymce-container">
+            <textarea #editor [id]="editorId" class="tinymce-editor" placeholder="Saisissez votre contenu..."></textarea>
+            <!-- Debug info -->
+            <small style="color: #666;">Editor ID: {{ editorId }}</small>
           </div>
         </div>
       </form>

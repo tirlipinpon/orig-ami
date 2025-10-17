@@ -161,6 +161,36 @@ function getCarousel() {
 $carouselSlides = getCarousel();
 
 /**
+ * Nettoie le HTML généré par Quill.js pour l'affichage sur les pages PHP
+ */
+function cleanQuillHtml($html) {
+    if (empty($html)) {
+        return $html;
+    }
+    
+    // Supprimer les spans avec classe ql-ui (éléments de contrôle Quill)
+    $html = preg_replace('/<span class="ql-ui"[^>]*><\/span>/', '', $html);
+    
+    // Nettoyer les attributs data-list et autres attributs Quill
+    $html = preg_replace('/\s*data-list="[^"]*"/', '', $html);
+    $html = preg_replace('/\s*data-index="[^"]*"/', '', $html);
+    $html = preg_replace('/\s*data-embed="[^"]*"/', '', $html);
+    
+    // Nettoyer les éléments vides ou inutiles
+    $html = preg_replace('/<p><br><\/p>/', '', $html);
+    $html = preg_replace('/<p>\s*<\/p>/', '', $html);
+    
+    // S'assurer que les listes sont correctement formatées
+    $html = preg_replace('/<li[^>]*>/', '<li>', $html);
+    
+    // Nettoyer les espaces en trop
+    $html = preg_replace('/\s+/', ' ', $html);
+    $html = trim($html);
+    
+    return $html;
+}
+
+/**
  * Récupère les blocs de contenu pour une langue donnée
  */
 function getContentBlocks($language = 'fr') {
@@ -185,9 +215,11 @@ function getContentBlocks($language = 'fr') {
     
     $data = json_decode($response, true);
     
-    // Indexer par block_key pour faciliter l'accès
+    // Indexer par block_key pour faciliter l'accès et nettoyer le HTML
     $indexed = [];
     foreach ($data as $block) {
+        // Nettoyer le contenu HTML
+        $block['content'] = cleanQuillHtml($block['content']);
         $indexed[$block['block_key']] = $block;
     }
     

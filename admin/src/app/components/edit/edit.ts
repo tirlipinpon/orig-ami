@@ -280,6 +280,12 @@ export class Edit implements OnInit, AfterViewInit {
     this.resetFormSubmittingState();
   }
 
+  // Méthode pour forcer le rechargement du contenu dans l'éditeur
+  refreshContentEditor(): void {
+    // Cette méthode sera appelée par le composant content-editor si nécessaire
+    console.log('Refreshing content editor...');
+  }
+
   private resetFormSubmittingState(): void {
     if (this.beneficiaireForm) {
       this.beneficiaireForm.resetSubmittingState();
@@ -1000,6 +1006,8 @@ export class Edit implements OnInit, AfterViewInit {
       this.editingContent = { blockKey, language };
       this.editingContentBlock = contentBlock;
       this.showContentEditor = true;
+      
+      // Le contenu sera chargé automatiquement par TinyMCE
     } catch (error: unknown) {
       this.errorMessage = this.errorHandler.handleErrorWithPrefix(
         'Edit Content',

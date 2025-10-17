@@ -3,7 +3,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ContentBlock, ContentBlockUpdate } from '../../models/content-block.model';
 
-declare var Quill: any;
+declare var tinymce: any;
 
 @Component({
   selector: 'app-content-editor',
@@ -25,20 +25,26 @@ export class ContentEditorComponent implements OnInit, OnDestroy {
     content: new FormControl('')
   });
 
-  private quill: any;
+  editorId: string = '';
   private isInitialized = false;
   private escapeListener: ((event: KeyboardEvent) => void) | null = null;
 
   ngOnInit(): void {
-    this.initializeEditor();
-    this.setFormValues();
+    this.editorId = `tinymce-editor-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    console.log('Generated editor ID:', this.editorId);
+    
+    // Attendre que le modal soit complètement rendu et visible
+    setTimeout(() => {
+      this.initializeEditor();
+    }, 300); // Délai plus long pour le modal
+    
     this.setupKeyboardListeners();
     this.disableBodyScroll();
   }
 
   ngOnDestroy(): void {
-    if (this.quill) {
-      this.quill = null;
+    if (tinymce && this.editorId && tinymce.get(this.editorId)) {
+      tinymce.get(this.editorId).remove();
     }
     this.removeKeyboardListeners();
     this.enableBodyScroll();
@@ -69,47 +75,97 @@ export class ContentEditorComponent implements OnInit, OnDestroy {
   }
 
   private initializeEditor(): void {
-    if (this.isInitialized) return;
+    if (this.isInitialized) {
+      console.log('TinyMCE already initialized, skipping...');
+      return;
+    }
 
-    // Configuration de Quill
-    const toolbarOptions = [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      [{ 'align': [] }],
-      ['link', 'image'],
-      ['clean']
-    ];
+    // Vérifier que TinyMCE est disponible
+    if (typeof tinymce === 'undefined') {
+      console.error('TinyMCE is not loaded');
+      return;
+    }
 
-    this.quill = new Quill(this.editorElement.nativeElement, {
-      theme: 'snow',
-      modules: {
-        toolbar: toolbarOptions
-      },
-      placeholder: 'Saisissez votre contenu...'
-    });
+    // Attendre que l'élément textarea soit disponible dans le DOM et visible
+    const initTinyMCE = () => {
+      const element = document.getElementById(this.editorId);
+      if (!element) {
+        console.log('Textarea element not found, retrying...');
+        setTimeout(initTinyMCE, 100);
+        return;
+      }
 
-    // Écouter les changements
-    this.quill.on('text-change', () => {
-      this.editorForm.patchValue({
-        content: this.quill.root.innerHTML
+      // Vérifier que l'élément est visible (pas dans un modal caché)
+      const rect = element.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) {
+        console.log('Textarea element not visible yet, retrying...');
+        setTimeout(initTinyMCE, 100);
+        return;
+      }
+
+      console.log('Found visible textarea element, initializing TinyMCE...');
+
+      // Configuration de TinyMCE
+      tinymce.init({
+        selector: `#${this.editorId}`,
+        height: 400,
+        base_url: 'https://unpkg.com/tinymce@6/',
+        suffix: '.min',
+        theme: 'silver',
+        plugins: [
+          'lists', 'link', 'charmap', 'wordcount'
+        ],
+        toolbar: [
+          'undo redo | bold italic underline | alignleft aligncenter alignright alignjustify',
+          'bullist numlist outdent indent | link | removeformat'
+        ].join(' | '),
+        menubar: false,
+        branding: false,
+        statusbar: false,
+        resize: false,
+        setup: (editor: any) => {
+          // Charger le contenu dès que l'éditeur est prêt
+          editor.on('init', () => {
+            console.log('TinyMCE editor initialized, setting content...');
+            // Mettre à jour le formulaire avec le titre
+            this.setFormValues();
+            // Attendre un peu pour s'assurer que l'éditeur est complètement prêt
+            setTimeout(() => {
+              try {
+                const content = this.contentBlock.content || '';
+                console.log('Setting content:', content);
+                editor.setContent(content);
+              } catch (error) {
+                console.error('Error setting content:', error);
+              }
+            }, 100);
+          });
+
+          // Écouter les changements
+          editor.on('input change undo redo', () => {
+            this.editorForm.patchValue({
+              content: editor.getContent()
+            });
+          });
+        }
+      }).then(() => {
+        this.isInitialized = true;
+        console.log('TinyMCE initialized successfully');
+      }).catch((error: any) => {
+        console.error('TinyMCE initialization failed:', error);
       });
-    });
+    };
 
-    this.isInitialized = true;
+    // Démarrer l'initialisation
+    initTinyMCE();
   }
 
   private setFormValues(): void {
+    // Mettre à jour le titre et le contenu initial
     this.editorForm.patchValue({
       title: this.contentBlock.title,
       content: this.contentBlock.content
     });
-
-    if (this.quill) {
-      this.quill.root.innerHTML = this.contentBlock.content;
-    }
   }
 
   onSubmit(): void {
@@ -126,6 +182,17 @@ export class ContentEditorComponent implements OnInit, OnDestroy {
 
   onCancel(): void {
     this.cancel.emit();
+  }
+
+  // Méthode pour forcer le rechargement du contenu
+  public refreshContent(): void {
+    if (tinymce && this.editorId && tinymce.get(this.editorId)) {
+      const editor = tinymce.get(this.editorId);
+      if (editor) {
+        console.log('Refreshing TinyMCE content...');
+        editor.setContent(this.contentBlock.content);
+      }
+    }
   }
 
   getLanguageName(): string {

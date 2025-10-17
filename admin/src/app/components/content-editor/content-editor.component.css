@@ -158,14 +158,17 @@
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
-.quill-container {
+.tinymce-container {
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
 }
 
-.quill-editor {
+.tinymce-editor {
   min-height: 400px;
+  width: 100%;
+  border: none;
+  outline: none;
 }
 
 /* Style pour le scroll du modal */
@@ -216,51 +219,56 @@
     flex: 1;
   }
 
-  .quill-editor {
+  .tinymce-editor {
     min-height: 250px;
   }
 }
 
-/* Styles pour Quill */
-.ql-toolbar {
-  border-bottom: 1px solid #ddd;
-  background: #f8f9fa;
+/* Styles pour TinyMCE */
+.tox-tinymce {
+  border: none !important;
 }
 
-.ql-container {
-  font-size: 14px;
-  line-height: 1.5;
+.tox .tox-toolbar__primary {
+  background: #f8f9fa !important;
+  border-bottom: 1px solid #ddd !important;
 }
 
-.ql-editor {
-  min-height: 250px;
-  padding: 1rem;
+.tox .tox-edit-area__iframe {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
 }
 
-.ql-editor p {
-  margin-bottom: 1rem;
+.tox .tox-edit-area__iframe p {
+  margin-bottom: 1rem !important;
 }
 
-.ql-editor h1, .ql-editor h2, .ql-editor h3, .ql-editor h4, .ql-editor h5, .ql-editor h6 {
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
+.tox .tox-edit-area__iframe h1, 
+.tox .tox-edit-area__iframe h2, 
+.tox .tox-edit-area__iframe h3, 
+.tox .tox-edit-area__iframe h4, 
+.tox .tox-edit-area__iframe h5, 
+.tox .tox-edit-area__iframe h6 {
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.5rem !important;
+  font-weight: 600 !important;
 }
 
-.ql-editor ul, .ql-editor ol {
-  margin-bottom: 1rem;
-  padding-left: 1.5rem;
+.tox .tox-edit-area__iframe ul, 
+.tox .tox-edit-area__iframe ol {
+  margin-bottom: 1rem !important;
+  padding-left: 1.5rem !important;
 }
 
-.ql-editor a {
-  color: #007bff;
-  text-decoration: underline;
+.tox .tox-edit-area__iframe a {
+  color: #007bff !important;
+  text-decoration: underline !important;
 }
 
-.ql-editor strong {
-  font-weight: 600;
+.tox .tox-edit-area__iframe strong {
+  font-weight: 600 !important;
 }
 
-.ql-editor em {
-  font-style: italic;
+.tox .tox-edit-area__iframe em {
+  font-style: italic !important;
 }
