@@ -902,15 +902,16 @@ export class Edit implements OnInit, AfterViewInit {
   async deleteCarouselSlide(slide: Carousel): Promise<void> {
     if (!slide.id) return;
     
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer le slide "${slide.titre}" ?`)) {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer ce slide ? L'image sera également supprimée du stockage.`)) {
       return;
     }
     
     this.isLoading = true;
     try {
-      await this.carouselService.delete(slide.id);
+      // Passer l'URL de l'image pour la supprimer du storage
+      await this.carouselService.delete(slide.id, slide.image_url);
       this.carouselSlides = await this.carouselService.getAll();
-      this.successMessage = 'Slide supprimé avec succès';
+      this.successMessage = 'Slide et image supprimés avec succès';
       setTimeout(() => this.successMessage = '', 2000);
     } catch (error: unknown) {
       this.errorMessage = this.errorHandler.handleErrorWithPrefix(

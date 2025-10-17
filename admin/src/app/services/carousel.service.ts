@@ -91,8 +91,24 @@ export class CarouselService {
     } as Carousel;
   }
 
-  async update(id: string, updates: Partial<CarouselCreate>): Promise<Carousel> {
+  async update(id: string, updates: Partial<CarouselCreate>, oldImageUrl?: string): Promise<Carousel> {
     const updatesToSave = { ...updates };
+    
+    // Si on change d'image, supprimer l'ancienne du storage
+    if (updates.image_url && oldImageUrl && updates.image_url !== oldImageUrl) {
+      try {
+        const oldFilename = this.extractFileNameFromUrl(oldImageUrl);
+        if (oldFilename) {
+          const { ImageUploadService } = await import('./image-upload.service');
+          const imageUploadService = new ImageUploadService();
+          await imageUploadService.deleteImage(oldFilename, 'caroussel');
+          console.log('✅ Ancienne image supprimée du storage:', oldFilename);
+        }
+      } catch (error) {
+        console.warn('⚠️ Erreur lors de la suppression de l\'ancienne image:', error);
+        // Continue même si la suppression de l'ancienne image échoue
+      }
+    }
     
     if (updates.image_url && updates.image_url.startsWith('http')) {
       updatesToSave.image_url = updates.image_url.split('/').pop() || '';
@@ -116,7 +132,24 @@ export class CarouselService {
     } as Carousel;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, imageUrl?: string): Promise<void> {
+    // Supprimer l'image du storage si elle existe
+    if (imageUrl) {
+      try {
+        const filename = this.extractFileNameFromUrl(imageUrl);
+        if (filename) {
+          const { ImageUploadService } = await import('./image-upload.service');
+          const imageUploadService = new ImageUploadService();
+          await imageUploadService.deleteImage(filename, 'caroussel');
+          console.log('✅ Image supprimée du storage:', filename);
+        }
+      } catch (error) {
+        console.warn('⚠️ Erreur lors de la suppression de l\'image du storage:', error);
+        // Continue même si la suppression de l'image échoue
+      }
+    }
+
+    // Supprimer l'entrée en base de données
     const { error } = await this.supabase.client
       .from(this.tableName)
       .delete()
@@ -185,6 +218,25 @@ export class CarouselService {
     }
     
     return imageUrl;
+  }
+
+  private extractFileNameFromUrl(url: string): string | null {
+    if (!url) return null;
+    
+    // Si c'est déjà un nom de fichier simple
+    if (!url.includes('/')) {
+      return url;
+    }
+    
+    // Extraire le nom de fichier de l'URL
+    const filename = url.split('/').pop() || '';
+    
+    // Vérifier que c'est bien un nom de fichier (contient une extension)
+    if (filename.includes('.')) {
+      return filename;
+    }
+    
+    return null;
   }
 }
 
