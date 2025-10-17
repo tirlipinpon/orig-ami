@@ -159,5 +159,43 @@ function getCarousel() {
 
 // Récupérer les slides du carousel
 $carouselSlides = getCarousel();
+
+/**
+ * Récupère les blocs de contenu pour une langue donnée
+ */
+function getContentBlocks($language = 'fr') {
+    global $supabaseUrl, $supabaseKey;
+    
+    $url = "{$supabaseUrl}/rest/v1/orig_ami_content_blocks?language=eq.{$language}&order=ordre.asc";
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "apikey: {$supabaseKey}",
+        "Authorization: Bearer {$supabaseKey}"
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    if ($httpCode !== 200) {
+        return [];
+    }
+    
+    $data = json_decode($response, true);
+    
+    // Indexer par block_key pour faciliter l'accès
+    $indexed = [];
+    foreach ($data as $block) {
+        $indexed[$block['block_key']] = $block;
+    }
+    
+    return $indexed;
+}
+
+// Récupérer les blocs de contenu selon la langue
+// Par défaut FR, sera remplacé dans les autres fichiers
+$contentBlocks = getContentBlocks('fr');
 ?>
 

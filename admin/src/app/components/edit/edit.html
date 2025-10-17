@@ -52,6 +52,12 @@
         (click)="switchTab('carousel')">
         🎠 Carousel ({{ carouselSlides.length }})
       </button>
+      <button 
+        class="tab-button content-tab" 
+        [class.active]="activeTab === 'content'"
+        (click)="switchTab('content')">
+        📝 Contenu ({{ contentBlocks.length }})
+      </button>
     </div>
 
     <!-- Loader -->
@@ -307,6 +313,58 @@
             <p class="empty-message">Aucun slide trouvé. Ajoutez-en un !</p>
           }
         </div>
+      </div>
+    }
+
+    <!-- Contenu Gestion des Blocs de Contenu -->
+    @if (activeTab === 'content' && !isLoading) {
+      <div class="tab-content">
+        <div class="section-header">
+          <h2>📝 Gestion du Contenu Multilingue</h2>
+          <div class="section-stats">
+            <span class="stat-item">
+              <span class="stat-number">{{ contentBlocks.length }}</span>
+              <span class="stat-label">Blocs</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-number">{{ getTotalTranslations() }}</span>
+              <span class="stat-label">Traductions</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <p><strong>💡 Astuce :</strong> Gérez le contenu textuel de votre site dans les 3 langues (FR, EN, NL). Chaque bloc peut être édité indépendamment avec un éditeur de texte riche.</p>
+        </div>
+
+        @if (showContentEditor && editingContent) {
+          <div class="form-container">
+            <app-content-editor 
+              #contentEditor
+              [contentBlock]="getContentBlockForEditing()"
+              [language]="editingContent.language"
+              (save)="onContentSave($event)"
+              (cancel)="cancelEdit()">
+            </app-content-editor>
+          </div>
+        }
+
+        @if (contentBlocks.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">📝</div>
+            <h3>Aucun bloc de contenu</h3>
+            <p>Les blocs de contenu seront créés automatiquement lors de la première édition.</p>
+          </div>
+        } @else {
+          <div class="content-blocks-grid">
+            @for (contentGroup of contentBlocks; track contentGroup.block_key) {
+              <app-content-block-card
+                [contentGroup]="contentGroup"
+                (edit)="editContent($event.blockKey, $event.language)">
+              </app-content-block-card>
+            }
+          </div>
+        }
       </div>
     }
   </div>

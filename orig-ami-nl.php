@@ -1,6 +1,9 @@
 <?php
 // Récupérer les données depuis Supabase
 require_once 'get-data-supabase.php';
+
+// Remplacer les blocs de contenu par la version néerlandaise
+$contentBlocks = getContentBlocks('nl');
 ?>
 <!doctype html>
 <html class="no-js" lang="">
@@ -57,16 +60,17 @@ require_once 'get-data-supabase.php';
     </header>
     <menu id="menu">
         <ul>
-            <li><a href="#quoi">Wat is dat ?</a></li>
-            <li><a href="#geste">Solidariteit</a></li>
-            <li><a href="#pourquoi"><strong> ORIG-AMI</strong>  ?</a></li>
-            <li><a href="#sponsors">Partners</a></li>
+            <?php foreach ($contentBlocks as $blockKey => $block): ?>
+                <li><a href="#<?= htmlspecialchars($blockKey) ?>"><?= htmlspecialchars($block['title']) ?></a></li>
+            <?php endforeach; ?>
             <li><a href="#medias">Media</a></li>
         </ul>
     </menu>
 
-    <h1 id="quoi" class="padding50">Waarover gaat het ?</h1>
-    <p class="block-text">De <strong>ORIG-AMI</strong> is een kartonnen schuilplaats. Hij is isolerend, beschermend door zijn structuur, vouwbaar als een accordeon, mee te nemen als een rugzak en recyclebaar. Deze schuilplaats voor daklozen is ontworpen volgens het principe van de origami, de Japanse vouwtechniek van papier.</p>
+    <?php if (isset($contentBlocks['what_is_it'])): ?>
+        <h1 id="what_is_it" class="padding50"><?= htmlspecialchars($contentBlocks['what_is_it']['title']) ?></h1>
+        <div class="block-text"><?= $contentBlocks['what_is_it']['content'] ?></div>
+    <?php endif; ?>
 
     <!-- carousel -->
     <div>
@@ -89,21 +93,14 @@ require_once 'get-data-supabase.php';
         </div>
     </div>
 
-    <div id="geste" class="up-title"></div>
-    <div  class="title padding50">
-        <i class="fa fa-users fa-2x" aria-hidden="true"></i>
-        <h1>Een gebaar van solidariteit</h1>
-    </div>
-
-    <p class="block-text">
-        We leven in een van de meest comfortabele landen ter wereld.
-        Het is nauwelijks aanvaardbaar dat mensen de nacht doorbrengen op straat, op de voetpaden, onder onze ramen.
-        In Brussel, de hoofdstad van Europa, slapen 6000 mensen op de stoep. Het aantal stijgt jaar na jaar. Net als deze slachtoffers van het leven, zou ieder van ons op straat kunnen belanden en zij in onze plaats.
-    </p>
-
-    <p class="block-text">
-        Ieder van ons kan de actie ondersteunen de schenking van een <strong>ORIG-AMI</strong> en een slaapzak voor € 30.
-        De tenten zijn ontworpen om lang mee te gaan en de slaapzakken zijn vriesweer bestendig.</p>
+    <?php if (isset($contentBlocks['solidarity_gesture'])): ?>
+        <div id="solidarity_gesture" class="up-title"></div>
+        <div class="title padding50">
+            <i class="fa fa-users fa-2x" aria-hidden="true"></i>
+            <h1><?= htmlspecialchars($contentBlocks['solidarity_gesture']['title']) ?></h1>
+        </div>
+        <div class="block-text"><?= $contentBlocks['solidarity_gesture']['content'] ?></div>
+    <?php endif; ?>
 
     <div class="call-to-action">
         <span style="color:white">Sponsor een ORIG-AMI voor 30 € <br> op de account n° BE62 0012 6097 7061</span>
@@ -117,32 +114,25 @@ require_once 'get-data-supabase.php';
         </form>
     </div>
 
-    <div id="pourquoi" class="up-title"></div>
-    <div  class="title padding50">
-        <span class="fa-stack fa-lg">
-            <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-question fa-stack-1x fa-inverse" aria-hidden="true" style="color: white"></i>
-        </span>
-        <h1>Waarom <strong>ORIG-AMI</strong> ?</h1>
-    </div>
+    <?php if (isset($contentBlocks['why_origami'])): ?>
+        <div id="why_origami" class="up-title"></div>
+        <div class="title padding50">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-question fa-stack-1x fa-inverse" aria-hidden="true" style="color: white"></i>
+            </span>
+            <h1><?= htmlspecialchars($contentBlocks['why_origami']['title']) ?></h1>
+        </div>
+        <div class="block-text"><?= $contentBlocks['why_origami']['content'] ?></div>
+    <?php endif; ?>
 
-    <p class="block-text">
-        In Brussel-stad is het gebruik van tenten verboden.
-        Daklozen weigeren om veiligheidsredenen naar de slaapzalen van de schuilplaatsen te gaan.
-        Hun huisdieren zijn er niet toegelaten.
-        De plaatsen zijn beperkt, vooral in de winter.
-        De kartonnen beschermingen die ze zelf samenvouwen zijn niet verplaatsbaar en de gemeentelijke diensten ruimen ze op  tijdens de schoonmaakbeurten.
-        De aanleiding voor deze actie was de terugkeer van de grote kou en de toename van de armoede in België en van het aantal mensen dat op straat leeft.</p>
-
-    <div class="title padding50" id="sponsors">
-        <i class="fa fa-puzzle-piece fa-2x" aria-hidden="true"></i>
-        <h1>Partners</h1>
-    </div>
-
-
-    <p class="block-text">
-        De plannen werden uitgevoerd door een provinciaal centrum voor werk-reïntegratie, een kartonbedrijf heeft het materiaal geleverd en CELLMADE, de werkplaats van de gevangenis van Lantin, heeft alles  geassembleerd. Een heel symbool! Dit alles op een zeer korte termijn, na de eerste tests uitgevoerd in Luik. We hebben het geluk dat meerdere bedrijven spontaan hun hulp aanbieden, wat een grote stimulans is voor de voortzetting van het project.
-    </p>
+    <?php if (isset($contentBlocks['partners'])): ?>
+        <div class="title padding50" id="partners">
+            <i class="fa fa-puzzle-piece fa-2x" aria-hidden="true"></i>
+            <h1><?= htmlspecialchars($contentBlocks['partners']['title']) ?></h1>
+        </div>
+        <div class="block-text"><?= $contentBlocks['partners']['content'] ?></div>
+    <?php endif; ?>
 
 
     <div  class="up-title"></div>
@@ -152,25 +142,13 @@ require_once 'get-data-supabase.php';
 
 
     <!--  ==================== -->
-         <div class="title padding50" id="sponsors">
-                <i class="fa  fa-2x" aria-hidden="true"></i>
-                <h1><strong>ORIG-AMI</strong><br> noodactie ten gunste van daklozen<br></h1>
-            </div>
-
-        <p class="block-text">
-
-        <strong>Onze strategie :</strong><br><br>
-
-        - Opstarten van fondsenwerving en sponsoring<br>
-        - Opslaan tenten en slaapzakken in<br>
-        - Opvolgen van beschikbare plaatsen in opvangcentra<br>
-        - Droppen van kits aan daklozen en leveren aan verenigingen<br>
-        - Bewustwording vergroten door getuigenissen en mediaberichten<br>
-        - Verbeteren van het concept van de tenten op basis van feedback van gebruikers<br>
-
-
-        <br>Betrokken periode: van oktober tot maart, afhankelijk van het weer en de behoeften.
-        </p>
+    <?php if (isset($contentBlocks['emergency_action'])): ?>
+        <div class="title padding50" id="emergency_action">
+            <i class="fa  fa-2x" aria-hidden="true"></i>
+            <h1><?= $contentBlocks['emergency_action']['title'] ?></h1>
+        </div>
+        <div class="block-text"><?= $contentBlocks['emergency_action']['content'] ?></div>
+    <?php endif; ?>
 
 
 

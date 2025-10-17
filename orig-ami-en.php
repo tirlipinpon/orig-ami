@@ -1,6 +1,9 @@
 <?php
 // Récupérer les données depuis Supabase
 require_once 'get-data-supabase.php';
+
+// Remplacer les blocs de contenu par la version anglaise
+$contentBlocks = getContentBlocks('en');
 ?>
 <!doctype html>
 <html class="no-js" lang="">
@@ -55,16 +58,17 @@ require_once 'get-data-supabase.php';
     </header>
     <menu id="menu">
         <ul>
-            <li><a href="#quoi">What is it about ?</a></li>
-            <li><a href="#geste">Solidarity</a></li>
-            <li><a href="#pourquoi"><strong> ORIG-AMI</strong>  ?</a></li>
-            <li><a href="#sponsors">Partners</a></li>
+            <?php foreach ($contentBlocks as $blockKey => $block): ?>
+                <li><a href="#<?= htmlspecialchars($blockKey) ?>"><?= htmlspecialchars($block['title']) ?></a></li>
+            <?php endforeach; ?>
             <li><a href="#medias">Media</a></li>
         </ul>
     </menu>
 
-    <h1 id="quoi" class="padding50">What is it about ?</h1>
-    <p class="block-text">The <strong>ORIG-AMI</strong>  is a cardboard shelter. It is insulating, protective due to its structure, folding like an accordion, transportable as a backpack and recyclable. The shelter for the homeless was conceived on the principal of origami, a Japanese technique of folding paper.</p>
+    <?php if (isset($contentBlocks['what_is_it'])): ?>
+        <h1 id="what_is_it" class="padding50"><?= htmlspecialchars($contentBlocks['what_is_it']['title']) ?></h1>
+        <div class="block-text"><?= $contentBlocks['what_is_it']['content'] ?></div>
+    <?php endif; ?>
 
     <!-- carousel -->
     <div>
@@ -87,22 +91,14 @@ require_once 'get-data-supabase.php';
         </div>
     </div>
 
-    <div id="geste" class="up-title"></div>
-    <div  class="title padding50">
-        <i class="fa fa-users fa-2x" aria-hidden="true"></i>
-        <h1>A gesture of solidarity</h1>
-    </div>
-
-    <p class="block-text">
-        We live in one of the most comfortable countries in the world.
-        It is hardly acceptable that human beings spend the night in the street, on the sidewalks, under our windows.
-        In Brussels, the capital of Europe, 6000 people sleep on the pavement. The number is increasing year by year. Like those casualties of life, each of us could end up on the street and them in our place.
-    </p>
-
-    <p class="block-text">
-        Each of us can support the process by sponsoring an <strong>ORIG-AMI</strong>
-         and a sleeping bag for € 30. The tents are designed to last over time and the sleeping bags hold zero degrees.
-    </p>
+    <?php if (isset($contentBlocks['solidarity_gesture'])): ?>
+        <div id="solidarity_gesture" class="up-title"></div>
+        <div class="title padding50">
+            <i class="fa fa-users fa-2x" aria-hidden="true"></i>
+            <h1><?= htmlspecialchars($contentBlocks['solidarity_gesture']['title']) ?></h1>
+        </div>
+        <div class="block-text"><?= $contentBlocks['solidarity_gesture']['content'] ?></div>
+    <?php endif; ?>
 
     <div class="call-to-action">
         <span style="color:white">Sponsor een ORIG-AMI voor 30 € <br> op de account n° BE62 0012 6097 7061</span>
@@ -116,28 +112,25 @@ require_once 'get-data-supabase.php';
         </form>
     </div>
 
-    <div id="pourquoi" class="up-title"></div>
-    <div  class="title padding50">
-        <span class="fa-stack fa-lg">
-            <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-question fa-stack-1x fa-inverse" aria-hidden="true" style="color: white"></i>
-        </span>
-        <h1>Why <strong>ORIG-AMI</strong> ?</h1>
-    </div>
+    <?php if (isset($contentBlocks['why_origami'])): ?>
+        <div id="why_origami" class="up-title"></div>
+        <div class="title padding50">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-question fa-stack-1x fa-inverse" aria-hidden="true" style="color: white"></i>
+            </span>
+            <h1><?= htmlspecialchars($contentBlocks['why_origami']['title']) ?></h1>
+        </div>
+        <div class="block-text"><?= $contentBlocks['why_origami']['content'] ?></div>
+    <?php endif; ?>
 
-    <p class="block-text">
-        In Brussels city, the use of tents is prohibited. Homeless people refuse to go to shelter dormitories for security reasons. Pets are not allowed. Places are limited, especially during the winter. The cardboard shelters they assemble are not transportable and the communal services embark them during the cleanings.
-        The trigger for this approach was the return of the cold and the increase in poverty in Belgium and the number of people living on the streets.
-    </p>
-
-    <div class="title padding50" id="sponsors">
-        <i class="fa fa-puzzle-piece fa-2x" aria-hidden="true"></i>
-        <h1>Partners</h1>
-    </div>
-
-
-    <p class="block-text">
-        The plans were carried out by a provincial reintegration center at work, a cardboard box provided the materials and CELLMADE, Lantin prison workshop, assembled them. All a symbol! All this in a very short time, after the first tests in Liege. We are fortunate to see several companies spontaneously bring their help which will give a big boost for the continuation of the project.    </p>
+    <?php if (isset($contentBlocks['partners'])): ?>
+        <div class="title padding50" id="partners">
+            <i class="fa fa-puzzle-piece fa-2x" aria-hidden="true"></i>
+            <h1><?= htmlspecialchars($contentBlocks['partners']['title']) ?></h1>
+        </div>
+        <div class="block-text"><?= $contentBlocks['partners']['content'] ?></div>
+    <?php endif; ?>
 
 
     <div  class="up-title"></div>
@@ -148,25 +141,13 @@ require_once 'get-data-supabase.php';
 
 
     <!--  ==================== -->
-         <div class="title padding50" id="sponsors">
-                <i class="fa  fa-2x" aria-hidden="true"></i>
-                <h1><strong>ORIG-AMI</strong><br> emergency action in favor of the homeless<br></h1>
-            </div>
-
-        <p class="block-text">
-
-        <strong>Our strategy :</strong><br><br>
-
-        - Launch fundraising and sponsorships<br>
-        - Stock up on tents and sleeping bags<br>
-        - Monitor available places in reception centers<br>
-        - Distribute marauding and drop off kits to associations<br>
-        - Raise awareness through testimonials and media reports<br>
-        - Improve the concept of tents based on user feedback<br>
-
-
-        <br>Period concerned: from October to March, depending on the weather and needs.
-        </p>
+    <?php if (isset($contentBlocks['emergency_action'])): ?>
+        <div class="title padding50" id="emergency_action">
+            <i class="fa  fa-2x" aria-hidden="true"></i>
+            <h1><?= $contentBlocks['emergency_action']['title'] ?></h1>
+        </div>
+        <div class="block-text"><?= $contentBlocks['emergency_action']['content'] ?></div>
+    <?php endif; ?>
 
 
 

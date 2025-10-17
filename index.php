@@ -141,20 +141,17 @@ require_once 'get-data-supabase.php';
     </header>
     <menu id="menu">
         <ul>
-            <li><a href="#quoi">De quoi s agit-il ?</a></li>
-            <li><a href="#geste">Un geste de solidarité</a></li>
-            <li><a href="#pourquoi"><strong>ORIG-AMI</strong> ?</a></li>
-            <li><a href="#sponsors">Partenaires</a></li>
+            <?php foreach ($contentBlocks as $blockKey => $block): ?>
+                <li><a href="#<?= htmlspecialchars($blockKey) ?>"><?= htmlspecialchars($block['title']) ?></a></li>
+            <?php endforeach; ?>
             <li><a href="#map">Médias</a></li>
         </ul>
     </menu>
 
-    <h1 id="quoi" class="padding50">De quoi s agit-il ?</h1>
-    <p class="block-text">L <strong>ORIG-AMI</strong> est un abri en carton. Il est isolant, protecteur de part sa
-        structure, repliable
-        comme un accordéon,
-        transportable comme un sac à dos et recyclable. L abri pour sans-abri a été conçu sur le principe des origamis,
-        technique japonaise de pliage du papier.</p>
+    <?php if (isset($contentBlocks['what_is_it'])): ?>
+        <h1 id="what_is_it" class="padding50"><?= htmlspecialchars($contentBlocks['what_is_it']['title']) ?></h1>
+        <div class="block-text"><?= $contentBlocks['what_is_it']['content'] ?></div>
+    <?php endif; ?>
 
     <!-- caroussel -->
     <div>
@@ -177,21 +174,14 @@ require_once 'get-data-supabase.php';
         </div>
     </div>
 
-    <div id="geste" class="up-title"></div>
-    <div class="title padding50">
-        <i class="fa fa-users fa-2x" aria-hidden="true"></i>
-        <h1>Un geste de solidarité</h1>
-    </div>
-
-    <p class="block-text">Nous vivons dans l’un des pays les plus confortables du monde. Il est difficilement acceptable
-        que des êtres humains
-        passent la nuit dans la rue, sur les trottoirs, sous nos fenêtres. 
-        A Bruxelles, capitale de l’Europe, 6000 personnes
-        dorment sur le pavé. Le nombre augmente d’année en année. Tels ces accidentés de la vie, chacun d’entre nous
-        pourrait se retrouver à la rue et eux à nôtre place.</p>
-
-    <p class="block-text">Chacun de nous peut soutenir la démarche en parrainant un <strong>ORIG-AMI</strong>
-    et un sac de couchage au prix de 30 €. Les tentes sont conçues pour durer dans le temps et les sacs de couchage tiennent à zéro degré.</p>
+    <?php if (isset($contentBlocks['solidarity_gesture'])): ?>
+        <div id="solidarity_gesture" class="up-title"></div>
+        <div class="title padding50">
+            <i class="fa fa-users fa-2x" aria-hidden="true"></i>
+            <h1><?= htmlspecialchars($contentBlocks['solidarity_gesture']['title']) ?></h1>
+        </div>
+        <div class="block-text"><?= $contentBlocks['solidarity_gesture']['content'] ?></div>
+    <?php endif; ?>
 
     <div class="call-to-action">
         <span style="color:white">Parrainer un ORIG-AMI à 30 € <br> au compte n° BE62 0012 6097 7061</span>
@@ -205,37 +195,25 @@ require_once 'get-data-supabase.php';
         </form>
     </div>
 
-    <div id="pourquoi" class="up-title"></div>
-    <div class="title padding50">
-        <span class="fa-stack fa-lg">
-            <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-question fa-stack-1x fa-inverse" aria-hidden="true" style="color: white"></i>
-        </span>
-        <h1>Pourquoi des <strong>ORIG-AMI</strong> ?</h1>
-    </div>
+    <?php if (isset($contentBlocks['why_origami'])): ?>
+        <div id="why_origami" class="up-title"></div>
+        <div class="title padding50">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-question fa-stack-1x fa-inverse" aria-hidden="true" style="color: white"></i>
+            </span>
+            <h1><?= htmlspecialchars($contentBlocks['why_origami']['title']) ?></h1>
+        </div>
+        <div class="block-text"><?= $contentBlocks['why_origami']['content'] ?></div>
+    <?php endif; ?>
 
-    <p class="block-text">A Bruxelles-ville, l’utilisation des tentes est interdite. Des sans-abris refusent de se
-        rendre dans les dortoirs des
-        refuges pour des questions de sécurité. Les animaux de compagnie n’y sont pas admis. Les places sont limitées,
-        surtout durant l’hiver. Les abris de carton qu’ils assemblent ne sont pas transportables et les services
-        communaux
-        les embarquent lors des nettoyages.</p>
-    <p class="block-text">Le déclencheur de cette démarche a été le retour du froid et l’augmentation de la pauvreté en
-        Belgique et du nombre
-        de personnes vivant dans la rue.</p>
-
-    <div class="title padding50" id="sponsors">
-        <i class="fa fa-puzzle-piece fa-2x" aria-hidden="true"></i>
-        <h1>Partenaires</h1>
-    </div>
-
-
-    <p class="block-text">Les plans ont été réalisés par un centre provincial de réinsertion au travail, une cartonnerie
-        a fourni le matériel
-        et CELLMADE, atelier de la prison de Lantin, les a assemblés. Tout un symbole ! Tout cela en un délai très
-        court,
-        après les premiers tests menés à Liège. Nous avons la chance de voir plusieurs entreprises nous apporter
-        spontanément leur l’aide ce qui va donner un grand coup de pouce pour la poursuite du projet.</p>
+    <?php if (isset($contentBlocks['partners'])): ?>
+        <div class="title padding50" id="partners">
+            <i class="fa fa-puzzle-piece fa-2x" aria-hidden="true"></i>
+            <h1><?= htmlspecialchars($contentBlocks['partners']['title']) ?></h1>
+        </div>
+        <div class="block-text"><?= $contentBlocks['partners']['content'] ?></div>
+    <?php endif; ?>
 
 
     <div class="up-title"></div>
@@ -245,25 +223,13 @@ require_once 'get-data-supabase.php';
 
 
 <!--  ==================== -->
-     <div class="title padding50" id="sponsors">
+    <?php if (isset($contentBlocks['emergency_action'])): ?>
+        <div class="title padding50" id="emergency_action">
             <i class="fa  fa-2x" aria-hidden="true"></i>
-            <h1><strong>ORIG-AMI</strong><br> une action d’urgence en faveur des sans-abris<br></h1>
+            <h1><?= $contentBlocks['emergency_action']['title'] ?></h1>
         </div>
-
-    <p class="block-text">
-
-    <strong>Notre stratégie :</strong><br><br>
-
-    - Lancer des levées de fonds et de parrainages<br>
-    - Constituer des stocks de tentes et de sacs de couchage<br>
-    - Surveiller les places disponibles dans les centres d’accueil<br>
-    - Distribuer en maraude et déposer des kits à des associations<br>
-    - Sensibiliser via des témoignages et des reportages dans les médias<br>
-    - Améliorer le concept des tentes suivant les retours des utilisateurs<br>
-
-
-    <br>Période concernée : d’octobre à mars, en fonction de la météo et des besoins.
-    </p>
+        <div class="block-text"><?= $contentBlocks['emergency_action']['content'] ?></div>
+    <?php endif; ?>
 
 
 

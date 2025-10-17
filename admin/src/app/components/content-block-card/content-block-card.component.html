@@ -1,0 +1,66 @@
+<div class="content-block-card">
+  <div class="card-header">
+    <div class="header-left">
+      <span class="ordre-badge">#{{ getOrdre() }}</span>
+      <h3>{{ getBlockDisplayName(contentGroup.block_key) }}</h3>
+    </div>
+  </div>
+
+  <div class="card-content">
+    <div class="languages-grid">
+      <!-- Français -->
+      <div class="language-section" [class.available]="contentGroup.fr" [class.missing]="!contentGroup.fr">
+        <div class="language-header">
+          <span class="language-flag">{{ getLanguageFlag('fr') }}</span>
+          <span class="language-name">{{ getLanguageName('fr') }}</span>
+        </div>
+        <div class="language-content">
+          <h4>{{ contentGroup.fr?.title || 'Non défini' }}</h4>
+          <p class="content-preview">{{ truncateContent(contentGroup.fr?.content || '') }}</p>
+        </div>
+        <button 
+          class="btn-edit"
+          (click)="onEdit(contentGroup.block_key, 'fr')"
+          title="Éditer le contenu français">
+          ✏️ Éditer
+        </button>
+      </div>
+
+      <!-- Anglais -->
+      <div class="language-section" [class.available]="contentGroup.en" [class.missing]="!contentGroup.en">
+        <div class="language-header">
+          <span class="language-flag">{{ getLanguageFlag('en') }}</span>
+          <span class="language-name">{{ getLanguageName('en') }}</span>
+        </div>
+        <div class="language-content">
+          <h4>{{ contentGroup.en?.title || 'Not defined' }}</h4>
+          <p class="content-preview">{{ truncateContent(contentGroup.en?.content || '') }}</p>
+        </div>
+        <button 
+          class="btn-edit"
+          (click)="onEdit(contentGroup.block_key, 'en')"
+          title="Edit English content">
+          ✏️ Edit
+        </button>
+      </div>
+
+      <!-- Néerlandais -->
+      <div class="language-section" [class.available]="contentGroup.nl" [class.missing]="!contentGroup.nl">
+        <div class="language-header">
+          <span class="language-flag">{{ getLanguageFlag('nl') }}</span>
+          <span class="language-name">{{ getLanguageName('nl') }}</span>
+        </div>
+        <div class="language-content">
+          <h4>{{ contentGroup.nl?.title || 'Niet gedefinieerd' }}</h4>
+          <p class="content-preview">{{ truncateContent(contentGroup.nl?.content || '') }}</p>
+        </div>
+        <button 
+          class="btn-edit"
+          (click)="onEdit(contentGroup.block_key, 'nl')"
+          title="Bewerk Nederlandse inhoud">
+          ✏️ Bewerken
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

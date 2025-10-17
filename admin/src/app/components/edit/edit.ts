@@ -11,16 +11,20 @@ import { ErrorHandlerService } from '../../services/error-handler.service';
 import { Beneficiaire, BeneficiaireCreate } from '../../models/beneficiaire.model';
 import { Media, MediaCreate } from '../../models/media.model';
 import { Carousel, CarouselCreate } from '../../models/carousel.model';
+import { ContentBlockService } from '../../services/content-block.service';
+import { ContentBlockGroup, ContentBlock, ContentBlockUpdate } from '../../models/content-block.model';
 import { ItemForm } from '../item-form/item-form';
 import { ItemCardComponent } from '../item-card/item-card.component';
 import { MediaFormComponent } from '../media-form/media-form.component';
 import { MediaCardComponent } from '../media-card/media-card.component';
 import { CarouselFormComponent } from '../carousel-form/carousel-form.component';
 import { CarouselCardComponent } from '../carousel-card/carousel-card.component';
+import { ContentBlockCardComponent } from '../content-block-card/content-block-card.component';
+import { ContentEditorComponent } from '../content-editor/content-editor.component';
 
 @Component({
   selector: 'app-edit',
-  imports: [CommonModule, ItemForm, ItemCardComponent, MediaFormComponent, MediaCardComponent, CarouselFormComponent, CarouselCardComponent],
+  imports: [CommonModule, ItemForm, ItemCardComponent, MediaFormComponent, MediaCardComponent, CarouselFormComponent, CarouselCardComponent, ContentBlockCardComponent, ContentEditorComponent],
   templateUrl: './edit.html',
   styleUrl: './edit.css'
 })
@@ -31,6 +35,7 @@ export class Edit implements OnInit, AfterViewInit {
   private readonly beneficiaireService = inject(BeneficiaireService);
   private readonly mediaService = inject(MediaService);
   private readonly carouselService = inject(CarouselService);
+  private readonly contentBlockService = inject(ContentBlockService);
   private readonly errorHandler = inject(ErrorHandlerService);
   
   userEmail: string | null = '';
@@ -43,6 +48,7 @@ export class Edit implements OnInit, AfterViewInit {
   mediasNeerlandais: Media[] = [];
   mediasInternational: Media[] = [];
   carouselSlides: Carousel[] = [];
+  contentBlocks: ContentBlockGroup[] = [];
 
   // Getters pour les statistiques du carousel
   get activeCarouselSlides(): Carousel[] {
@@ -60,14 +66,17 @@ export class Edit implements OnInit, AfterViewInit {
   showDonateurForm: boolean = false;
   showMediaForm: boolean = false;
   showCarouselForm: boolean = false;
+  showContentEditor: boolean = false;
   editingItem: Beneficiaire | null = null;
   editingMedia: Media | null = null;
   editingCarousel: Carousel | null = null;
+  editingContent: { blockKey: string; language: string } | null = null;
+  editingContentBlock: ContentBlock | null = null;
   formType: 'beneficiaire' | 'donateur' = 'beneficiaire';
   mediaFormCategorie: 'belgique' | 'neerlandais' | 'international' = 'belgique';
   originalMediaCategorie: 'belgique' | 'neerlandais' | 'international' | null = null;
 
-  activeTab: 'beneficiaires' | 'donateurs' | 'medias' | 'carousel' = 'beneficiaires';
+  activeTab: 'beneficiaires' | 'donateurs' | 'medias' | 'carousel' | 'content' = 'beneficiaires';
 
   @ViewChild('beneficiairesGrid', { static: false }) beneficiairesGrid!: ElementRef;
   @ViewChild('donateursGrid', { static: false }) donateursGrid!: ElementRef;
@@ -147,6 +156,7 @@ export class Edit implements OnInit, AfterViewInit {
     try {
       this.beneficiaires = await this.beneficiaireService.getByType('beneficiaire');
       this.carouselSlides = await this.carouselService.getAll();
+      this.contentBlocks = await this.contentBlockService.getGroupedBlocks();
       this.donateurs = await this.beneficiaireService.getByType('donateur');
       this.mediasBelgique = await this.mediaService.getByCategorie('belgique');
       this.mediasNeerlandais = await this.mediaService.getByCategorie('neerlandais');
@@ -193,7 +203,7 @@ export class Edit implements OnInit, AfterViewInit {
     }
   }
 
-  switchTab(tab: 'beneficiaires' | 'donateurs' | 'medias' | 'carousel'): void {
+  switchTab(tab: 'beneficiaires' | 'donateurs' | 'medias' | 'carousel' | 'content'): void {
     this.activeTab = tab;
     this.cancelEdit();
     
@@ -257,9 +267,12 @@ export class Edit implements OnInit, AfterViewInit {
     this.showDonateurForm = false;
     this.showMediaForm = false;
     this.showCarouselForm = false;
+    this.showContentEditor = false;
     this.editingItem = null;
     this.editingMedia = null;
     this.editingCarousel = null;
+    this.editingContent = null;
+    this.editingContentBlock = null;
     this.originalMediaCategorie = null;
     this.errorMessage = '';
     this.successMessage = '';
@@ -961,5 +974,116 @@ export class Edit implements OnInit, AfterViewInit {
         'Erreur lors de la mise à jour de l\'ordre'
       );
     }
+  }
+
+  // Méthodes pour la gestion du contenu
+  async editContent(blockKey: string, language: string): Promise<void> {
+    try {
+      this.isLoading = true;
+      let contentBlock = await this.contentBlockService.getByBlockKeyAndLanguage(blockKey, language);
+      
+      // Si le bloc n'existe pas, créer un bloc vide
+      if (!contentBlock) {
+        // Obtenir l'ordre du groupe existant ou utiliser le prochain ordre
+        const group = this.contentBlocks.find(b => b.block_key === blockKey);
+        const ordre = group?.fr?.ordre || group?.en?.ordre || group?.nl?.ordre || await this.contentBlockService.getNextOrder();
+        
+        contentBlock = {
+          block_key: blockKey,
+          language: language,
+          title: '',
+          content: '',
+          ordre: ordre
+        };
+      }
+      
+      this.editingContent = { blockKey, language };
+      this.editingContentBlock = contentBlock;
+      this.showContentEditor = true;
+    } catch (error: unknown) {
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Edit Content',
+        error,
+        'Erreur lors du chargement du contenu'
+      );
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async onContentSave(updates: ContentBlockUpdate): Promise<void> {
+    if (!this.editingContent) return;
+    
+    try {
+      this.isLoading = true;
+      
+      // Vérifier si le bloc existe déjà
+      const existingBlock = await this.contentBlockService.getByBlockKeyAndLanguage(
+        this.editingContent.blockKey, 
+        this.editingContent.language
+      );
+      
+      if (existingBlock) {
+        // Mettre à jour le bloc existant
+        await this.contentBlockService.update(existingBlock.id!, updates);
+      } else {
+        // Créer un nouveau bloc
+        await this.contentBlockService.create({
+          block_key: this.editingContent.blockKey,
+          language: this.editingContent.language,
+          title: updates.title || '',
+          content: updates.content || ''
+        });
+      }
+      
+      // Recharger les données
+      this.contentBlocks = await this.contentBlockService.getGroupedBlocks();
+      
+      this.successMessage = 'Contenu sauvegardé avec succès';
+      setTimeout(() => this.successMessage = '', 2000);
+      
+      this.cancelEdit();
+    } catch (error: unknown) {
+      this.errorMessage = this.errorHandler.handleErrorWithPrefix(
+        'Save Content',
+        error,
+        'Erreur lors de la sauvegarde du contenu'
+      );
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  getContentBlockForEditing(): ContentBlock {
+    if (this.editingContentBlock) {
+      return this.editingContentBlock;
+    }
+
+    if (!this.editingContent) {
+      return {
+        block_key: '',
+        language: '',
+        title: '',
+        content: '',
+        ordre: 0
+      };
+    }
+
+    const group = this.contentBlocks.find(b => b.block_key === this.editingContent!.blockKey);
+    const block = group?.[this.editingContent.language as keyof ContentBlockGroup] as ContentBlock;
+    
+    return block || {
+      block_key: this.editingContent.blockKey,
+      language: this.editingContent.language,
+      title: '',
+      content: '',
+      ordre: 0
+    };
+  }
+
+  getTotalTranslations(): number {
+    return this.contentBlocks.reduce((total, block) => {
+      return total + (block.fr ? 1 : 0) + (block.en ? 1 : 0) + (block.nl ? 1 : 0);
+    }, 0);
   }
 }

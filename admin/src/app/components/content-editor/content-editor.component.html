@@ -1,0 +1,43 @@
+<!-- Modal Overlay -->
+<div class="modal-overlay" (click)="onCancel()">
+  <!-- Modal Content -->
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Close button -->
+    <button type="button" class="modal-close" (click)="onCancel()" title="Fermer (Esc)">
+      ✕
+    </button>
+
+    <div class="content-editor">
+      <div class="editor-header">
+        <h3>Éditer le contenu - {{ getLanguageName() }}</h3>
+        <div class="editor-actions">
+          <button type="button" class="btn-cancel" (click)="onCancel()">
+            Annuler
+          </button>
+          <button type="button" class="btn-save" (click)="onSubmit()" [disabled]="!editorForm.valid">
+            Sauvegarder
+          </button>
+        </div>
+      </div>
+
+      <form [formGroup]="editorForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="title">Titre</label>
+          <input 
+            type="text" 
+            id="title"
+            formControlName="title"
+            class="form-control"
+            placeholder="Saisissez le titre...">
+        </div>
+
+        <div class="form-group">
+          <label for="content">Contenu</label>
+          <div class="quill-container">
+            <div #editor class="quill-editor"></div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
